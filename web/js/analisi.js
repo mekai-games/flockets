@@ -130,6 +130,7 @@ window.Analisi = (function () {
       if (ia2.extra) spec.extra = [...new Set([...spec.extra, ...ia2.extra])];
       unita = ia2.risultato; gratis = ia2.gratis;
     }
+    if (brief && brief.fonte === 'ia' && brief.presentazione) spec.presentazione = brief.presentazione;   // come è presentato il prodotto
     if (brief && brief.fonte === 'ia' && brief.messaggio) {
       // voto del messaggio: concretezza, credibilità e invito all'azione contati sul testo (stabili tra prompt simili),
       // beneficio e adatto al canale giudicati dalla lettura del testo
@@ -342,7 +343,8 @@ window.Analisi = (function () {
     });
   }
   function personeDaMostrare(m) {
-    const quante = window.innerWidth < 600 ? 14 : 30, per = Math.max(2, Math.ceil(quante / m.pubblici.length));
+    // il mondo è largo il doppio dello schermo: allontanandosi con lo zoom se ne vedono il doppio
+    const quante = window.innerWidth < 600 ? 28 : 60, per = Math.max(2, Math.ceil(quante / m.pubblici.length));
     const out = [];
     // per ogni pubblico alterna chi compra, chi clicca e chi passa oltre (le persone arrivano raggruppate per esito)
     const misto = lista => { const g = ['compra', 'clicca', 'passa'].map(e => lista.filter(x => x.esito === e)), r = [];
@@ -374,8 +376,10 @@ window.Analisi = (function () {
       if (punti) punti.ferma();
       const cp = nuovaTela('#a-prato'), cf = nuovaTela('#a-folla');
       const h = st.clientHeight, stretto = window.innerWidth < 600, giu = stretto ? 96 : 76, ids = personaggi(persone);
-      scena = window.Flock.campo(null, cf, { altezza: h, ids, scale: stretto ? [2, 3] : [3, 4], fondo: Math.max(0.3, (h - giu - h * 0.24) / h), suolo: giu });
-      punti = window.Flock.puntini(cp, { area: st, sorgenti: () => scena.omini.map(o => ({ x: o.x, y: scena.h - scena.suoloGiu + o.dy })) });
+      scena = window.Flock.campo(null, cf, { altezza: h, ids, scale: stretto ? [2, 3] : [3, 4], fondo: Math.max(0.3, (h - giu - h * 0.24) / h), suolo: giu, mondo: 2 });
+      punti = window.Flock.puntini(cp, { area: st, sorgenti: () => scena.omini.map(o => scena.piedi(o)),
+        vista: () => ({ z: scena.zoom, ox: scena.ox, oy: scena.oy }) });
+      zoomControlli(st, cf);
       scena.omini.forEach(o => {
         const p = persone[ids.indexOf(o.id)];
         o.persona = p;
@@ -383,15 +387,57 @@ window.Analisi = (function () {
         o.bordo = BORDO[p.esito];           // perimetro di 1 pixel: cosa ha fatto
         o.a = filtroPub === 'tutti' || p.pubblico.tipo === filtroPub ? 1 : 0.18;
       });
-      cf.addEventListener('pointerdown', e => {
-        const r = cf.getBoundingClientRect(), o = scena.trova(e.clientX - r.left, e.clientY - r.top);
-        if (o) { apriScheda(o); punti.onda(o.x, scena.h - scena.suoloGiu + o.dy, 0.5); } else chiudiScheda();
-      });
-      cf.addEventListener('pointermove', e => {
-        const r = cf.getBoundingClientRect();
-        cf.style.cursor = scena.trova(e.clientX - r.left, e.clientY - r.top) ? 'pointer' : 'default';
-      });
     });
+  }
+  /* Zoom sulla griglia: rotella o pizzico sul trackpad, due dita sul telefono, tasti + e −; trascinando ci si sposta.
+     Un tocco senza spostamento apre la scheda della persona. */
+  function zoomControlli(st, cf) {
+    const dita = new Map();
+    let inizio = null, mosso = false, ultimo = null, distanza = 0;
+    const pos = e => { const r = cf.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const livello = () => { const z = $('#a-zoom-val'); if (z) z.textContent = Math.round(scena.zoom * 100) + '%'; };
+    const zoomA = (z, fx) => { scena.zoomA(z, fx); livello(); };
+    cf.addEventListener('wheel', e => {
+      e.preventDefault();
+      const p = pos(e);
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && !e.ctrlKey) { scena.sposta(-e.deltaX); return; }
+      zoomA(scena.zoom * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0018)), p.x);
+    }, { passive: false });
+    cf.addEventListener('pointerdown', e => {
+      cf.setPointerCapture(e.pointerId);
+      dita.set(e.pointerId, pos(e));
+      if (dita.size === 1) { inizio = ultimo = pos(e); mosso = false; }
+      if (dita.size === 2) { const [a, b] = [...dita.values()]; distanza = Math.hypot(a.x - b.x, a.y - b.y); mosso = true; }
+    });
+    cf.addEventListener('pointermove', e => {
+      const p = pos(e);
+      if (!dita.has(e.pointerId)) { cf.style.cursor = scena.trova(p.x, p.y) ? 'pointer' : 'grab'; return; }
+      dita.set(e.pointerId, p);
+      if (dita.size === 2) {   // pizzico
+        const [a, b] = [...dita.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (distanza > 0) zoomA(scena.zoom * d / distanza, (a.x + b.x) / 2);
+        distanza = d; return;
+      }
+      if (!mosso && Math.hypot(p.x - inizio.x, p.y - inizio.y) > 6) mosso = true;
+      if (mosso) { scena.sposta(p.x - ultimo.x); cf.style.cursor = 'grabbing'; }
+      ultimo = p;
+    });
+    const su = e => {
+      const p = pos(e), eraUno = dita.size === 1;
+      dita.delete(e.pointerId);
+      if (dita.size < 2) distanza = 0;
+      if (eraUno && !mosso) {   // tocco: apre la persona
+        const o = scena.trova(p.x, p.y);
+        if (o) { apriScheda(o); const f = scena.piedi(o); punti.onda(f.x, f.y, 0.5); } else chiudiScheda();
+      }
+      if (!dita.size) cf.style.cursor = 'grab';
+    };
+    cf.addEventListener('pointerup', su);
+    cf.addEventListener('pointercancel', e => { dita.delete(e.pointerId); distanza = 0; });
+    const z = $('#a-zoom');
+    z.innerHTML = `<button type="button" data-z="-1" aria-label="Allontana">−</button><span id="a-zoom-val">100%</span><button type="button" data-z="1" aria-label="Avvicina">+</button>`;
+    $$('button', z).forEach(b => b.addEventListener('click', () => zoomA(scena.zoom * (b.dataset.z > 0 ? 1.25 : 0.8), st.clientWidth / 2)));
+    livello();
   }
   function apriScheda(o) {
     chiudiScheda(true);
@@ -412,7 +458,7 @@ window.Analisi = (function () {
     const muovi = () => {
       if (!scelto || !scena) return;
       const st = $('#a-persone'), c = $('#a-folla'), W = st.clientWidth, H = st.clientHeight, sw = sch.offsetWidth, sh = sch.offsetHeight;
-      const t = scena.testa(scelto), hx = t.x, hy = c.offsetTop + t.y, piedi = c.offsetTop + scena.h - scena.suoloGiu + scelto.dy, mg = 10;
+      const t = scena.testa(scelto), hx = t.x, hy = c.offsetTop + t.y, piedi = c.offsetTop + scena.piedi(scelto).y, mg = 10;
       const clampX = x => Math.min(Math.max(x, sw / 2 + mg), W - sw / 2 - mg);
       let x = clampX(hx), y, verso;
       if (hy - sh - 16 >= mg) { y = hy - sh - 16; verso = 'sopra'; }
@@ -450,7 +496,7 @@ window.Analisi = (function () {
       ...Object.entries(C.filtri || {}).map(([k, v]) => (k === 'eta' ? 'per ' + etaInBreve(v) : 'per ' + v.map(x => VALORI[x] || x).join(' o '))),
       C.forza != null ? `messaggio ${ni(C.forza)}/10` : '',
     ].filter(Boolean);
-    const cr = contesto.creativa, fonte = cr ? (contesto.prompt && contesto.prompt !== (cr.vista && cr.vista.descrizione) ? `Dal testo e ${cr.tipo === 'video' ? 'dal video' : 'dalla foto'}` : cr.tipo === 'video' ? 'Dal video' : 'Dalla foto') : 'Dal tuo testo';
+    const cr = contesto.creativa, fonte = cr ? (contesto.prompt && contesto.prompt !== (cr.vista && cr.vista.descrizione) ? `Dal testo e ${cr.tipo === 'video' ? 'dal video' : 'dalla foto'}` : cr.tipo === 'video' ? 'Dal video' : cr.tipo === 'carosello' ? 'Dalle foto' : 'Dalla foto') : 'Dal tuo testo';
     return `<div class="a-capito"><span class="a-capito-t">${fonte}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
       ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
       ${m.nuova.taratura ? `<p class="a-nota a-tarato">Tarato su ${esc(contesto.fonte || 'il tuo storico')}${contesto.marca ? ' (' + esc(contesto.marca) + ')' : ''}: per questa marca i click partono da ×${nf(Math.exp(m.nuova.taratura.ctr), 2)} e il costo da ×${nf(Math.exp(m.nuova.taratura.cpm), 2)} rispetto al tipico del settore.</p>` : ''}`;
@@ -529,6 +575,7 @@ window.Analisi = (function () {
         ${card(i++, 'Cosa fare adesso', `<ol class="a-azioni">${m.azioni.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`, 'a-luce')}
       </div>
       ${messaggio(i++)}
+      ${creativita(i++)}
       ${annuncioProvato(i++)}
       <section class="a-card a-entra a-esplora" style="--i:${i++}">
         <div class="a-es-testa"><h3>Studia i numeri</h3>
@@ -572,6 +619,19 @@ window.Analisi = (function () {
           ${sugg.length ? `<ul class="a-azioni">${sugg.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
       </div>
       <p class="a-nota">Offerta concreta, credibilità e invito all’azione sono contati sul testo; adatto al canale viene dal formato; il beneficio dalla lettura del testo. Nel modello il voto sposta la probabilità di click: da circa −26% (0/10) a +35% (10/10) rispetto a un messaggio medio (5/10).</p></section>`;
+  }
+  // come è fatta la creatività e quanto pesa ogni cosa su click e acquisti (stessi pesi del simulatore)
+  function creativita(i) {
+    const cr = M.sorgente === 'nuova' && M.nuova.creativita;
+    if (!cr || !cr.effetti || !cr.effetti.length) return '';
+    const e = cr.effetti.filter(x => Math.abs(x['click_%']) >= 0.5 || Math.abs(x['acquisti_%']) >= 0.5).sort((a, b) => Math.abs(b['click_%']) + Math.abs(b['acquisti_%']) - Math.abs(a['click_%']) - Math.abs(a['acquisti_%']));
+    const chip = (v, n) => (Math.abs(v) < 0.5 ? '' : `<em class="${v > 0 ? 'su' : 'giu'}">${v > 0 ? '+' : '−'}${nf(Math.abs(v), Math.abs(v) < 10 ? 1 : 0)}% ${n}</em>`);
+    const v = cr.visivo, tav = v && v.palette && v.palette.length ? `<div class="a-tavolozza">${v.palette.map(c => `<i style="background:${esc(c)}"></i>`).join('')}<span>${esc(v.tinta || '')}</span></div>` : '';
+    return `<section class="a-card a-entra a-luce a-crea" style="--i:${i}"><h3>La tua creatività</h3>
+      <p class="a-sotto">Come è fatta e quanto pesa ogni cosa su chi la vede${cr.stile ? `. Stile ${esc(cr.stile)}: piace di più ad alcuni gruppi di persone` : ''}.</p>
+      ${tav}
+      <ul class="a-crea-lista">${e.map(x => `<li><span>${esc(x.testo.charAt(0).toUpperCase() + x.testo.slice(1))}</span><b>${chip(x['click_%'], 'click')}${chip(x['acquisti_%'], 'acquisti')}</b></li>`).join('')}</ul>
+      <p class="a-nota">Misure prese dai pixel (luce, contrasto, colori, formato, cambi di scena) e dalla lettura dell’annuncio. I pesi sono ipotesi da regole generali sulla pubblicità, non stimati sui tuoi dati.</p></section>`;
   }
   // l'annuncio scritto nella pagina di partenza, provato sui pubblici del file
   function annuncioProvato(i) {
@@ -679,42 +739,98 @@ window.Analisi = (function () {
   }
 
   /* ---------------------------------------------------------------- transizione */
-  // nessuna scritta: un cerchio si apre dal punto in cui hai inviato, gli omini corrono sulla griglia mentre il motore
-  // calcola (ne arrivano sempre di più), alla fine fanno festa insieme e la scena si dissolve nella vista Persone
-  function transizione(lavoro, da) {
-    const ov = $('#transizione');
-    const cx = da ? da.x : window.innerWidth / 2, cy = da ? da.y : window.innerHeight / 2;
-    ov.style.setProperty('--cx', cx + 'px'); ov.style.setProperty('--cy', cy + 'px');
-    ov.classList.remove('dentro', 'esce'); ov.hidden = false; void ov.offsetWidth; ov.classList.add('dentro');
-    let sc = null, pt = null, arrivi = null;
-    window.Flock.carica().then(() => {
-      if (ov.hidden) return;
-      const cp = nuovaTela('#tr-prato'), cf = nuovaTela('#tr-folla');
-      const h = window.innerHeight, w = window.innerWidth, stretto = w < 600;
-      const max = Math.round(w / (stretto ? 30 : 46));
-      sc = window.Flock.campo(null, cf, { altezza: h, n: Math.max(4, Math.round(max / 4)), ricambio: true, scale: stretto ? [2, 3] : [3, 4], fondo: 0.42, suolo: Math.round(h * 0.26) });
-      sc.testo = '';
-      const corri = o => { o.imposta('corsa'); o.pausa = 6 + Math.random() * 6; };
-      sc.omini.forEach(corri);
-      pt = window.Flock.puntini(cp, { area: ov, sorgenti: () => sc.omini.map(o => ({ x: o.x, y: sc.h - sc.suoloGiu + o.dy })) });
-      pt.onda(cx, cy, 1.4);
-      arrivi = setInterval(() => {   // nuove persone entrano di corsa dai bordi
-        if (sc.omini.length >= max) return;
-        const o = new window.Flock.Omino(Math.floor(Math.random() * (window.Flock.nomiPersonaggi().length || 100)), 0, {});
-        sc.profondita(o); o.dir = Math.random() < 0.5 ? 1 : -1; o.x = o.dir > 0 ? -60 : w + 60; corri(o);
-        sc.omini.push(o); sc.omini.sort((p, q) => p.dy - q.dy);
-        if (Math.random() < 0.5) sc.esulta();
-      }, 260);
-      sc.ritmo = 1.2;
+  /* Ispirata a «Pixel Transition» di React Bits, riscritta in canvas: lo schermo si copre di quadrati che partono dal
+     punto di invio (con un lampo di colore sul fronte); mentre il motore calcola gli omini arrivano dai bordi e si
+     raccolgono in uno stormo al centro, sempre più grande; alla fine fanno festa e i quadrati si dissolvono dal centro
+     verso fuori, scoprendo la dashboard. Nessuna scritta. */
+  function pixel(canvas, origine, verso, durata) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), W = window.innerWidth, H = window.innerHeight;
+    const lato = W < 600 ? 22 : 30, nx = Math.ceil(W / lato), ny = Math.ceil(H / lato);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingEnabled = false;
+    const st = getComputedStyle(document.documentElement), fondo = st.getPropertyValue('--fondo').trim() || '#FAFAF8';
+    const accenti = [st.getPropertyValue('--blu').trim(), st.getPropertyValue('--verde').trim(), st.getPropertyValue('--arancio').trim(), '#8B5CF6'];
+    const dmax = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot(x - origine.x, y - origine.y)));
+    const celle = [];
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const cx = i * lato + lato / 2, cy = j * lato + lato / 2;
+      celle.push({ x: i * lato, y: j * lato, ritardo: 0.68 * Math.hypot(cx - origine.x, cy - origine.y) / dmax + 0.22 * Math.random(),
+        colore: accenti[Math.floor(Math.random() * accenti.length)] });
+    }
+    return new Promise(ok => {
+      const t0 = performance.now();
+      let fatto = false;
+      const fine = () => { if (!fatto) { fatto = true; passo(t0 + durata); ok(); } };
+      setTimeout(fine, durata + 120);   // se il browser rallenta i fotogrammi (scheda in secondo piano) si chiude lo stesso
+      const passo = now => {
+        if (fatto && now < t0 + durata) return;
+        const t = Math.min(1, (now - t0) / durata);
+        ctx.clearRect(0, 0, W, H);
+        celle.forEach(c => {
+          const k = Math.min(1, Math.max(0, (t - c.ritardo) / 0.12));   // ogni quadrato cambia in un dodicesimo del tempo
+          const pieno = verso === 'copri' ? k : 1 - k;
+          if (pieno <= 0) return;
+          const s = Math.round(lato * pieno), o = (lato - s) / 2;
+          ctx.fillStyle = k > 0 && k < 1 ? c.colore : fondo;   // sul fronte il quadrato lampeggia di colore
+          ctx.globalAlpha = k > 0 && k < 1 ? 0.85 : 1;
+          ctx.fillRect(c.x + o, c.y + o, s, s);
+        });
+        ctx.globalAlpha = 1;
+        if (fatto) return;
+        if (t < 1 && canvas.isConnected) requestAnimationFrame(passo); else fine();
+      };
+      requestAnimationFrame(passo);
     });
-    const minimo = new Promise(r => setTimeout(r, 1900));
-    const fine = () => { clearInterval(arrivi); ov.classList.add('esce'); setTimeout(() => { ov.hidden = true; ov.classList.remove('dentro', 'esce'); if (pt) pt.ferma(); }, 650); };
-    return Promise.all([lavoro, minimo]).then(([r]) => {
-      clearInterval(arrivi);
-      if (sc) { sc.ritmo = 0; sc.omini.forEach(o => o.imposta('festa', 1.2)); }
-      if (pt) pt.onda(window.innerWidth / 2, window.innerHeight * 0.6, 1.6);
-      return new Promise(ok => setTimeout(() => { ok(r); setTimeout(fine, 80); }, 700));
-    }, err => { fine(); throw err; });
+  }
+  function transizione(lavoro, da) {
+    const ov = $('#transizione'), W = window.innerWidth, H = window.innerHeight;
+    const origine = da || { x: W / 2, y: H / 2 }, centro = { x: W / 2, y: H * 0.55 };
+    ov.classList.remove('carico', 'rivela'); ov.hidden = false;
+    const tela = nuovaTela('#tr-pixel');
+    let sc = null, pt = null, regia = null;
+    const coperto = pixel(tela, origine, 'copri', 650).then(() => {
+      if (ov.hidden) return;
+      ov.classList.add('carico');
+      return window.Flock.carica().then(() => {
+        const cp = nuovaTela('#tr-prato'), cf = nuovaTela('#tr-folla'), stretto = W < 600;
+        const max = Math.round(W / (stretto ? 26 : 36));
+        sc = window.Flock.campo(null, cf, { altezza: H, n: Math.round(max / 3), scale: stretto ? [2, 3] : [3, 4], fondo: 0.34, suolo: Math.round(H * 0.24) });
+        sc.testo = '';
+        pt = window.Flock.puntini(cp, { area: ov, sorgenti: () => sc.omini.map(o => sc.piedi(o)) });
+        pt.onda(origine.x, origine.y, 1.2);
+        const entra = () => {   // un nuovo omino arriva di corsa da un bordo
+          const o = new window.Flock.Omino(Math.floor(Math.random() * (window.Flock.nomiPersonaggi().length || 100)), 0, {});
+          sc.profondita(o); o.dir = Math.random() < 0.5 ? 1 : -1; o.x = o.dir > 0 ? -30 : sc.w + 30; o.vel = 60 + Math.random() * 40; o.imposta('corsa'); o.pausa = 99;
+          sc.omini.push(o); sc.omini.sort((p, q) => p.dy - q.dy);
+        };
+        // un terzo dello stormo è già in campo, sparso; corre verso il centro mentre gli altri arrivano dai bordi
+        sc.omini.forEach(o => { o.x = W * (0.08 + 0.84 * Math.random()); o.dir = o.x < centro.x ? 1 : -1; o.vel = 50 + Math.random() * 40; o.imposta('corsa'); o.pausa = 99; });
+        let giro = 0;
+        regia = setInterval(() => {   // lo stormo: chi è lontano corre verso il centro, chi è arrivato gira lì intorno
+          giro++;
+          if (sc.omini.length < max) entra();
+          const raggio = Math.min(W * 0.22, 46 + 7 * sc.omini.length);
+          sc.omini.forEach(o => {
+            const d = o.x - centro.x;
+            if (Math.abs(d) > raggio) { o.dir = d > 0 ? -1 : 1; if (o.anim !== 'corsa') { o.imposta('corsa'); o.vel = 50 + Math.random() * 40; } o.pausa = 99; }
+            else if (o.anim === 'corsa') { o.imposta('camminata'); o.vel = 10 + Math.random() * 14; o.pausa = 1 + Math.random() * 3; }
+            else if (o.anim === 'camminata' && Math.random() < 0.04) o.dir *= -1;
+          });
+          if (giro % 6 === 0 && sc.omini.length) { const o = sc.omini[Math.floor(Math.random() * sc.omini.length)]; if (o.anim !== 'corsa') o.imposta('festa', 1.1); }
+        }, 140);
+      });
+    });
+    const minimo = new Promise(r => setTimeout(r, 2300));
+    const chiudi = () => { clearInterval(regia); if (pt) pt.ferma(); ov.hidden = true; ov.classList.remove('carico', 'rivela'); };
+    return Promise.all([lavoro, minimo, coperto]).then(([r]) => {
+      clearInterval(regia);
+      if (sc) sc.omini.forEach(o => { if (o.anim !== 'corsa') o.imposta('festa', 1.3); });
+      if (pt) pt.onda(centro.x, centro.y, 1.6);
+      return new Promise(ok => setTimeout(() => {
+        ok(r);   // la dashboard si disegna sotto, poi i quadrati la scoprono
+        setTimeout(() => { ov.classList.add('rivela'); pixel(tela, centro, 'rivela', 700).then(chiudi); }, 60);
+      }, 750));
+    }, err => { chiudi(); throw err; });
   }
   function avvisa() {}   // la transizione non mostra testo
 

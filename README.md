@@ -45,16 +45,17 @@ sfondo, riflesso in alto), su macchie di colore leggere; nel tema scuro anche il
 4. **Campagna nuova** (modulo completo): prodotto, annuncio, budget, canale e obiettivo. Il pubblico non si
    sceglie: Flockets prova la stessa campagna, con lo stesso budget, su ogni tipo di pubblico (ampio, interessi,
    sosia dei clienti e, se il marchio è già noto, chi ha visitato il sito) e il migliore è un risultato dell'analisi.
-5. **Analisi**: mentre il motore calcola, una transizione senza scritte: un cerchio si apre dal punto di invio,
-   gli omini corrono su una griglia di pallini e ne arrivano sempre di più; alla fine fanno festa insieme e la
-   scena si dissolve nella vista Persone. Poi due viste, con un interruttore in alto:
+5. **Analisi**: mentre il motore calcola, una transizione senza scritte (ispirata a «Pixel Transition» di React Bits):
+   lo schermo si copre di quadrati che partono dal punto di invio, gli omini arrivano dai bordi e si raccolgono in uno
+   stormo al centro, sempre più grande; alla fine fanno festa e i quadrati si dissolvono scoprendo la vista Persone. Poi due viste, con un interruttore in alto:
    - **Persone**: solo omini su una griglia di pallini, come una dashboard. Ognuno è una persona simulata di uno
      dei pubblici; un perimetro di 1 pixel dice cosa ha fatto (verde ha comprato, arancio ha cliccato,
      grigio niente) e chi ha comprato ogni tanto fa festa. I pallini si spostano e si colorano vicino al puntatore e
      si accendono sotto i piedi degli omini. Toccando un omino si apre la sua scheda, sempre dentro lo schermo
      (sopra la testa, se non c'è posto sotto i piedi o di fianco): chi è, dove vive, cosa ha fatto, probabilità di
      click e di acquisto, quanto rende ogni euro speso su di lei, perché, e quante persone come lei ci sono in
-     Italia. I bottoni in basso evidenziano un tipo di pubblico.
+     Italia. I bottoni in basso evidenziano un tipo di pubblico. Con la rotella, il pizzico o i tasti +/− si zooma: allontanandosi si vedono il
+     doppio degli omini; trascinando ci si sposta.
    - **Analisi**: parte da quello che hai mandato (l'annuncio tra virgolette con la riga «Dal tuo testo» e il link per
      correggere, oppure il nome del file). Poi una frase con il risultato e i numeri principali che salgono da
      zero; il pubblico migliore con il confronto con gli altri; cosa fare adesso (pubblico, canale e leve
@@ -93,9 +94,41 @@ rimpiccioliti (al massimo 1024 o 768 pixel), mai il file intero. La stessa funzi
 testo: descrive cosa si vede, trascrive le scritte, riconosce aggancio, ritmo, persona in camera, prezzo barrato, e
 compila la stessa campagna del prompt. Il testo per il motore diventa: quello scritto, più la descrizione e le scritte
 della creatività; il formato viene dal file se il testo non lo dice. Funziona anche con il solo video o la sola foto.
-Nell'analisi la creatività compare accanto al titolo, con quello che si vede e le scritte lette. Prove in
+Nell'analisi la creatività compare accanto al titolo, con quello che si vede e le scritte lette. Le foto e i video allegati
+compaiono nella zona dei file, ognuno con la sua anteprima e la sua ✕; più foto insieme diventano un carosello. Prove in
 [`strumenti/prove_media/`](strumenti/prove_media/): dal video di prova legge l'aggancio «Pelle spenta?», il prodotto e
 «-30% solo oggi · Compra ora» (voto del messaggio 7/10); dalla foto anche «Spedizione gratuita».
+
+**Come è fatta la creatività.** Oltre a cosa dice, il modello usa come è fatto l'annuncio:
+
+- **misure dei pixel**, calcolate nel browser su foto e fotogrammi ridotti a 48 × 48: luce, contrasto, vivacità dei colori
+  (indice di Hasler e Süsstrunk), colore dominante e tavolozza, quota di colori caldi, formato (verticale, quadrato,
+  orizzontale), e per i video durata e quanto cambia la scena tra un fotogramma e l'altro. Sono stabili: due foto che
+  differiscono solo per un colore danno misure diverse;
+- **presentazione**, dalla lettura: volto in primo piano, sguardo in camera, prodotto in primo piano o in uso, prezzo e logo
+  visibili, sottotitoli, prima e dopo, quanto testo e se si legge, come si apre il video, stile (giovane e dinamico,
+  elegante, informativo, emozionale, divertente).
+
+Nel simulatore ognuna sposta un po' la probabilità di click o di acquisto (per esempio formato verticale su TikTok +8%
+di click, orizzontale −11%; sottotitoli +5%; prezzo visibile +5% di acquisti); lo stile cambia l'effetto secondo il tipo di
+persona (uno stile giovane piace di più ai 18-34 e meno agli over 55). Gli effetti si sommano con un tetto morbido. Sono
+**ipotesi** da regole generali sulla pubblicità, non stime sui dati della sfida; l'analisi le mostra una per una nella
+scheda «La tua creatività».
+
+Prova ([`strumenti/prova_creativita.py`](strumenti/prova_creativita.py), foto in [`strumenti/prove_media/`](strumenti/prove_media/)):
+la stessa foto con piccole differenze, testo «Su Instagram, 50 euro al giorno per 2 settimane». «Solo pixel» usa la stessa
+lettura per tutte, così cambiano solo le misure; «completa» rilegge ogni foto, come sul sito.
+
+| Variante | Misure | Click, solo pixel | Click, completa | Acquisti, completa |
+|---|---|---|---|---|
+| sfondo beige, scritta rossa (base) | arancio, contrasto 0,11, luce 0,87 |  |  |  |
+| sfondo blu acceso, scritta gialla | blu, contrasto 0,13, luce 0,42 | +0% | +6% | +6% |
+| sfondo quasi nero, scritta rossa | arancio, contrasto 0,21, luce 0,18 | +7% | +13% | +13% |
+| sfondo grigio, scritta grigia | arancio, contrasto 0,07, luce 0,77 | −1% | −1% | −3% |
+| come la base, ma «Nuovo siero» al posto di «-30% SOLO OGGI» | arancio, contrasto 0,11, luce 0,88 | −0% | +3% | −23% |
+
+Le differenze dei soli pixel sono piccole (fino a +7% per lo sfondo scuro, più contrasto). Nella lettura completa si aggiunge
+la variabilità della lettura, circa ±5% sul voto e sulla presentazione: differenze sotto il 5% non sono significative.
 
 **Prompt e storico: due ingressi facoltativi e complementari.** Serve almeno uno dei due (il prompt, una foto o un video, o un CSV).
 

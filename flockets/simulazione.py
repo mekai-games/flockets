@@ -158,13 +158,112 @@ CAMPAGNA_BASE = {
     "nome": "Campagna nuova", "descrizione_prodotto": "", "categoria": None, "prezzo": None, "sconto": 0.0, "marchio": "conosciuto",
     "obiettivo": "vendite", "canale": "social", "formato": None, "leve": [], "testo_annuncio": "", "creativita": {},
     "pubblico": {"tipo": "ampio"}, "budget_giorno": 100.0, "giorni": 14, "inizio": None, "trend": 1.0, "qualita_sito": 0.8,
-    "filtri": {}, "extra": [], "forza": None,
+    "filtri": {}, "extra": [], "forza": None, "visivo": None, "presentazione": None,
 }
 # vantaggi dell'offerta che il testo può nominare: ognuno alza un po' la probabilità di comprare dopo il click (ipotesi)
 EXTRA = {"spedizione_gratuita": "spedizione gratuita", "reso_gratuito": "reso gratuito", "garanzia": "garanzia",
          "rate": "pagamento a rate", "regalo": "regalo con l'acquisto", "prova_gratuita": "prova gratuita"}
 PESO_EXTRA, TETTO_EXTRA = 0.08, 0.24   # +8% circa di acquisti per vantaggio, al massimo +27%
 BUDGET_RIF = 100.0                     # budget al giorno a cui si riferiscono i costi tipici del settore
+# ---------------------------------------------------------------------------- la creatività
+# Come è fatto l'annuncio: misure dei pixel (dal browser, su foto o fotogrammi) e presentazione (lettura del contenuto).
+# Pesi in scala logistica, da regole generali sulla pubblicità sui social e su pochi studi di attenzione: sono IPOTESI,
+# non stimate dai dati della sfida. Piccole e con un tetto, così una creatività diversa sposta i numeri ma non li stravolge.
+STILI = {"giovane_dinamico": "giovane e dinamico", "elegante_premium": "elegante, di fascia alta", "informativo_semplice": "informativo e semplice",
+         "emozionale": "emozionale", "divertente": "divertente", "neutro": "neutro"}
+APERTURE = {"domanda": 0.03, "persona": 0.03, "offerta": 0.02, "prodotto": 0.01, "logo": -0.04, "scena": 0.0, "nessuna": 0.0}
+ORIENTAMENTO = {"video_brevi": {"verticale": 0.08, "quadrato": -0.02, "orizzontale": -0.12},
+                "social": {"verticale": 0.04, "quadrato": 0.02, "orizzontale": -0.04},
+                "video": {"orizzontale": 0.05, "quadrato": -0.01, "verticale": -0.03},
+                "display": {"orizzontale": 0.02, "quadrato": 0.01, "verticale": -0.02}}
+# tetto morbido (tangente iperbolica): gli effetti si sommano con rendimenti decrescenti, ma ogni differenza conta sempre
+TETTO_VISIVO_CLICK, TETTO_VISIVO_ACQUISTI = 0.8, 0.3
+
+
+def _limita(x, a=-1.0, b=1.0):
+    return float(min(b, max(a, x)))
+
+
+def effetti_creativi(c):
+    """Pezzi dell'effetto della creatività: [(chiave, descrizione, delta click, delta acquisti)] in scala logistica."""
+    v, pr, k = c.get("visivo") or {}, c.get("presentazione") or {}, c["canale"]
+    video = v.get("tipo") == "video" or c["formato"] in ("video", "video_breve")
+    out = []
+    if v:
+        cont = _limita((v.get("contrasto", 0.2) - 0.20) / 0.10)
+        out.append(("contrasto", "contrasto %s (%s)" % ("alto" if cont > 0.3 else "basso" if cont < -0.3 else "nella media", ("%.2f" % v.get("contrasto", 0.2)).replace(".", ",")), 0.07 * cont, 0.0))
+        viv = _limita((v.get("vivacita", 45) - 45) / 35)
+        out.append(("vivacita", "colori %s" % ("vivaci" if viv > 0.3 else "spenti" if viv < -0.3 else "nella media"), 0.05 * viv, 0.0))
+        lum = v.get("luminosita", 0.55)
+        estremo = _limita((abs(lum - 0.55) - 0.37) / 0.08, 0, 1)   # solo immagini quasi nere o quasi bianche
+        if estremo > 0:
+            out.append(("luce", "immagine troppo %s" % ("scura" if lum < 0.55 else "chiara"), -0.06 * estremo, 0.0))
+        if v.get("colorati", 0) > 0.08 and v.get("calda", 0) > 0.6:
+            out.append(("caldi", "colori caldi (%s)" % v.get("tinta", ""), 0.02 + (0.02 if set(c["leve"]) & {"sconto", "urgenza"} else 0.0), 0.0))
+        fo = v.get("formato")
+        if fo and k in ORIENTAMENTO:
+            out.append(("orientamento", "formato %s su %s" % (fo, {"video_brevi": "TikTok e Reels", "social": "Facebook e Instagram", "video": "YouTube", "display": "banner"}[k]),
+                        ORIENTAMENTO[k].get(fo, 0.0), 0.0))
+        d = v.get("durata")
+        if video and d:
+            if k in ("video_brevi", "social"):
+                e = 0.04 if d <= 15 else 0.0 if d <= 30 else -0.05 if d <= 60 else -0.12
+            else:
+                e = 0.02 if 15 <= d <= 60 else -0.05 if d > 180 else 0.0
+            out.append(("durata", "durata %d secondi" % round(d), e, 0.0))
+        if video and v.get("cambio") is not None and k in ("video_brevi", "social"):
+            r = _limita((v["cambio"] - 0.12) / 0.10)
+            out.append(("ritmo_visivo", "scene che cambiano %s" % ("spesso" if r > 0.3 else "poco" if r < -0.3 else "a ritmo medio"), 0.04 * r, 0.0))
+    if pr:
+        if pr.get("volto"):
+            out.append(("volto", "un volto in primo piano", 0.06, 0.0))
+        if pr.get("sguardo_in_camera"):
+            out.append(("sguardo", "sguardo in camera", 0.03, 0.0))
+        if pr.get("prodotto_in_primo_piano"):
+            out.append(("prodotto", "prodotto in primo piano", 0.03, 0.04))
+        if pr.get("prodotto_in_uso"):
+            out.append(("uso", "prodotto mostrato mentre si usa", 0.02, 0.05))
+        if pr.get("prezzo_visibile"):
+            out.append(("prezzo", "prezzo visibile", 0.02, 0.05))
+        if pr.get("logo_visibile"):
+            out.append(("logo", "logo visibile", 0.0, 0.04 if c["marchio"] == "nuovo" else 0.02))
+        if pr.get("sottotitoli") and video:
+            out.append(("sottotitoli", "sottotitoli (si capisce anche senza audio)", 0.05, 0.0))
+        if pr.get("prima_dopo"):
+            out.append(("prima_dopo", "confronto prima e dopo", 0.03, 0.04))
+        ts = pr.get("testo_sovrapposto")
+        if ts in ("poco", "molto") and pr.get("testo_leggibile") is not None:
+            out.append(("leggibilita", "scritte leggibili" if pr["testo_leggibile"] else "scritte poco leggibili (poco contrasto con lo sfondo)",
+                        0.02 if pr["testo_leggibile"] else -0.06, 0.0))
+        if ts == "molto" and not c["creativita"].get("testo_pesante"):
+            out.append(("testo", "molto testo sopra l'immagine", -0.06, 0.0))
+        elif ts == "poco":
+            out.append(("testo", "poco testo, leggibile", 0.02, 0.0))
+        ap = pr.get("apertura")
+        if video and ap in APERTURE and APERTURE[ap]:
+            out.append(("apertura", "il video si apre con %s" % {"domanda": "una domanda", "persona": "una persona", "offerta": "l'offerta",
+                                                                  "prodotto": "il prodotto", "logo": "il logo"}[ap], APERTURE[ap], 0.0))
+    return [x for x in out if abs(x[2]) > 1e-9 or abs(x[3]) > 1e-9]
+
+
+def _stile(P, c):
+    """Lo stile piace di più ad alcuni tipi di persona: effetto sul click, persona per persona (ipotesi)."""
+    s = (c.get("presentazione") or {}).get("stile")
+    e = np.zeros(len(P))
+    giovani, maturi = P.eta.isin(["18-24", "25-34"]).values, P.eta.isin(["55-64", "65+"]).values
+    if s == "giovane_dinamico":
+        e = 0.12 * giovani - 0.08 * maturi
+    elif s == "elegante_premium":
+        e = 0.08 * (P.reddito.values == "alto") - 0.04 * (P.reddito.values == "basso")
+    elif s == "informativo_semplice":
+        e = 0.06 * P.eta.isin(["45-54", "55-64", "65+"]).values
+    elif s == "divertente":
+        e = 0.08 * P.eta.isin(["18-24", "25-34", "35-44"]).values
+    elif s == "emozionale":
+        e = 0.05 * P.famiglia.isin(["figli_piccoli", "figli_grandi"]).values
+    return e.astype(float)
+
+
 PESO_FORZA = 0.06                      # forza del messaggio 0-10: da circa -26% a +35% di click rispetto a un messaggio medio (5)
 
 
@@ -242,6 +341,25 @@ def normalizza(c):
     c["extra"] = sorted({e for e in (c.get("extra") or []) if e in EXTRA})
     f = c.get("forza")
     c["forza"] = None if f is None else float(min(max(f, 0.0), 10.0))
+    v = c.get("visivo") or None
+    if v:
+        num = lambda x, a, b, d: float(min(b, max(a, x))) if isinstance(x, (int, float)) and math.isfinite(x) else d
+        c["visivo"] = {"luminosita": num(v.get("luminosita"), 0, 1, 0.55), "contrasto": num(v.get("contrasto"), 0, 0.5, 0.2),
+                       "saturazione": num(v.get("saturazione"), 0, 1, 0.3), "vivacita": num(v.get("vivacita"), 0, 200, 45),
+                       "calda": num(v.get("calda"), 0, 1, 0.5), "colorati": num(v.get("colorati"), 0, 1, 0.3),
+                       "tinta": str(v.get("tinta") or "")[:20], "formato": v.get("formato") if v.get("formato") in ("verticale", "quadrato", "orizzontale") else None,
+                       "durata": num(v.get("durata"), 0, 3600, None) if v.get("durata") else None,
+                       "cambio": num(v.get("cambio"), 0, 1, None) if v.get("cambio") is not None else None,
+                       "tipo": v.get("tipo") if v.get("tipo") in ("foto", "video", "carosello") else None,
+                       "palette": [str(x)[:7] for x in (v.get("palette") or [])][:4]}
+    pr = c.get("presentazione") or None
+    if pr:
+        c["presentazione"] = {k: bool(pr.get(k)) for k in ("volto", "sguardo_in_camera", "prodotto_in_primo_piano", "prodotto_in_uso",
+                                                          "prezzo_visibile", "logo_visibile", "sottotitoli", "prima_dopo")}
+        c["presentazione"]["testo_leggibile"] = None if pr.get("testo_leggibile") is None else bool(pr.get("testo_leggibile"))
+        c["presentazione"]["testo_sovrapposto"] = pr.get("testo_sovrapposto") if pr.get("testo_sovrapposto") in ("nessuno", "poco", "molto") else None
+        c["presentazione"]["apertura"] = pr.get("apertura") if pr.get("apertura") in APERTURE else None
+        c["presentazione"]["stile"] = pr.get("stile") if pr.get("stile") in STILI else None
     c["qualita_sito"] = float(min(max(c.get("qualita_sito") or 0.8, 0.2), 1.0))
     if c["canale"] == "email" and c["pubblico"].get("tipo") != "retargeting":
         c["pubblico"]["tipo"] = "retargeting"
@@ -325,6 +443,8 @@ def _contributi(P, c, cat, giorno, rif):
     click["leve"] = leve
     click["creativita"] = np.full(len(P), _qualita_creativa(c["creativita"]))
     click["messaggio"] = np.full(len(P), 0.0 if c.get("forza") is None else PESO_FORZA * (c["forza"] - 5.0))
+    ec = effetti_creativi(c)
+    click["visivo"] = TETTO_VISIVO_CLICK * np.tanh((sum(x[2] for x in ec) + _stile(P, c)) / TETTO_VISIVO_CLICK)
     m = MARCHIO[c["marchio"]]
     marchio = np.full(len(P), 0.35 * (m["noto"] - MARCHIO["conosciuto"]["noto"]))
     if c["pubblico"].get("tipo") == "retargeting":
@@ -354,6 +474,7 @@ def _contributi(P, c, cat, giorno, rif):
             urg = urg + 0.15 * P["sens_" + lv].values
     compra["leve"] = urg
     compra["offerta"] = np.full(len(P), min(TETTO_EXTRA, PESO_EXTRA * len(c.get("extra") or [])))
+    compra["visivo"] = np.full(len(P), float(TETTO_VISIVO_ACQUISTI * math.tanh(sum(x[3] for x in ec) / TETTO_VISIVO_ACQUISTI)))
     return click, compra
 
 
@@ -793,7 +914,7 @@ DESCRIZIONI = {"ampio": "Tutti, senza filtri: decide la piattaforma a chi mostra
                "retargeting": "Chi ha già visitato il sito negli ultimi 30 giorni."}
 
 
-def analizza_campagna(spec, consigli=True, n_persone=6):
+def analizza_campagna(spec, consigli=True, n_persone=12):
     """Campagna nuova: la stessa campagna simulata su ogni tipo di pubblico, con lo stesso budget.
     Il pubblico migliore e una conseguenza dell'analisi (piu acquisti, click o persone raggiunte, secondo l'obiettivo).
     spec["taratura"] = {"ctr": x, "cpm": y}: scarti in scala logaritmica misurati su uno storico (stessa marca),
@@ -821,7 +942,10 @@ def analizza_campagna(spec, consigli=True, n_persone=6):
     out = {"campagna": base, "ipotesi": c0["_ipotesi"] + ([] if "retargeting" in tipi else
                                                           ["Il pubblico di chi ha già visitato il sito non c'è: il marchio è nuovo"]),
            "valori_reali": simula({**base, "pubblico": {"tipo": migliore["tipo"]}}, dettaglio=False)["valori_reali"],
-           "pubblici": pubblici, "migliore": migliore["tipo"], "taratura": {"ctr": s_ctr, "cpm": s_cpm} if tar else None}
+           "pubblici": pubblici, "migliore": migliore["tipo"], "taratura": {"ctr": s_ctr, "cpm": s_cpm} if tar else None,
+           "creativita": {"effetti": [{"chiave": k_, "testo": d_, "click_%": round(100 * (math.exp(a_) - 1), 1), "acquisti_%": round(100 * (math.exp(b_) - 1), 1)}
+                                      for k_, d_, a_, b_ in effetti_creativi(c0)],
+                          "stile": STILI.get((c0.get("presentazione") or {}).get("stile")), "visivo": c0.get("visivo"), "presentazione": c0.get("presentazione")}}
     if consigli:
         out["consigli"] = consiglia(base)
     return out

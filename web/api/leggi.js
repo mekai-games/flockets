@@ -170,6 +170,15 @@ messaggio: giudica il testo dell'annuncio come lo vedrebbe una persona sul canal
 (0 = manca, 1 = c'e ma debole, 2 = c'e ed e forte). Giudica solo cio che e scritto: se il testo descrive l'annuncio invece di citarlo, giudica l'annuncio descritto.
 ${elenco(Object.keys(CRITERI), CRITERI)}
 
+presentazione: come e presentato il prodotto, da immagini o descrizione (false o nessuna se non si vede o non si capisce):
+- volto: un volto umano ben visibile; sguardo_in_camera: la persona guarda in camera;
+- prodotto_in_primo_piano: il prodotto e grande e chiaro; prodotto_in_uso: il prodotto viene usato o mostrato in azione;
+- prezzo_visibile: il prezzo si legge; logo_visibile: il logo o il nome del marchio si vede; sottotitoli: un video ha i sottotitoli o le parole scritte di cio che si dice;
+- prima_dopo: c'e un confronto prima e dopo;
+- testo_sovrapposto: nessuno, poco (una o due righe) o molto (paragrafi, tante scritte); testo_leggibile: le scritte si leggono bene, con abbastanza contrasto sullo sfondo (true se non ci sono scritte);
+- apertura: come si apre un video (primo fotogramma o primi due secondi): domanda, persona, prodotto, offerta, logo, scena, nessuna (nessuna se non e un video);
+- stile: giovane_dinamico, elegante_premium, informativo_semplice, emozionale, divertente o neutro.
+
 creativita_vista: solo se sono arrivate immagini, altrimenti stringhe vuote.
 - descrizione: cosa si vede nell'annuncio, al massimo 50 parole, in italiano corretto con gli accenti (chi compare, il prodotto, l'ambiente, cosa succede).
 - testo_visibile: le scritte che si leggono nelle immagini, trascritte come sono (prezzi, sconti, inviti, scadenze), al massimo 40 parole.
@@ -228,6 +237,19 @@ function schema(formati, leve) {
         additionalProperties: false,
       },
       suggerimenti: { type: "array", items: { type: "string" } },
+      presentazione: {
+        type: "object",
+        properties: {
+          volto: { type: "boolean" }, sguardo_in_camera: { type: "boolean" }, prodotto_in_primo_piano: { type: "boolean" }, prodotto_in_uso: { type: "boolean" },
+          prezzo_visibile: { type: "boolean" }, logo_visibile: { type: "boolean" }, sottotitoli: { type: "boolean" }, prima_dopo: { type: "boolean" },
+          testo_sovrapposto: { type: "string", enum: ["nessuno", "poco", "molto"] }, testo_leggibile: { type: "boolean" },
+          apertura: { type: "string", enum: ["domanda", "persona", "prodotto", "offerta", "logo", "scena", "nessuna"] },
+          stile: { type: "string", enum: ["giovane_dinamico", "elegante_premium", "informativo_semplice", "emozionale", "divertente", "neutro"] },
+        },
+        required: ["volto", "sguardo_in_camera", "prodotto_in_primo_piano", "prodotto_in_uso", "prezzo_visibile", "logo_visibile", "sottotitoli",
+          "prima_dopo", "testo_sovrapposto", "testo_leggibile", "apertura", "stile"],
+        additionalProperties: false,
+      },
       creativita_vista: {
         type: "object",
         properties: { descrizione: { type: "string" }, testo_visibile: { type: "string" } },
@@ -235,7 +257,7 @@ function schema(formati, leve) {
         additionalProperties: false,
       },
     },
-    required: ["formato", "leva", "caratteristiche", "motivo", "campagna", "messaggio", "suggerimenti", "creativita_vista"],
+    required: ["formato", "leva", "caratteristiche", "motivo", "campagna", "messaggio", "suggerimenti", "presentazione", "creativita_vista"],
     additionalProperties: false,
   };
 }
@@ -341,6 +363,7 @@ export default async function handler(req, res) {
       motivo: String(letto.motivo || "").slice(0, 240),
       campagna: pulisci(letto.campagna),
       messaggio: messaggio(letto.messaggio),
+      presentazione: letto.presentazione && typeof letto.presentazione === "object" ? letto.presentazione : null,
       creativita_vista: immagini.length && letto.creativita_vista ? {
         descrizione: String(letto.creativita_vista.descrizione || "").slice(0, 400),
         testo_visibile: String(letto.creativita_vista.testo_visibile || "").slice(0, 300),

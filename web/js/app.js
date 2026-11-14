@@ -96,7 +96,7 @@
           if (!j) return null;
           // la campagna (canale, budget, durata…) serve anche senza file; formato e leva solo se il modello li conosce
           const extra = { campagna: j.campagna || null, messaggio: j.messaggio || null, suggerimenti: j.suggerimenti || [], motivo: j.motivo || '',
-            vista: j.creativita_vista || null, fonte: 'ia' };
+            vista: j.creativita_vista || null, presentazione: j.presentazione || null, fonte: 'ia' };
           if (!D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return Object.assign(leggiTesto(testo), extra);
           const f = {};
           Object.keys(D.par.feat_regole).forEach(k => { f[k] = j.caratteristiche && j.caratteristiche[k] ? 1 : 0; });
@@ -225,11 +225,6 @@
     avvio.testo = testo || '';
     for (let i = 0; i < quanti; i++) setTimeout(() => avvio.esulta(), i * 140);
   }
-  function togliFile() {
-    S.file = null; S.fileKit = true; S.creativa = null; $('#file-ingresso').value = '';
-    sorgente('kit');
-    leggiInSottofondo();
-  }
   /* ---------------------------------------------------------- foto e video dell'annuncio */
   // un'immagine (foto o fotogramma) rimpicciolita e in JPEG: è questa che parte per la lettura, non il file
   function inJpeg(sorgente, w0, h0, lato) {
@@ -239,12 +234,55 @@
     const url = c.toDataURL('image/jpeg', 0.82);
     return { tipo: 'image/jpeg', dati: url.split(',')[1], url };
   }
+  /* Misure dei pixel (stabili: due foto che differiscono per un colore danno misure diverse):
+     luce, contrasto, saturazione, vivacità dei colori (indice di Hasler e Süsstrunk), tinta dominante, quota di colori caldi,
+     tavolozza e formato. Su un'immagine ridotta a 48 × 48. */
+  const TINTE = ['rosso', 'arancio', 'giallo', 'verde', 'verde', 'verde acqua', 'azzurro', 'blu', 'blu', 'viola', 'rosa', 'rosso'];
+  function misurePixel(sorgente, w0, h0) {
+    const n = 48, c = document.createElement('canvas'); c.width = n; c.height = n;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(sorgente, 0, 0, n, n);
+    const d = g.getImageData(0, 0, n, n).data, N = n * n, luma = new Float32Array(N), tinte = new Array(12).fill(0), somme = Array.from({ length: 12 }, () => [0, 0, 0]);
+    let sl = 0, sl2 = 0, ss = 0, srg = 0, srg2 = 0, syb = 0, syb2 = 0, calde = 0, colorati = 0;
+    for (let i = 0; i < N; i++) {
+      const r = d[4 * i], v = d[4 * i + 1], b = d[4 * i + 2], l = (0.2126 * r + 0.7152 * v + 0.0722 * b) / 255;
+      luma[i] = l; sl += l; sl2 += l * l;
+      const mx = Math.max(r, v, b), mn = Math.min(r, v, b), s = mx ? (mx - mn) / mx : 0;
+      ss += s;
+      const rg = r - v, yb = 0.5 * (r + v) - b; srg += rg; srg2 += rg * rg; syb += yb; syb2 += yb * yb;
+      if (s > 0.25 && mx > 50) {
+        const dd = mx - mn; let h = mx === r ? ((v - b) / dd) % 6 : mx === v ? (b - r) / dd + 2 : (r - v) / dd + 4;
+        h = (h * 60 + 360) % 360;
+        const k = Math.floor(h / 30); tinte[k]++; somme[k][0] += r; somme[k][1] += v; somme[k][2] += b;
+        colorati++; if (h < 70 || h >= 330) calde++;
+      }
+    }
+    const ml = sl / N, mrg = srg / N, myb = syb / N;
+    const ordine = tinte.map((q, k) => [q, k]).filter(x => x[0] > N * 0.02).sort((x, y) => y[0] - x[0]);
+    const hex = k => '#' + somme[k].map(x => Math.round(x / tinte[k]).toString(16).padStart(2, '0')).join('');
+    const rapp = w0 / Math.max(h0, 1);
+    return { luminosita: ml, contrasto: Math.sqrt(Math.max(0, sl2 / N - ml * ml)), saturazione: ss / N,
+      vivacita: Math.sqrt(Math.max(0, srg2 / N - mrg * mrg) + Math.max(0, syb2 / N - myb * myb)) + 0.3 * Math.sqrt(mrg * mrg + myb * myb),
+      tinta: colorati / N < 0.08 || !ordine.length ? 'neutro' : TINTE[ordine[0][1]], calda: colorati ? calde / colorati : 0, colorati: colorati / N,
+      palette: ordine.slice(0, 3).map(x => hex(x[1])), formato: rapp > 1.15 ? 'orizzontale' : rapp < 0.87 ? 'verticale' : 'quadrato', luma };
+  }
+  // media delle misure di più fotogrammi; per il video anche quanto cambia la scena da un fotogramma all'altro
+  function mediaMisure(lista) {
+    const m = Object.assign({}, lista[0]), num = ['luminosita', 'contrasto', 'saturazione', 'vivacita', 'calda', 'colorati'];
+    num.forEach(k => { m[k] = lista.reduce((s, x) => s + x[k], 0) / lista.length; });
+    if (lista.length > 1) {
+      let tot = 0;
+      for (let i = 1; i < lista.length; i++) { const a = lista[i - 1].luma, b = lista[i].luma; let s = 0; for (let j = 0; j < a.length; j++) s += Math.abs(a[j] - b[j]); tot += s / a.length; }
+      m.cambio = tot / (lista.length - 1);
+    }
+    delete m.luma;
+    return m;
+  }
   function leggiFoto(file) {
     return new Promise((ok, ko) => {
       const u = URL.createObjectURL(file), im = new Image();
       im.onload = () => {
         const x = inJpeg(im, im.naturalWidth, im.naturalHeight, 1024);
-        ok({ id: file.name + file.size, nome: file.name, tipo: 'foto', immagini: [{ tipo: x.tipo, dati: x.dati }],
+        ok({ id: file.name + file.size, nome: file.name, tipo: 'foto', immagini: [{ tipo: x.tipo, dati: x.dati }], misure: mediaMisure([misurePixel(im, im.naturalWidth, im.naturalHeight)]),
           anteprima: inJpeg(im, im.naturalWidth, im.naturalHeight, 320).url, verticale: im.naturalHeight > im.naturalWidth });
         URL.revokeObjectURL(u);
       };
@@ -263,26 +301,37 @@
         try {
           const d = isFinite(v.duration) && v.duration > 0 ? v.duration : 10, ultimo = Math.max(0, d - 0.15);
           const tempi = [...new Set([0.1, 1, 2.2, d * 0.4, d * 0.7, d - 0.5].map(s => Math.round(Math.min(Math.max(0, s), ultimo) * 10) / 10))].sort((a, b) => a - b).slice(0, 6);
-          const immagini = []; let anteprima = '';
+          const immagini = [], misure = []; let anteprima = '';
           for (const s of tempi) {
             await new Promise(r => { const tm = setTimeout(r, 3000); v.onseeked = () => { clearTimeout(tm); r(); }; v.currentTime = s; });
             const x = inJpeg(v, v.videoWidth, v.videoHeight, 768);
             immagini.push({ tipo: x.tipo, dati: x.dati, secondo: s });
+            misure.push(misurePixel(v, v.videoWidth, v.videoHeight));
             if (!anteprima) anteprima = inJpeg(v, v.videoWidth, v.videoHeight, 320).url;
           }
-          ok({ id: file.name + file.size, nome: file.name, tipo: 'video', durata: d, immagini, anteprima, verticale: v.videoHeight > v.videoWidth });
+          ok({ id: file.name + file.size, nome: file.name, tipo: 'video', durata: d, immagini, misure: mediaMisure(misure), anteprima, verticale: v.videoHeight > v.videoWidth });
           fine();
         } catch (e) { fine(new Error('Non riesco a leggere i fotogrammi di questo video.')); }
       };
       v.src = u;
     });
   }
+  // i file allegati compaiono nella loro zona, ognuno con la sua anteprima e la sua ✕
   function mostraAllegati() {
-    const nomi = [...(S.file || []).map(f => f.nome), ...(S.creativa ? [S.creativa.nome] : [])];
-    $('#file-nome').textContent = nomi.length > 2 ? nomi.length + ' file' : nomi.join(' · ');
-    const im = $('#file-anteprima');
-    im.hidden = !S.creativa; if (S.creativa) im.src = S.creativa.anteprima;
-    $('#file-chip').hidden = !nomi.length;
+    const cr = S.creativa, el = $('#allegati');
+    const voci = [...(S.file || []).map((f, i) => `<li><span class="tipo-file mono">CSV</span><span class="nome">${esc(f.nome)}</span><button type="button" data-csv="${i}" aria-label="Togli ${esc(f.nome)}">✕</button></li>`),
+      ...(cr ? [`<li><img src="${cr.anteprima}" alt=""><span class="nome">${esc(cr.nome)}${cr.tipo === 'video' ? ` · ${Math.round(cr.durata)} s` : ''}</span><button type="button" data-creativa="1" aria-label="Togli ${esc(cr.nome)}">✕</button></li>`] : [])];
+    el.innerHTML = voci.join('');
+    el.hidden = !voci.length;
+    $('#allega-testo').textContent = voci.length ? 'Aggiungi altri file' : 'Allega lo storico (CSV) o l’annuncio (foto o video), oppure trascinali qui';
+    $$('button', el).forEach(b => b.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      if (b.dataset.creativa) S.creativa = null;
+      else { S.file.splice(+b.dataset.csv, 1); if (!S.file.length) { S.file = null; S.fileKit = true; } }
+      $('#file-ingresso').value = '';
+      sorgente(S.file ? 'file' : 'kit');
+      leggiInSottofondo();
+    }));
   }
   // file allegati: lo storico (CSV) e/o l'annuncio (una foto o un video). Resta solo il nome nel riquadro;
   // sotto compare qualcosa solo se un file non va bene
@@ -290,12 +339,17 @@
     const out = $('#esito-file');
     const tutti = Array.from(files);
     const csv = tutti.filter(f => /\.csv$/i.test(f.name) || f.type === 'text/csv');
-    const media = tutti.find(f => /^image\//.test(f.type) || /^video\//.test(f.type) || /\.(jpe?g|png|webp|heic|mp4|mov|webm|m4v)$/i.test(f.name));
-    if (!csv.length && !media) { out.innerHTML = '<p class="errore mono">Serve un CSV, una foto o un video.</p>'; return; }
+    const eVideo = f => /^video\//.test(f.type) || /\.(mp4|mov|webm|m4v)$/i.test(f.name);
+    const eFoto = f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic)$/i.test(f.name);
+    const video = tutti.find(eVideo), foto = tutti.filter(eFoto).slice(0, 6);
+    if (!csv.length && !video && !foto.length) { out.innerHTML = '<p class="errore mono">Serve un CSV, una foto o un video.</p>'; return; }
     out.innerHTML = '';
-    if (media) {
-      const video = /^video\//.test(media.type) || /\.(mp4|mov|webm|m4v)$/i.test(media.name);
-      (video ? leggiVideo(media) : leggiFoto(media)).then(cr => {
+    if (video || foto.length) {
+      const lettura = video ? leggiVideo(video) : foto.length === 1 ? leggiFoto(foto[0])
+        : Promise.all(foto.map(leggiFoto)).then(l => ({ id: l.map(x => x.id).join('+'), nome: l.length + ' foto (carosello)', tipo: 'carosello',
+          immagini: l.flatMap(x => x.immagini), misure: Object.assign({}, l[0].misure, { luminosita: l.reduce((s, x) => s + x.misure.luminosita, 0) / l.length,
+            contrasto: l.reduce((s, x) => s + x.misure.contrasto, 0) / l.length, vivacita: l.reduce((s, x) => s + x.misure.vivacita, 0) / l.length }), anteprima: l[0].anteprima, verticale: l[0].verticale }));
+      lettura.then(cr => {
         S.creativa = cr; mostraAllegati(); reazione(3, '');
         (D ? Promise.resolve() : dati()).then(leggiInSottofondo);   // la lettura parte subito, così all'invio è pronta
       }).catch(e => { out.innerHTML = `<p class="errore mono">${esc(e.message)}</p>`; });
@@ -303,7 +357,7 @@
     if (!csv.length) return;
     Promise.all([dati(), ...csv.map(f => f.text().then(t => ({ nome: f.webkitRelativePath || f.name, testo: t })))]).then(([, ...letti]) => {
       const st = letti.map(x => Object.assign({ nome: x.nome }, controllaStorico(leggiCSV(x.testo)))).filter(x => x.ok).sort((a, b) => b.n - a.n)[0];
-      S.file = letti;
+      S.file = (S.file || []).concat(letti.filter(n => !(S.file || []).some(v => v.nome === n.nome)));
       S.fileKit = !!st && st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000 && kit();
       sorgente('file');
       reazione(3, '');
@@ -329,7 +383,8 @@
   // con una foto o un video il formato si sa già, se il testo non lo dice
   function formatoDalFile(spec) {
     const cr = S.creativa;
-    if (cr && !spec.formato) spec.formato = cr.tipo === 'foto' ? 'immagine' : cr.durata <= 60 ? 'video_breve' : 'video';
+    if (cr && cr.misure) spec.visivo = Object.assign({}, cr.misure, { durata: cr.durata || null, tipo: cr.tipo });
+    if (cr && !spec.formato) spec.formato = cr.tipo === 'foto' ? 'immagine' : cr.tipo === 'carosello' ? 'carosello' : cr.durata <= 60 ? 'video_breve' : 'video';
   }
   function contestoAnnuncio(L) {
     const cr = S.creativa, v = S.brief && S.brief.vista;
@@ -479,7 +534,6 @@
     $('#colonne-console').innerHTML = tabellaColonne();
     $('#colonne-come').innerHTML = tabellaColonne();
     sorgente('kit');
-    $('#togli-file').addEventListener('click', togliFile);
     // invio = analizza, maiuscolo + invio = a capo (come nelle chat)
     $('#richiesta').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); avvia(); } });
     $('#richiesta').addEventListener('input', () => { const t = Date.now(); if (t - ultimaReazione > 1600) { ultimaReazione = t; reazione(1, ''); } });

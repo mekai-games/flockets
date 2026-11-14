@@ -140,20 +140,41 @@
       this.omini = []; this.scritte = []; this.ritmo = 0; this.acc = 0; this.w = 0;
       this.suClick = o.suClick || null; this.testo = o.testo == null ? 'click' : o.testo; this.ricambio = !!o.ricambio;
       this.contorno = !!o.contorno; this.ombra = o.ombra !== false; this.linea = o.linea !== false; this.colore = o.colore || '#F2551D';
+      // telecamera: il mondo può essere più largo dello schermo (mondo = 2: il doppio); zoom e spostamento
+      this.mondo = o.mondo || 1; this.zoom = 1; this.ox = 0; this.oy = 0; this.vw = 0; this.dpr = 1;
       this.ridimensiona();
       scene.add(this); avvia();
     }
     ridimensiona() {
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
-      const w = this.c.clientWidth || 300;
-      const k = this.w ? w / this.w : 1;
-      this.w = w;
-      this.c.width = Math.round(w * dpr); this.c.height = Math.round(this.h * dpr);
+      const vw = this.c.clientWidth || 300;
+      const k = this.vw ? vw / this.vw : 1;
+      this.vw = vw; this.w = vw * this.mondo; this.dpr = dpr;
+      this.c.width = Math.round(vw * dpr); this.c.height = Math.round(this.h * dpr);
       this.c.style.height = this.h + 'px';
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.ctx.imageSmoothingEnabled = false;
       if (k !== 1) { if (this.eFolla) this.folla(); else this.omini.forEach(o => { o.x *= k; }); }
+      this.zoomA(this.zoom, this.vw / 2);
     }
+    // zoom intorno a un punto dello schermo (fx); il suolo resta fermo, il mondo copre sempre lo schermo se può
+    limiti() { return [Math.max(0.3, Math.min(1, this.vw / this.w)), 2.4]; }
+    zoomA(z, fx) {
+      const [zmin, zmax] = this.limiti(), z0 = this.zoom || 1;
+      z = Math.min(zmax, Math.max(zmin, z));
+      const g = this.ancora == null ? this.h - this.suoloGiu : this.ancora;   // la riga che resta ferma allo zoom
+      this.ox = fx - (fx - this.ox) * (z / z0);
+      this.zoom = z; this.oy = g - g * z;
+      this.sposta(0);
+      return z;
+    }
+    sposta(dx) {
+      const largo = this.w * this.zoom;
+      this.ox = largo >= this.vw ? Math.min(0, Math.max(this.vw - largo, this.ox + dx)) : (this.vw - largo) / 2;
+    }
+    // dal mondo allo schermo, e ritorno
+    schermo(x, y) { return { x: this.ox + x * this.zoom, y: this.oy + y * this.zoom }; }
+    piedi(o) { return this.schermo(o.x, this.h - this.suoloGiu + o.dy); }
     popola(n, o = {}) {
       const tot = meta ? meta.nomi.length : 100;
       const usati = new Set();
@@ -182,7 +203,8 @@
       return this;
     }
     // l'omino sotto un punto della scena (il personaggio occupa 24 x 28 pixel del fotogramma, centrato in basso)
-    trova(px, py) {
+    trova(sx, sy) {
+      const px = (sx - this.ox) / this.zoom, py = (sy - this.oy) / this.zoom;
       const suolo = this.h - this.suoloGiu;
       for (let i = this.omini.length - 1; i >= 0; i--) {
         const o = this.omini[i], S = o.s || this.S, piedi = suolo + o.dy;
@@ -190,7 +212,7 @@
       }
       return null;
     }
-    testa(o) { const S = o.s || this.S; return { x: o.x, y: this.h - this.suoloGiu + o.dy - 46 * S + ((cima[o.id] || 19) - 7) * S }; }
+    testa(o) { const S = o.s || this.S; return this.schermo(o.x, this.h - this.suoloGiu + o.dy - 46 * S + ((cima[o.id] || 19) - 7) * S); }
     // un omino uscito dallo schermo viene sostituito da un personaggio che non è già in scena, che entra camminando
     ricambia(o, m) {
       const tot = meta ? meta.nomi.length : 100, usati = new Set(this.omini.map(x => x.id));
@@ -230,8 +252,10 @@
       this.scritte = this.scritte.filter(p => p.t < 0.9);
     }
     disegna() {
-      const ctx = this.ctx, suolo = this.h - this.suoloGiu;
-      ctx.clearRect(0, 0, this.w, this.h);
+      const ctx = this.ctx, suolo = this.h - this.suoloGiu, d = this.dpr;
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+      ctx.clearRect(0, 0, this.vw, this.h);
+      ctx.setTransform(d * this.zoom, 0, 0, d * this.zoom, d * this.ox, d * this.oy);
       if (this.linea) { ctx.fillStyle = 'rgba(14,15,18,.08)'; ctx.fillRect(0, suolo + 4, this.w, 1); }
       this.omini.forEach(o => o.disegna(ctx, this.S, suolo, this));
       ctx.font = '600 11px "JetBrains Mono", monospace'; ctx.textAlign = 'center';
@@ -240,6 +264,7 @@
         ctx.fillText(this.testo, Math.round(p.x), Math.round(p.y - p.t * 26));
       });
       ctx.globalAlpha = 1;
+      ctx.setTransform(d, 0, 0, d, 0, 0);
     }
   }
 
@@ -251,7 +276,7 @@
     scene.forEach(s => {
       if (!s.c.isConnected) { scene.delete(s); return; }
       if (s.c.offsetParent === null || !atlante) return;
-      if (Math.abs(s.c.clientWidth - s.w) > 1) s.ridimensiona();
+      if (Math.abs(s.c.clientWidth - s.vw) > 1) s.ridimensiona();
       s.aggiorna(dt); s.disegna();
     });
     requestAnimationFrame(giro);
@@ -317,7 +342,7 @@
     const stretto = window.innerWidth < 600, alto = Math.round(o.altezza || 200);
     if (cPrato) prato(cPrato, o.altezzaPrato || alto, { pixel: stretto ? 2 : 3 });
     const sc = new Scena(cFolla, { scala: stretto ? 2 : 3, altezza: alto, suolo: o.suolo || (stretto ? 12 : 16), linea: false,
-      testo: o.testo == null ? '' : o.testo, avvolgi: true, ricambio: !!o.ricambio });
+      testo: o.testo == null ? '' : o.testo, avvolgi: true, ricambio: !!o.ricambio, mondo: o.mondo || 1 });
     const [piccola, grande] = o.scale || (stretto ? [1, 2] : [2, 3]), fondo = Math.round(alto * (o.fondo || 0.58));
     sc.profondita = om => {
       const t = Math.pow(Math.random(), 0.85);   // 0 davanti, 1 in fondo
@@ -325,7 +350,7 @@
       om.s = t > 0.62 || (t > 0.42 && Math.random() < (t - 0.42) / 0.2) ? piccola : grande;
       om.vel = (14 + Math.random() * 20) * (1 - 0.45 * t);
     };
-    const tot = meta ? meta.nomi.length : 100, usati = new Set(), w = cFolla.clientWidth || 800;
+    const tot = meta ? meta.nomi.length : 100, usati = new Set(), w = sc.w || cFolla.clientWidth || 800;
     const nuovo = () => { let id; do { id = Math.floor(Math.random() * tot); } while (usati.has(id) && usati.size < tot); usati.add(id); return id; };
     const n = o.ids ? o.ids.length : (o.n || Math.max(6, Math.min(26, Math.round(w / (stretto ? 34 : 62)))));
     sc.omini = [];
@@ -335,6 +360,7 @@
       sc.omini.push(om);
     }
     sc.omini.sort((p, q) => p.dy - q.dy);
+    sc.ancora = alto - sc.suoloGiu - fondo / 2;   // zoomando la folla si stringe verso il centro della sua fascia
     return sc;
   }
   function nomiPersonaggi() { return meta ? meta.nomi : []; }
@@ -346,29 +372,34 @@
     const passo = o.passo || 22, r0 = o.raggio || 1.5, base0 = o.base || [205, 205, 198], acc0 = o.accento || [59, 75, 224];
     const vicino = o.vicino || 120, ctx = c.getContext('2d'), area = o.area || c.parentNode;
     let W = 0, H = 0, nx = 0, ny = 0, ox = 0, oy = 0, P = [], mx = -1e4, my = -1e4, onde = [], fermo = false;
-    function misura() {
+    let pg = passo;   // passo della griglia sullo schermo (cambia con lo zoom)
+    function misura(ps) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      pg = ps || pg;
       W = c.clientWidth; H = c.clientHeight;
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      nx = Math.max(1, Math.floor(W / passo)); ny = Math.max(1, Math.floor(H / passo));
-      ox = (W - (nx - 1) * passo) / 2; oy = (H - (ny - 1) * passo) / 2;
+      nx = Math.max(1, Math.ceil(W / pg) + 1); ny = Math.max(1, Math.ceil(H / pg) + 1);
+      ox = (W - (nx - 1) * pg) / 2; oy = (H - (ny - 1) * pg) / 2;
       P = new Float32Array(nx * ny * 4);   // spostamento x, y e velocità x, y di ogni pallino
     }
     const muovi = e => { const b = c.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; };
     const via = () => { mx = my = -1e4; };
     area.addEventListener('pointermove', muovi); area.addEventListener('pointerleave', via);
     function onda(x, y, forza = 1) { onde.push({ x, y, t: performance.now(), f: forza }); }
+    let fase = [0, 0], passoVisto = passo;
     function giro(now) {
       if (fermo || !c.isConnected) { area.removeEventListener('pointermove', muovi); area.removeEventListener('pointerleave', via); return; }
-      if (c.clientWidth !== W || c.clientHeight !== H) misura();
+      const v = o.vista ? o.vista() : null, ps = v ? Math.max(9, passo * v.z) : passo;
+      if (Math.abs(ps - passoVisto) > 0.25 || c.clientWidth !== W || c.clientHeight !== H) { passoVisto = ps; misura(ps); }
+      if (v) { fase = [((v.ox % ps) + ps) % ps, ((v.oy % ps) + ps) % ps]; ox = fase[0]; oy = fase[1]; }
       const n = nx * ny, k = new Float32Array(n);
       const tx = new Float32Array(n), ty = new Float32Array(n);
       // vicino al puntatore: spinta verso l'esterno e colore pieno
       const spingi = (x, y, rag, forza, colore) => {
-        const i0 = Math.max(0, Math.floor((x - rag - ox) / passo)), i1 = Math.min(nx - 1, Math.ceil((x + rag - ox) / passo));
-        const j0 = Math.max(0, Math.floor((y - rag - oy) / passo)), j1 = Math.min(ny - 1, Math.ceil((y + rag - oy) / passo));
+        const i0 = Math.max(0, Math.floor((x - rag - ox) / pg)), i1 = Math.min(nx - 1, Math.ceil((x + rag - ox) / pg));
+        const j0 = Math.max(0, Math.floor((y - rag - oy) / pg)), j1 = Math.min(ny - 1, Math.ceil((y + rag - oy) / pg));
         for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
-          const px = ox + i * passo, py = oy + j * passo, dx = px - x, dy = py - y, d = Math.hypot(dx, dy);
+          const px = ox + i * pg, py = oy + j * pg, dx = px - x, dy = py - y, d = Math.hypot(dx, dy);
           if (d >= rag) continue;
           const q = (1 - d / rag) * (1 - d / rag), id = j * nx + i;
           if (forza && d > 0.01) { tx[id] += dx / d * q * forza; ty[id] += dy / d * q * forza; }
@@ -382,7 +413,7 @@
       onde.forEach(w => {
         const fronte = (now - w.t) / 1000 * 620, largo = 70, amp = 10 * w.f * Math.max(0, 1 - fronte / Math.max(W, H));
         for (let id = 0; id < n; id++) {
-          const px = ox + (id % nx) * passo, py = oy + Math.floor(id / nx) * passo, dx = px - w.x, dy = py - w.y, d = Math.hypot(dx, dy) || 1;
+          const px = ox + (id % nx) * pg, py = oy + Math.floor(id / nx) * pg, dx = px - w.x, dy = py - w.y, d = Math.hypot(dx, dy) || 1;
           const u = (d - fronte) / largo;
           if (u < -1 || u > 1) continue;
           const q = Math.cos(u * Math.PI / 2) * amp;
@@ -401,7 +432,7 @@
         const b = id * 4;
         P[b + 2] = (P[b + 2] + (tx[id] - P[b]) * 0.16) * 0.72; P[b + 3] = (P[b + 3] + (ty[id] - P[b + 1]) * 0.16) * 0.72;
         P[b] += P[b + 2]; P[b + 1] += P[b + 3];
-        const x = ox + (id % nx) * passo + P[b], y = oy + Math.floor(id / nx) * passo + P[b + 1];
+        const x = ox + (id % nx) * pg + P[b], y = oy + Math.floor(id / nx) * pg + P[b + 1];
         if (k[id] > 0.04) accesi.push([x, y, k[id]]); else ctx.rect(x - r0, y - r0, 2 * r0, 2 * r0);
       }
       ctx.fill();
