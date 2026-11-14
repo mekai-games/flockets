@@ -860,3 +860,10 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
   .cf-numeri { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cf-prove { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 560px) { .cf-due.cf-onesto { grid-template-columns: minmax(0, 1fr); } .cf-numeri dd { font-size: 30px; } .come { padding: 24px 16px 60px; gap: 28px; } }
+
+/* accesso con Apple: bottone nero come chiede Apple (bianco nel tema scuro) */
+.dc-social [data-provider="apple"] { background: #000; color: #fff; border-color: #000; }
+.dc-social [data-provider="apple"] svg { fill: currentColor; }
+.dc-social [data-provider="apple"]:hover { background: #1d1d1f; }
+:root[data-tema="scuro"] .dc-social [data-provider="apple"] { background: #fff; color: #000; border-color: #fff; }
+:root[data-tema="scuro"] .dc-social [data-provider="apple"]:hover { background: #e8e8ed; }

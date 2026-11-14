@@ -203,6 +203,10 @@ rinominare o cancellare. Se si apre un'analisi prima di entrare, viene salvata a
   accesso appena vengono attivati in Supabase (Authentication → Sign In / Providers), con le credenziali create
   sul sito di ogni provider. L'indirizzo di ritorno da dare al provider è
   `https://zfjofmbyzxulejornexe.supabase.co/auth/v1/callback`.
+- Apple: su Apple Developer un Services ID (`site.flockets.web`, è il Client ID) con «Sign in with Apple», dominio
+  `zfjofmbyzxulejornexe.supabase.co` e l'indirizzo di ritorno qui sopra, più una chiave «Sign in with Apple» (.p8).
+  Il segreto per Supabase si genera in locale con [`strumenti/apple_segreto.mjs`](strumenti/apple_segreto.mjs) e
+  dura 6 mesi. I file `.p8` sono esclusi dal repository.
 - Le email (conferma, password dimenticata) per ora passano dal server di prova di Supabase, che scrive solo ai
   membri del team: per il pubblico serve un SMTP vero (Authentication → Emails → SMTP). Finché non c'è, la
   conferma dell'email alla registrazione è spenta.

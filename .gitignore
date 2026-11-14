@@ -11,6 +11,8 @@ LEGGIMI.md
 # segreti: mai nel repository
 .env
 .env.*
+*.p8
+AuthKey_*
 
 # impostazioni locali degli strumenti
 .claude/
