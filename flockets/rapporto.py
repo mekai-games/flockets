@@ -1,4 +1,6 @@
 """Dai numeri del motore a cio che si legge: pubblici, scenario di budget, prove, dati per il sito."""
+import re
+
 import numpy as np
 import pandas as pd
 
@@ -14,6 +16,21 @@ def r(x, n=4):
 
 
 # ------------------------------------------------------------------------------ pubblici
+# se il nome dell'ad set dice gia che pubblico e, vale il nome (negli export veri succede spesso)
+NOMI_PUBBLICO = [
+    ("caldo", r"retarget|remarket|visitator|carrell|clienti|caldo|warm|custom audience"),
+    ("sosia", r"lookalike|simil|sosia|\blal\b"),
+    ("interessi", r"interess|interest"),
+    ("ampio", r"ampio|broad|advantage|aperto|open targeting"),
+]
+NOMI_TIPO = {
+    "caldo": "Retargeting caldo: visitatori del sito, carrelli abbandonati e clienti (ultimi 30 giorni)",
+    "sosia": "Lookalike 1-3% degli acquirenti",
+    "interessi": "Interessi di categoria: pubblico freddo ma in tema",
+    "ampio": "Prospecting ampio: Italia 18-65, targeting aperto (Advantage+)",
+}
+
+
 def pubblici(fc, R):
     """Dai numeri al pubblico: grandezza (dalla frequenza), temperatura (CTR e CPM relativi), leva preferita."""
     c, m, d = fc.ctr, fc.cpm, fc.deliv
@@ -35,10 +52,14 @@ def pubblici(fc, R):
             gap = 100 * (np.exp(lev[best] - min(lev.values())) - 1)
             if gap < 3:
                 best = "nessuna differenza netta"
+        dal_nome = next((t for t, rx in NOMI_PUBBLICO if re.search(rx, str(k), re.I)), None)
         if len(same) == 1:
             tipo, nome = "unico", "Pubblico unico"
             perche = "e il solo ad set della campagna: non ci sono altri pubblici con cui confrontarlo"
-        elif R.get("copertura_nota", True) and fmean > 1.1:
+        elif dal_nome:
+            tipo, nome = dal_nome, NOMI_TIPO[dal_nome]
+            perche = "lo dice il nome dell'ad set; i numeri: CTR %.2fx la media della campagna, CPM %.2fx, frequenza %.2f" % (ctr_rel, cpm_rel, fmean)
+        elif R.get("copertura_nota", True) and fmean > 1.1 and ctr_rel > 1.2:
             tipo, nome = "caldo", "Retargeting caldo: visitatori del sito, carrelli abbandonati e clienti (ultimi 30 giorni)"
             perche = ("frequenza %.2f (gli stessi utenti rivedono l'annuncio), CTR %.1fx la media della campagna, "
                       "CPM %.1fx: pubblico piccolo, gia interessato e conteso" % (fmean, ctr_rel, cpm_rel))
@@ -69,7 +90,9 @@ def pubblici(fc, R):
                      "ctr_vs_campagna": round(ctr_rel, 2), "cpm_vs_campagna": round(cpm_rel, 2),
                      "frequenza_media": round(fmean, 3),
                      # ordine di grandezza; oltre 20 milioni non si distingue
-                     "grandezza_stimata": int(round(min(size, 2e7), -3)) if (nota_size or R.get("copertura_nota", True)) else None,
+                     # un pubblico caldo o di sosia non puo essere "oltre 20 milioni": se la frequenza non lo dice, non si sa
+                     "grandezza_stimata": (None if tipo in ("caldo", "sosia") and not np.isfinite(size) else
+                                           int(round(min(size, 2e7), -3)) if (nota_size or R.get("copertura_nota", True)) else None),
                      "leva_che_rende_di_piu": best, "vantaggio_leva_%": round(gap, 1)})
     return pd.DataFrame(rows)
 
@@ -282,12 +305,49 @@ def dati_sito(R, fc, pred, P, S, V=None, G=None, origine="caricato", file_previs
                  "stadi": {str(k): int(v) for k, v in pred.stadio.value_counts().items()},
                  "affidabilita": {str(k): int(v) for k, v in pred.affidabilita.value_counts().items()},
                  "eventi": eventi, "note": list(R.get("note", [])), "file_letti": list(R.get("file_letti", [])),
-                 "stagione": R.get("stagione"), "budget_noto": bool(R.get("budget_noto", True)),
+                 "stagione": R.get("stagione"), "budget_noto": bool(R.get("budget_noto", True)), "fonti": fonti(R),
                  "copertura_nota": bool(R.get("copertura_nota", True)), "file_previsioni": file_previsioni},
         "campagne": campagne, "adset": adsets, "ads": ads, "ads_storico": sorted(R["hist"].ad_id.unique().tolist()),
         "pred_cols": pred_cols, "pred": pr, "hist_cols": ["d", "ad", "ctr", "cpm", "imp", "clk", "spesa", "anom"], "hist": hs,
         "anomalie": anomalie, "validazione": val, "generalizzazione": gen, "stagione": stag, "par": par,
     }
+
+
+# a cosa serve ogni tipo di dato, e cosa fa il motore se manca (lo mostra il sito, passo «Dati»)
+FONTI = [
+    ("storico", "Storico giornaliero per annuncio", "è la base: livelli di CTR e CPM, stanchezza delle creatività, giorno della settimana", ""),
+    ("budget", "Budget giornaliero degli ad set", "effetto del budget sul costo e spesa dei giorni da prevedere",
+     "spesa futura uguale alla media degli ultimi 7 giorni; effetto del budget dai valori di base"),
+    ("adset", "Elenco degli ad set", "budget di partenza di ogni pubblico", "budget di partenza uguale al primo budget visto"),
+    ("annunci", "Elenco degli annunci", "data di lancio, per misurare quanto un annuncio si stanca", "lancio uguale al primo giorno nello storico"),
+    ("creativita", "Creatività", "leva, formato e descrizione: servono a stimare gli annunci mai visti",
+     "un annuncio nuovo prende la qualità media"),
+    ("futuro", "Righe da prevedere", "quali annunci e quali giorni prevedere", "prevedo gli annunci attivi per i giorni successivi"),
+    ("calendario", "Calendario", "eventi come il Black Friday", "nessun evento"),
+    ("indice", "Andamento del mercato, per settimana", "stagione: quanto cambiano costo e click durante l'anno", "stagione piatta, forchetta più larga"),
+    ("mercato_mensile", "Costo del mercato, per mese", "stagione, se manca l'andamento settimanale", ""),
+    ("campagne", "Campagne e inserzionisti", "nomi e settori", "nomi uguali ai codici"),
+]
+
+
+def fonti(R):
+    """Per ogni tipo di dato: se c'e, da quale file arriva, a cosa serve e cosa si fa se manca."""
+    ruoli = R.get("ruoli") or {}
+    assets = R.get("assets")
+    descritte = assets is not None and "descrizione_visual" in assets and assets.descrizione_visual.fillna("").astype(str).str.strip().any()
+    out = []
+    for chiave, nome, serve, senza in FONTI:
+        cerca = {"campagne": ("campagne", "inserzionisti")}.get(chiave, (chiave,))
+        file = sorted(n.split("/")[-1] for n, r in ruoli.items() if r in cerca)
+        presente, dove = bool(file), ""
+        if chiave == "budget" and not file and R.get("budget_noto"):
+            presente, dove = True, "colonna dello storico"
+        if chiave == "creativita":
+            presente = bool(file) or bool(descritte)
+        if chiave == "mercato_mensile" and not file:
+            continue   # e solo una riserva: se non c'e non serve dirlo
+        out.append({"dato": nome, "file": file, "dove": dove, "serve": serve, "presente": presente, "senza": senza})
+    return out
 
 
 COLONNE_CSV = ["data", "ad_id", "adset_id", "asset_id", "leva", "formato", "budget_giornaliero_adset",

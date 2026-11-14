@@ -188,17 +188,21 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
     cfg = dict(cfg or {})
     note, per_ruolo = [], {}
     tab = {k: leggi(v) for k, v in tabelle.items()}
+    ruoli = {}   # nome del file -> a cosa serve (lo mostra il sito)
     for nome, df in tab.items():
         r = ruolo(nome)
         if r is None and len(tab) == 1:
             r = "storico"
         if r is not None:
             per_ruolo.setdefault(r, []).append(df)
+            ruoli[nome] = r
     if "storico" not in per_ruolo:   # nessun nome riconosciuto: lo storico e la tabella piu lunga con le colonne giuste
-        candidati = [d for d in tab.values() if {"data", "spesa", "impression"} <= set(rinomina(d, ["data", "spesa", "impression"]).columns)]
+        candidati = [(n, d) for n, d in tab.items() if {"data", "spesa", "impression"} <= set(rinomina(d, ["data", "spesa", "impression"]).columns)]
         if not candidati:
             raise DatiNonValidi("Non trovo lo storico giornaliero. Serve una tabella con: data, annuncio, spesa, impression, click.")
-        per_ruolo["storico"] = [max(candidati, key=len)]
+        n, d = max(candidati, key=lambda x: len(x[1]))
+        per_ruolo["storico"] = [d]
+        ruoli[n] = "storico"
     una = lambda r: pd.concat(per_ruolo[r], ignore_index=True) if r in per_ruolo else None
 
     # ---- storico
@@ -238,6 +242,7 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
                 if combo and not h.duplicated(["data", "ad_id"] + combo).any():
                     if "asset_id" not in h:
                         h["asset_id"] = h.ad_id   # stessa creativita usata in piu ad set
+                    h["ad_name"] = h.ad_id   # il nome resta quello dell'annuncio, senza il gruppo davanti
                     h["ad_id"] = h[combo].agg(" | ".join, axis=1) + " | " + h.ad_id
                     note.append("Lo stesso annuncio compare in piu ad set: ogni coppia ad set e annuncio e trattata come un annuncio, con la creativita in comune.")
                     break
@@ -307,7 +312,8 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
 
     # ---- annunci (date di lancio)
     primo = h.groupby("ad_id").agg(adset_id=("adset_id", "first"), asset_id=("asset_id", "first"), campaign_id=("campaign_id", "first"),
-                                   data_lancio=("data", "min"), ultimo=("data", "max")).reset_index()
+                                   data_lancio=("data", "min"), ultimo=("data", "max"),
+                                   **({"ad_name": ("ad_name", "first")} if "ad_name" in h else {})).reset_index()
     ann = una("annunci")
     if ann is not None:
         ann = rinomina(ann, ["ad_id", "campaign_id", "adset_id", "asset_id", "data_lancio", "data_fine"])
@@ -323,7 +329,7 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
         ann = pd.concat([ann, fuori.assign(data_fine=pd.NaT)[["ad_id", "campaign_id", "adset_id", "asset_id", "data_lancio", "data_fine"]]], ignore_index=True)
     else:
         primo = _lancio_ignoto(primo, h.data.min(), note)
-        ann = primo.assign(data_fine=pd.NaT)[["ad_id", "campaign_id", "adset_id", "asset_id", "data_lancio", "data_fine"]]
+        ann = primo.assign(data_fine=pd.NaT)[["ad_id", "campaign_id", "adset_id", "asset_id", "data_lancio", "data_fine"] + (["ad_name"] if "ad_name" in primo else [])]
         note.append("Date di lancio non presenti: per ogni annuncio vale il primo giorno in cui compare nello storico.")
     if "ad_name" not in ann:
         ann["ad_name"] = ann.ad_id
@@ -458,7 +464,7 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
         "hist": h.sort_values(["data", "adset_id", "ad_id"]).reset_index(drop=True), "fut": f, "ann": ann, "adset": ads, "bud": bud,
         "cal": cal, "bm": bm, "assets": a, "ins": ins, "cfg": cfg, "note": note,
         "budget_noto": bool(budget_noto), "copertura_nota": bool(copertura_nota), "stagione_nota": bm is not None,
-        "stagione": stagione, "sposta_indice": sposta, "file_letti": sorted(tab.keys()), "orizzonte": int(f.data.nunique()),
+        "stagione": stagione, "sposta_indice": sposta, "file_letti": sorted(tab.keys()), "ruoli": ruoli, "orizzonte": int(f.data.nunique()),
     }
 
 

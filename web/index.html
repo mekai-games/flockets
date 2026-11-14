@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body data-vista="benvenuto">
 
@@ -23,7 +23,7 @@
 <section class="vista scura" id="v-benvenuto">
   <header class="nav">
     <a class="logo" href="#/" aria-label="Flockets"><svg width="26" height="26"><use href="#marchio"/></svg>Flockets</a>
-    <nav class="nav-centro"><a href="#/console">Demo</a><a href="#/sim/consegne">Consegne</a></nav>
+    <nav class="nav-centro"><a href="#/come">Come funziona</a><a href="#/console">Demo</a><a href="#/sim/consegne">Consegne</a></nav>
     <a class="pulsante bianco" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub</a>
   </header>
   <div class="eroe">
@@ -31,41 +31,117 @@
     <p class="motto">Prevedi le campagne di marketing <span class="sotto-riga">prima di lanciarle<svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9.5C40 3 92 2.5 132 5.5c24 1.8 46 2.2 65 .5"/></svg></span>: CTR, CPM e budget, simulati su un pubblico virtuale.</p>
     <div class="azioni">
       <a class="pulsante metallo grande" href="#/console">Prova la demo</a>
-      <a class="pulsante scuro grande" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">Guarda il codice</a>
+      <a class="pulsante scuro grande" href="#/come">Come funziona</a>
     </div>
   </div>
   <canvas id="folla" aria-hidden="true"></canvas>
 </section>
 
-<!-- 2. CONSOLE -->
+<!-- 2. COME FUNZIONA -->
+<section class="vista" id="v-come" hidden>
+  <header class="nav chiara">
+    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
+    <nav class="nav-link"><a class="mono-link" href="#/console">Prova la demo →</a></nav>
+  </header>
+  <main class="pagina">
+    <p class="mono etichetta-m">■ Come funziona</p>
+    <h2>Dai risultati passati alle previsioni</h2>
+    <p class="intro">Flockets guarda come sono andati gli annunci nelle ultime settimane, capisce cosa ha fatto salire o scendere i risultati e prevede, giorno per giorno, quanto renderà e quanto costerà ogni annuncio, con il suo margine di errore.</p>
+    <dl class="glossario-grande">
+      <div><dt>CTR</dt><dd>Quante persone cliccano ogni 100 che vedono l’annuncio.</dd></div>
+      <div><dt>CPM</dt><dd>Quanto costa far vedere l’annuncio 1.000 volte.</dd></div>
+      <div><dt>Ad set</dt><dd>Un gruppo di annunci mostrato a un pubblico preciso.</dd></div>
+    </dl>
+
+    <h3>I passaggi</h3>
+    <ol class="otto">
+      <li><span>01</span><div><b>Legge lo storico</b><p>Per ogni annuncio, giorno per giorno: quanto si è speso, quante volte è stato visto, quanti click ha fatto. Da qui ricava CTR e CPM.</p></div></li>
+      <li><span>02</span><div><b>Toglie i dati sbagliati</b><p>Giorni senza click su un intero settore (tracciamento rotto) o con spesa molto sopra il budget: non vengono usati per imparare.</p></div></li>
+      <li><span>03</span><div><b>Cerca le cause</b><p>Un annuncio va bene o male per più motivi insieme: la creatività, il pubblico, da quanto è in onda, il giorno, il periodo dell’anno. Confrontando tutti gli annunci di tutti i giorni il modello li separa. La stessa creatività in due pubblici diversi mostra quanto conta il pubblico; lo stesso annuncio seguito nel tempo mostra quanto si stanca.</p></div></li>
+      <li><span>04</span><div><b>Ne ricava dei moltiplicatori</b><p>Una tabella di numeri: per esempio pubblico di retargeting ×1,7 sui click, aggancio nei primi 2 secondi ×1,2, annuncio in onda da tre settimane ×0,65, settimana del Black Friday ×1,3 sul costo.</p></div></li>
+      <li><span>05</span><div><b>Rimonta i pezzi per il giorno futuro</b><p>Per un annuncio e un giorno moltiplica i suoi fattori. Se negli ultimi giorni i livelli si sono spostati, una prova interna decide quanto seguirli.</p></div></li>
+      <li><span>06</span><div><b>Stima le creatività mai viste</b><p>Senza storico, la qualità viene dalla descrizione: è un video? parla una persona? c’è tanto testo? Sul sito la descrizione la legge Claude.</p></div></li>
+      <li><span>07</span><div><b>Passa dai soldi ai click</b><p>Budget del giorno → spesa; spesa diviso costo → visualizzazioni; visualizzazioni per CTR → click.</p></div></li>
+      <li><span>08</span><div><b>Dice quanto può sbagliare</b><p>Ripete il calcolo 2.000 volte con piccole variazioni casuali: ne esce una forchetta, come il meteo che dà la probabilità di pioggia.</p></div></li>
+    </ol>
+
+    <h3>Un esempio, con numeri arrotondati</h3>
+    <p>Un video per un prodotto beauty, mostrato a chi conosce già il marchio, venerdì 27 novembre.</p>
+    <div class="esempio">
+      <table><caption>CTR</caption><tbody>
+        <tr><td>Livello di base del marchio</td><td>1,0%</td></tr><tr><td>× pubblico che conosce già il marchio</td><td>1,7</td></tr>
+        <tr><td>× video con aggancio</td><td>1,2</td></tr><tr><td>× in onda da 20 giorni</td><td>0,65</td></tr>
+        <tr><td>× settimana del Black Friday</td><td>1,2</td></tr><tr class="tot"><td>CTR previsto</td><td>circa 1,6%</td></tr>
+      </tbody></table>
+      <table><caption>CPM</caption><tbody>
+        <tr><td>Costo di base del pubblico</td><td>7 €</td></tr><tr><td>× Black Friday</td><td>1,3</td></tr>
+        <tr><td>× budget alzato del 50%</td><td>1,1</td></tr><tr class="tot"><td>CPM previsto</td><td>circa 10 €</td></tr>
+      </tbody></table>
+    </div>
+    <p class="risultato">Con 100 € al giorno: 100 ÷ 10 × 1.000 = <b>10.000 visualizzazioni</b>. L’1,6% fa <b>circa 160 click</b>, tra 130 e 190.</p>
+
+    <h3>Cosa serve</h3>
+    <p>Basta un CSV con una riga per annuncio e giorno. Va bene l’export di Meta Ads Manager (report giornaliero, livello inserzione), con le colonne in italiano, inglese, spagnolo, francese o tedesco.</p>
+    <div class="scorri" id="colonne-come"></div>
+
+    <h3>Funziona anche per altri prodotti?</h3>
+    <p>Sì, se ha lo storico di quella campagna: il metodo è lo stesso per tutti, i numeri li impara ogni volta dai dati caricati.</p>
+    <div class="scorri"><table class="semplice"><thead><tr><th>Cosa carichi</th><th>Cosa fa</th><th>Quanto è affidabile</th></tr></thead><tbody>
+      <tr><td>Una campagna attiva da 2-3 settimane</td><td>Prevede i giorni successivi di ogni annuncio</td><td>Buono</td></tr>
+      <tr><td>Solo campagne passate del tuo account</td><td>Usa i livelli medi del tuo account</td><td>Basso: forchetta larga</td></tr>
+      <tr><td>Nessuno storico</td><td>Non prevede</td><td>Servono almeno 30 righe</td></tr>
+    </tbody></table></div>
+    <p class="nota">Fuori dalla sfida non sa nulla della stagione di quel settore (saldi, uscite, festività): se non gli dai un andamento di mercato la considera piatta e allarga la forchetta.</p>
+
+    <h3>Quanto ci fidiamo</h3>
+    <ul class="punti">
+      <li><b>Prova sul passato.</b> Sui dati della sfida abbiamo nascosto al modello due settimane già avvenute, sette volte. Errore medio sul CPM 6,1% (contro 8,1% di «come la settimana scorsa»; il minimo possibile è 5,8%), sul CTR 13,7% (contro 18,0%; minimo 11,0%).</li>
+      <li><b>Dati veri.</b> Su 79 marche reali (dataset pubblico Conjura) è alla pari con «come la settimana scorsa»; fa meglio dove c’è un evento noto: nel 2023 il Black Friday dell’anno prima ha anticipato quello vero in rapporto 1 a 1.</li>
+    </ul>
+    <p><a class="pulsante nero grande" href="#/console">Prova la demo</a></p>
+  </main>
+</section>
+
+<!-- 3. CONSOLE -->
 <section class="vista" id="v-console" hidden>
   <header class="nav chiara">
     <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
-    <a class="mono-link" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">Codice su GitHub ↗</a>
+    <nav class="nav-link"><a class="mono-link" href="#/come">Come funziona</a><a class="mono-link" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub ↗</a></nav>
   </header>
   <div class="console">
     <div class="console-sx">
-      <p class="mono etichetta-m">■ Stato del sistema</p>
-      <h2>Motore pronto</h2>
-      <p class="tenue">Pronto con i dati della sfida. Oppure carica il tuo storico: basta un CSV con data, annuncio, spesa, impression e click.</p>
-      <p class="mono etichetta-m spazio">◇ Passi</p>
+      <p class="mono etichetta-m">■ Nuova analisi</p>
+      <h2>Quali dati analizzo?</h2>
+      <p class="tenue">Flockets legge lo storico di una campagna (per ogni annuncio, ogni giorno: spesa, visualizzazioni e click), capisce cosa fa salire o scendere i risultati e prevede i giorni successivi.</p>
+      <p class="mono etichetta-m spazio">◇ Cosa ottieni</p>
       <ol class="passi-lista">
-        <li><span>01</span><div><b>Dati</b><p>Lettura di storico, budget e creatività; ricerca delle anomalie.</p></div></li>
-        <li><span>02</span><div><b>Pubblici</b><p>Per ogni ad set: grandezza, temperatura e leva che rende di più.</p></div></li>
-        <li><span>03</span><div><b>Simulazione</b><p>Quindici giorni di CTR e CPM, con il margine di errore.</p></div></li>
-        <li><span>04</span><div><b>Decisioni</b><p>Budget, creatività da sostituire, momento giusto.</p></div></li>
-        <li><span>05</span><div><b>Laboratorio</b><p>Un annuncio nuovo provato sul pubblico simulato.</p></div></li>
+        <li><span>01</span><div><b>Dati</b><p>Cosa ho letto, cosa mancava e quali giorni ho escluso.</p></div></li>
+        <li><span>02</span><div><b>Pubblici</b><p>Chi c’è dietro ogni gruppo di annunci, e quanto è grande.</p></div></li>
+        <li><span>03</span><div><b>Previsioni</b><p>CTR e CPM di ogni annuncio, giorno per giorno, con il margine di errore.</p></div></li>
+        <li><span>04</span><div><b>Decisioni</b><p>Dove mettere il budget e quali creatività cambiare.</p></div></li>
+        <li><span>05</span><div><b>Prova un annuncio</b><p>Come andrebbe un annuncio nuovo, prima di pubblicarlo.</p></div></li>
       </ol>
     </div>
     <div class="console-dx">
       <div class="scatola" id="zona-file">
-        <div class="scatola-riga"><span class="mono">01 / Dati di partenza</span><span class="mono tenue">CSV</span></div>
-        <div class="file-riga"><span class="mono" id="file-nome">kit della sfida · storico_giornaliero.csv</span>
-          <label class="quadro" for="file-ingresso" title="Carica un altro storico" aria-label="Carica un altro storico">↑</label>
-          <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden></div>
+        <div class="scatola-riga"><span class="mono">01 / Dati da analizzare</span></div>
+        <div class="sorgenti" role="radiogroup" aria-label="Dati da analizzare">
+          <label class="sorgente"><input type="radio" name="sorgente" value="kit" checked>
+            <span><b>Dati della sfida</b><small>3 marchi di e-commerce, 12 pubblici, 57 annunci, 91 giorni di storico. Previsioni dal 16 al 30 novembre, Black Friday compreso. Dati simulati, forniti da Wevion.</small></span></label>
+          <label class="sorgente"><input type="radio" name="sorgente" value="esempio">
+            <span><b>Esempio: un gioco per telefono</b><small>Campagna inventata, nel formato dell’export di Meta: 3 pubblici, 5 annunci, 6 settimane. Mostra Flockets fuori dalla sfida.</small></span></label>
+          <label class="sorgente"><input type="radio" name="sorgente" value="file">
+            <span><b>Il tuo storico</b><small>Un CSV con una riga per annuncio e giorno. Resta sul tuo computer: il calcolo avviene nel browser.</small></span></label>
+        </div>
+        <div class="carica" id="carica" hidden>
+          <label class="pulsante bordo" for="file-ingresso">Scegli il file</label>
+          <span class="mono tenue" id="file-nome">oppure trascinalo qui</span>
+          <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden>
+        </div>
         <div id="esito-file" aria-live="polite"></div>
-        <div class="divisore"><span class="mono">Parametri</span></div>
-        <div class="scatola-riga"><label class="mono" for="richiesta">&gt;_ 02 / Annuncio da provare (facoltativo)</label></div>
+        <details class="colonne"><summary>Quali colonne servono · <a href="data/esempio_gioco.csv" download>file di esempio</a></summary><div class="scorri" id="colonne-console"></div></details>
+        <div class="divisore"><span class="mono">Facoltativo</span></div>
+        <div class="scatola-riga"><label class="mono" for="richiesta">02 / Un annuncio nuovo da provare</label></div>
         <textarea id="richiesta" class="mono" rows="3" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
         <div class="capito" id="capito" hidden>
           <p class="mono etichetta-m">Ho capito (tocca per correggere) <span id="capito-fonte" aria-live="polite"></span></p>
@@ -76,26 +152,23 @@
           <label>Budget al giorno, in euro <input type="number" id="br-budget" min="1" step="1" inputmode="numeric" placeholder="facoltativo"></label>
           <label>Giorno di lancio <select id="br-lancio"></select></label>
         </div>
-        <p class="mono motore">Motore: Flockets v0.1</p>
-        <button class="avvia" id="avvia"><span>Avvia la simulazione</span><span aria-hidden="true">→</span></button>
-        <p class="avviso-barra mono">Demo sui dati della sfida: le previsioni sono già state calcolate dal motore.</p>
+        <button class="avvia" id="avvia"><span>Analizza</span><span aria-hidden="true">→</span></button>
+        <p class="avviso-barra mono" id="avviso"></p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 3. AREA DI LAVORO -->
+<!-- 4. RISULTATI -->
 <section class="vista" id="v-sim" hidden>
   <header class="barra">
-    <a class="indietro" href="#/console" aria-label="Torna alla console">←</a>
-    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="22" height="22"><use href="#marchio"/></svg>Flockets</a>
-    <div class="viste" role="tablist" aria-label="Disposizione">
-      <button data-v="pubblico" role="tab">Pubblico</button><button data-v="diviso" role="tab" aria-selected="true">Diviso</button><button data-v="tecnica" role="tab">Tecnica</button>
-    </div>
-    <div class="stato"><span class="mono tenue" id="st-passo"></span><b id="st-nome"></b><span class="spia" id="st-spia"></span><span class="tenue" id="st-testo"></span></div>
-    <a class="pulsante nero" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub</a>
+    <a class="indietro" href="#/console" aria-label="Cambia i dati">←</a>
+    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="22" height="22"><use href="#marchio"/></svg><span>Flockets</span></a>
+    <nav class="passi-nav" id="passi-nav" aria-label="Passi"></nav>
+    <a class="mono-link come-link" href="#/come">Come funziona</a>
   </header>
-  <div class="lavoro" data-disp="diviso">
+  <div class="in-uso" id="in-uso"></div>
+  <div class="lavoro">
     <section class="palco" aria-label="Pubblico simulato">
       <div class="palco-testa">
         <b class="palco-titolo">Pubblico simulato</b>
@@ -109,20 +182,15 @@
       <div class="zone" id="zone"></div>
       <div class="legenda" id="pz-legenda"></div>
     </section>
-    <section class="tecnica" aria-label="Parte tecnica">
-      <nav class="passi-nav" id="passi-nav" aria-label="Passi"></nav>
+    <section class="tecnica" aria-label="Analisi">
       <div class="schede" id="pannello"></div>
-      <div class="registro" aria-label="Registro">
-        <div class="registro-testa mono"><span>Registro</span><span id="reg-id">flockets · kit sfida</span></div>
-        <div class="registro-righe mono" id="registro"></div>
-      </div>
     </section>
   </div>
 </section>
 
-<script src="js/scena.js?v=16"></script>
-<script src="js/motore.js?v=16"></script>
-<script src="js/grafici.js?v=16"></script>
-<script src="js/app.js?v=16"></script>
+<script src="js/scena.js?v=17"></script>
+<script src="js/motore.js?v=17"></script>
+<script src="js/grafici.js?v=17"></script>
+<script src="js/app.js?v=17"></script>
 </body>
 </html>

@@ -22,20 +22,28 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 
 ### Il sito
 
-Il percorso è in tre schermate.
+Il percorso è in quattro schermate.
 
 1. **Home**: nome, frase e la folla del pubblico simulato.
-2. **Console**: i dati di partenza e, se vuoi, la descrizione di un annuncio da provare. Poi «Avvia la simulazione».
-3. **Area di lavoro**: a sinistra il pubblico simulato, a destra la parte tecnica in cinque passi, con il registro di ciò che il motore ha fatto.
+2. **Come funziona**: il modello in otto passaggi, un esempio di calcolo, le colonne che servono, quanto ci
+   fidiamo.
+3. **Scelta dei dati**: i dati della sfida, un esempio inventato (una campagna per un gioco per telefono, nel
+   formato dell'export di Meta) oppure il proprio CSV; in più, se si vuole, la descrizione di un annuncio nuovo.
+   Poi «Analizza».
+4. **Risultati**: in alto i passi e il riquadro **Dati in uso** (quali dati, quale periodo, cosa mancava,
+   cosa vogliono dire CTR e CPM); a sinistra il pubblico simulato, a destra l'analisi passo per passo.
 
 | Passo | Cosa mostra |
 |---|---|
-| 01 Dati | cosa è stato letto, le anomalie trovate, l'andamento del mercato nelle settimane da prevedere |
-| 02 Pubblici | chi c'è dietro ogni ad set e i numeri che lo motivano |
-| 03 Simulazione | i 15 giorni scorrono: gli omini che esultano sono i click, quelli che dormono hanno visto l'annuncio troppe volte. Per ogni annuncio CTR e CPM con la forchetta di errore |
-| 04 Decisioni | cursori del budget con ricalcolo immediato (anche sul pubblico simulato), proposta di riallocazione, creatività da sostituire |
-| 05 Laboratorio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
+| 1 Dati | cosa sto analizzando, quali dati uso e per cosa, cosa mancava e cosa ho assunto, i giorni esclusi, l'andamento del mercato |
+| 2 Pubblici | chi c'è dietro ogni ad set, detto in parole: quanti sono, quanto cliccano e costano rispetto alla media |
+| 3 Previsioni | i giorni scorrono: gli omini che esultano sono i click, quelli che dormono hanno visto l'annuncio troppe volte. Per ogni annuncio CTR e CPM con la forchetta di errore, e una frase che li spiega |
+| 4 Decisioni | cursori del budget con ricalcolo immediato (anche sul pubblico simulato), proposta di riallocazione, creatività da sostituire |
+| 5 Prova un annuncio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
 | Consegne | le tre consegne della sfida |
+
+Il file d'esempio del gioco si rigenera con `python3 strumenti/esempio_gioco.py`: i numeri sono inventati
+con una regola semplice e un seme fisso.
 
 **Come il sito capisce il testo.** La descrizione dell'annuncio viene letta due volte. Subito, nel browser, con
 regole a parole chiave. Poco dopo da Claude Haiku, tramite la funzione [`web/api/leggi.js`](web/api/leggi.js):
@@ -175,6 +183,7 @@ Per rifare le prove: [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) 
 | [`web/api/leggi.js`](web/api/leggi.js) | la funzione che legge la descrizione di un annuncio con Claude Haiku |
 | [`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) | prova il motore su uno storico qualsiasi: nasconde gli ultimi giorni e confronta |
 | [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) | la prova sulle 79 marche vere del dataset Conjura |
+| [`strumenti/esempio_gioco.py`](strumenti/esempio_gioco.py) | crea il file d'esempio del sito (campagna inventata per un gioco per telefono) |
 | [`strumenti/atlante.py`](strumenti/atlante.py) | unisce i fogli di animazione dei personaggi in una sola immagine |
 | [`design/`](design/) | logo e proposte di logo |
 
