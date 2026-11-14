@@ -1,21 +1,43 @@
-# Clienti che non esistono · The Big Hack 2026, sfida Wevion
+# Flockets
 
-> Nome del progetto: da scegliere (questo è il titolo della sfida).
+**Prova la tua campagna su clienti che non esistono.**
 
-Uno strumento che, prima di lanciare una campagna, immagina il pubblico di ogni ad set, prevede CTR e CPM
-di ogni annuncio giorno per giorno e aiuta a decidere dove mettere il budget.
+Flockets immagina il pubblico di ogni ad set, prevede CTR e CPM di ogni annuncio giorno per giorno e aiuta a
+decidere dove mettere il budget. Prima di spendere un euro.
 
+Sito: **https://flockets.vercel.app**
+
+Progetto per The Big Hack 2026 (Napoli, 14-15 novembre), sfida Wevion «Clienti che non esistono».
 Questa pagina segue le tre consegne chieste dalla sfida.
 
-| Consegna | Dove sta | Stato |
-|---|---|---|
-| 1. Lo strumento | [`modello/`](modello/) (motore di previsione), sito in `web/` | motore fatto, sito da costruire |
-| 2. Le previsioni | [`output/previsioni_16-30_nov.csv`](output/previsioni_16-30_nov.csv) | fatte: 699 righe, 51 annunci |
-| 3. Il ragionamento | questa pagina, più il video di 3 minuti | pagina fatta, video da girare |
+| Consegna | Dove sta |
+|---|---|
+| 1. Lo strumento | il [sito](https://flockets.vercel.app) (cartella [`web/`](web/)) e il motore di previsione ([`modello/`](modello/)) |
+| 2. Le previsioni | [`output/previsioni_16-30_nov.csv`](output/previsioni_16-30_nov.csv): 699 righe, 51 annunci |
+| 3. Il ragionamento | questa pagina, la scheda Consegne del sito e il video di 3 minuti |
 
 ---
 
 ## 1. Lo strumento
+
+### Il sito
+
+| Scheda | Cosa mostra |
+|---|---|
+| Piazza | i quattro pubblici di ogni campagna come gruppi di omini: chi esulta ha cliccato, chi dorme ha visto l'annuncio troppe volte. Si scorre giorno per giorno dal 16 al 30 novembre |
+| Pubblici | chi c'è dietro ogni ad set e i numeri che lo motivano |
+| Previsioni | CTR e CPM di ogni annuncio con la forchetta di errore, storico e previsto sullo stesso grafico |
+| Decisioni | cursori del budget con ricalcolo immediato, proposta di riallocazione, creatività da sostituire |
+| Laboratorio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
+| Consegne | le tre consegne della sfida |
+
+Il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo in locale:
+
+```bash
+python3 -m http.server 4173 --directory web
+```
+
+### Il motore
 
 Il motore è in Python e usa solo `numpy` e `pandas`.
 
@@ -34,12 +56,22 @@ Il comando rifà tutto da zero in pochi secondi e scrive in `output/`:
 | `validazione_backtest.csv` | la prova sullo storico: errore del modello contro un riferimento ingenuo |
 | `parametri_modello.json` | i parametri stimati (fatica, elasticità al budget, giorno della settimana...) |
 
-Come è fatto il codice:
+Per aggiornare i dati che il sito legge:
 
-| File | Cosa fa |
+```bash
+python3 modello/export_web.py
+```
+
+### Come è diviso il codice
+
+| Cartella | Cosa c'è |
 |---|---|
-| [`modello/wevion_model.py`](modello/wevion_model.py) | lettura dati, stagionalità, modello CTR, modello CPM, quote di spesa, incertezza, validazione |
-| [`modello/run.py`](modello/run.py) | esegue tutto e scrive i file in `output/` |
+| [`modello/wevion_model.py`](modello/wevion_model.py) | il motore: lettura dati, stagionalità, modello CTR, modello CPM, quote di spesa, incertezza, validazione |
+| [`modello/run.py`](modello/run.py) | esegue stima, validazione e previsioni, scrive `output/` |
+| [`modello/export_web.py`](modello/export_web.py) | prepara `web/data/analisi.json` per il sito |
+| [`web/`](web/) | il sito: `index.html`, `style.css`, `js/scena.js` (omini), `js/grafici.js` (grafici), `js/app.js` (schede) |
+| [`strumenti/atlante.py`](strumenti/atlante.py) | unisce i fogli di animazione dei personaggi in una sola immagine |
+| [`output/`](output/) | i risultati del motore |
 
 ---
 
@@ -173,6 +205,9 @@ Cosa questa prova non copre, e quindi dove la previsione è più incerta:
 
 Da completare dal team prima della consegna (la sfida chiede di dichiarare gli strumenti usati).
 
-## Nota sui dati
+## Nota sui dati e sui personaggi
 
-I dati della sfida sono simulati e sono di Wevion. Non sono inclusi in questo repository.
+I dati della sfida sono simulati e sono di Wevion: il kit non è incluso in questo repository. Il sito mostra
+solo ciò che serve ai grafici (previsioni, titoli degli annunci, ultimi 28 giorni di storico).
+
+Gli omini sono i Pinglets, personaggi di Mekai Games. Non sono riutilizzabili senza permesso.

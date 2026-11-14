@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flockets · prova la tua campagna su clienti che non esistono</title>
+<meta name="description" content="Flockets immagina il pubblico, prevede CTR e CPM giorno per giorno e ti dice dove mettere il budget. Prima di spendere un euro.">
+<meta property="og:title" content="Flockets">
+<meta property="og:description" content="Prova la tua campagna su clienti che non esistono.">
+<link rel="icon" type="image/png" href="assets/icona.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body data-vista="benvenuto">
+
+<header class="barra">
+  <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><img src="assets/icona.png" alt="" width="28" height="28">Flockets</a>
+  <nav class="schede" id="schede" aria-label="Sezioni dell'analisi"></nav>
+  <a class="esterno" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">Codice</a>
+</header>
+
+<main>
+
+<!-- 1. BENVENUTO -->
+<section class="vista" id="v-benvenuto">
+  <div class="eroe">
+    <h1>Flockets</h1>
+    <p class="motto">Prova la tua campagna su clienti che non esistono.</p>
+    <p class="sotto">Flockets immagina il pubblico, prevede CTR e CPM giorno per giorno e ti dice dove mettere il budget. Prima di spendere un euro.</p>
+    <a class="bottone grande" href="#/avvio">Inizia</a>
+  </div>
+  <canvas id="striscia" aria-hidden="true"></canvas>
+</section>
+
+<!-- 2. AVVIO -->
+<section class="vista" id="v-avvio" hidden>
+  <div class="contenuto stretto">
+    <h2>Da dove partiamo?</h2>
+    <p class="intro">Dai a Flockets uno storico di campagna oppure descrivi un annuncio. Il pubblico finto fa il resto.</p>
+    <div class="griglia tre">
+      <article class="scheda">
+        <h3>Il kit della sfida</h3>
+        <p>Tre campagne, 91 giorni di storico, due settimane di Black Friday da prevedere.</p>
+        <button class="bottone" id="avvio-kit">Apri l'analisi</button>
+      </article>
+      <article class="scheda" id="zona-file">
+        <h3>Carica i tuoi file</h3>
+        <p>Trascina qui lo storico giornaliero in CSV, oppure sceglilo dal computer.</p>
+        <label class="bottone chiaro" for="file-ingresso">Scegli file</label>
+        <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden>
+        <div id="esito-file" class="esito" aria-live="polite"></div>
+      </article>
+      <article class="scheda">
+        <h3>Descrivi un annuncio</h3>
+        <label class="nascosta" for="avvio-testo">Descrizione dell'annuncio</label>
+        <textarea id="avvio-testo" rows="4" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
+        <button class="bottone" id="avvio-prompt">Prova sul pubblico</button>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 3. ANALISI -->
+<section class="vista" id="v-analisi" hidden>
+  <div class="contenuto">
+    <div class="testa-analisi">
+      <div class="campagne" id="campagne" role="tablist" aria-label="Campagna"></div>
+      <p class="campagna-desc" id="campagna-desc"></p>
+    </div>
+    <div id="pannello"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="velo" id="velo" hidden>
+  <div class="velo-dentro">
+    <canvas id="velo-omino" width="96" height="96" aria-hidden="true"></canvas>
+    <ol id="velo-passi"></ol>
+  </div>
+</div>
+
+<script src="js/scena.js?v=1"></script>
+<script src="js/grafici.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+</body>
+</html>

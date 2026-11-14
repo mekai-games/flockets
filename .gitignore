@@ -11,3 +11,7 @@ LEGGIMI.md
 # segreti: mai nel repository
 .env
 .env.*
+
+# impostazioni locali degli strumenti
+.claude/
+.vercel/
