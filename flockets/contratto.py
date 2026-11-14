@@ -22,19 +22,23 @@ import numpy as np
 import pandas as pd
 
 ALIAS = {
-    "data": ["date", "day", "giorno", "reporting starts", "date start", "inizio report", "data report", "inizio del report"],
-    "ad_id": ["ad id", "id annuncio", "id inserzione", "ad name", "nome inserzione", "nome dell inserzione", "annuncio", "inserzione", "ad"],
-    "adset_id": ["ad set id", "adset id", "ad set name", "adset name", "nome del gruppo di inserzioni", "gruppo di inserzioni", "ad set", "adset"],
-    "campaign_id": ["campaign id", "campaign name", "nome della campagna", "campagna", "campaign"],
+    "data": ["date", "day", "giorno", "dia", "fecha", "jour", "tag", "ad date", "date day", "reporting starts", "date start", "inizio report", "data report", "inizio del report", "inicio del informe"],
+    "ad_id": ["ad id", "id annuncio", "id inserzione", "ad name", "nome inserzione", "nome dell inserzione", "annuncio", "inserzione", "ad",
+              "nombre del anuncio", "identificador del anuncio", "anuncio", "nom de la publicite", "anzeigenname"],
+    "adset_id": ["ad set id", "adset id", "ad set name", "adset name", "nome del gruppo di inserzioni", "gruppo di inserzioni", "ad set", "adset",
+                 "nombre del conjunto de anuncios", "conjunto de anuncios", "nom de l ensemble de publicites", "name der anzeigengruppe"],
+    "campaign_id": ["campaign id", "campaign name", "nome della campagna", "campagna", "campaign", "nombre de la campana", "campana", "nom de la campagne", "kampagnenname"],
     "inserzionista_id": ["inserzionista", "advertiser", "account name", "nome account", "account"],
     "vertical": ["settore", "industry", "categoria", "verticale"],
     "asset_id": ["asset id", "creative id", "id creativita", "creativita", "creative"],
     "leva": ["angle", "hook type", "leva creativa", "messaggio"],
     "formato": ["format", "creative type", "tipo di creativita", "media type"],
-    "spesa": ["spend", "amount spent", "amount spent (eur)", "amount spent (usd)", "importo speso", "importo speso (eur)", "cost", "costo"],
-    "impression": ["impressions", "impr", "impr."],
-    "click": ["clicks", "link clicks", "clic sul link", "click sul link", "clic", "inline link clicks"],
-    "copertura": ["reach"],
+    "spesa": ["spend", "amount spent", "amount spent (eur)", "amount spent (usd)", "importo speso", "importo speso (eur)", "cost", "costo",
+              "importe gastado", "gasto", "montant depense", "ausgegebener betrag"],
+    "impression": ["impressions", "impr", "impr.", "impresiones", "impressionen"],
+    "click": ["clicks", "link clicks", "clic sul link", "click sul link", "clic", "inline link clicks",
+              "clics en el enlace", "clics sur un lien", "link klicks", "clics", "klicks"],
+    "copertura": ["reach", "alcance", "couverture", "reichweite"],
     "budget_giornaliero_adset": ["daily budget", "budget giornaliero", "ad set budget", "budget del gruppo di inserzioni", "budget"],
     "budget_giornaliero_eur": ["budget giornaliero", "daily budget", "budget", "budget giornaliero adset"],
     "budget_giornaliero_iniziale": ["budget iniziale", "initial budget", "budget giornaliero", "daily budget", "budget"],
@@ -70,18 +74,25 @@ def _chiave(s):
 def rinomina(df, campi):
     """Porta le colonne ai nomi che usa il motore. Un nome gia giusto non viene toccato."""
     df = df.copy()
-    df.columns = [str(c).strip() for c in df.columns]
+    df.columns = [str(c).replace("\ufeff", "").strip().strip('"') for c in df.columns]
     presenti = {_chiave(c): c for c in df.columns}
+    # secondo tentativo senza la parentesi finale: "Importe gastado (CLP)" vale come "importe gastado"
+    senza_parentesi = {}
+    for c in df.columns:
+        senza_parentesi.setdefault(re.sub(r"\s*\([^)]*\)\s*$", "", _chiave(c)), c)
     usate = set()
     for campo in campi:
         if campo in df.columns:
             usate.add(campo)
             continue
-        for alias in [campo] + ALIAS.get(campo, []):
-            orig = presenti.get(_chiave(alias))
-            if orig is not None and orig not in usate and orig not in campi:
-                df = df.rename(columns={orig: campo})
-                usate.add(campo)
+        for mappa in (presenti, senza_parentesi):
+            for alias in [campo] + ALIAS.get(campo, []):
+                orig = mappa.get(_chiave(alias))
+                if orig is not None and orig in df.columns and orig not in usate and orig not in campi:
+                    df = df.rename(columns={orig: campo})
+                    usate.add(campo)
+                    break
+            if campo in usate:
                 break
     return df
 
@@ -161,6 +172,17 @@ def _mercato_mensile(mm, hist, fine, verticali, cfg):
     return pd.DataFrame(righe)
 
 
+def _lancio_ignoto(primo, primo_giorno, note):
+    """Un annuncio gia attivo il primo giorno dello storico e partito prima, non si sa quando: la sua fatica
+    si considera gia assestata (eta di un anno), cosi non viene scambiata per un calo appena iniziato."""
+    primo = primo.copy()
+    vecchi = primo.data_lancio <= primo_giorno
+    if vecchi.any():
+        primo.loc[vecchi, "data_lancio"] = primo_giorno - pd.Timedelta(days=365)
+        note.append("%d annunci erano gia attivi il primo giorno dello storico: data di lancio ignota, fatica considerata gia assestata." % int(vecchi.sum()))
+    return primo
+
+
 def costruisci(tabelle, orizzonte=14, cfg=None):
     """Da un insieme di tabelle {nome: DataFrame o testo CSV} al dizionario che usa il motore."""
     cfg = dict(cfg or {})
@@ -198,6 +220,27 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
     if len(h) < 30:
         raise DatiNonValidi("Lo storico ha solo %d righe utili: ne servono almeno 30." % len(h))
     h["ad_id"] = h.ad_id.astype(str)
+    # una riga per annuncio e giorno: prima si sommano le righe divise (per zona, eta, posizionamento),
+    # poi lo stesso annuncio usato in piu ad set o campagne diventa un annuncio per ciascuno, con la creativita in comune
+    if h.duplicated(["data", "ad_id"]).any():
+        gruppi = [c for c in ["campaign_id", "adset_id"] if c in h]
+        for c in gruppi:
+            h[c] = h[c].astype(str)
+        chiavi = ["data", "ad_id"] + gruppi
+        if h.duplicated(chiavi).any():
+            come = {c: "sum" for c in ["spesa", "impression", "click", "copertura"] if c in h}
+            come.update({c: "first" for c in ["inserzionista_id", "vertical", "asset_id", "leva", "formato", "budget_giornaliero_adset"] if c in h})
+            n1 = len(h)
+            h = h.groupby(chiavi, as_index=False).agg(come)
+            note.append("%d righe dello stesso annuncio e giorno (es. divise per zona o eta) sommate in %d." % (n1, len(h)))
+        if h.duplicated(["data", "ad_id"]).any():
+            for combo in ([["adset_id"]] if "adset_id" in h else []) + [gruppi]:
+                if combo and not h.duplicated(["data", "ad_id"] + combo).any():
+                    if "asset_id" not in h:
+                        h["asset_id"] = h.ad_id   # stessa creativita usata in piu ad set
+                    h["ad_id"] = h[combo].agg(" | ".join, axis=1) + " | " + h.ad_id
+                    note.append("Lo stesso annuncio compare in piu ad set: ogni coppia ad set e annuncio e trattata come un annuncio, con la creativita in comune.")
+                    break
     if "inserzionista_id" not in h:
         h["inserzionista_id"] = "account"
     if "campaign_id" not in h:
@@ -276,9 +319,10 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
             if c not in ann:
                 ann = ann.merge(primo[["ad_id", c]], on="ad_id", how="left")
             ann[c] = ann[c].astype(str)
-        fuori = primo[~primo.ad_id.isin(ann.ad_id)]
+        fuori = _lancio_ignoto(primo[~primo.ad_id.isin(ann.ad_id)], h.data.min(), note)
         ann = pd.concat([ann, fuori.assign(data_fine=pd.NaT)[["ad_id", "campaign_id", "adset_id", "asset_id", "data_lancio", "data_fine"]]], ignore_index=True)
     else:
+        primo = _lancio_ignoto(primo, h.data.min(), note)
         ann = primo.assign(data_fine=pd.NaT)[["ad_id", "campaign_id", "adset_id", "asset_id", "data_lancio", "data_fine"]]
         note.append("Date di lancio non presenti: per ogni annuncio vale il primo giorno in cui compare nello storico.")
     if "ad_name" not in ann:
@@ -388,6 +432,10 @@ def costruisci(tabelle, orizzonte=14, cfg=None):
             bm["settimana_dal"] = _data(bm["settimana_dal"])
             bm["indice_cpm"] = _numero(bm["indice_cpm"])
             bm["indice_ctr"] = _numero(bm["indice_ctr"]) if "indice_ctr" in bm else 100.0
+            if "vertical" in bm:
+                bm["vertical"] = bm.vertical.astype(str)
+                if not set(bm.vertical) & set(verticali):   # settori con altri nomi: vale la media per tutti
+                    bm = bm.groupby("settimana_dal")[["indice_cpm", "indice_ctr"]].mean().reset_index()
             if "vertical" not in bm:
                 bm = pd.concat([bm.assign(vertical=v) for v in verticali], ignore_index=True)
             # l'indice puo essere dell'anno prima: lo sposto di 52 settimane finche copre i giorni da prevedere

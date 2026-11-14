@@ -154,6 +154,7 @@ input[type=range] { flex: 1; min-width: 80px; accent-color: var(--inchiostro); h
 .chips .aff-alta { background: var(--verde-f); border-color: #BFE3CB; color: var(--verde); } .chips .aff-media { background: var(--giallo-f); border-color: #F0E3A3; color: #8A6D00; } .chips .aff-bassa { background: var(--arancio-f); border-color: #F6C9B4; color: #C2410C; }
 .avvia:disabled { opacity: .6; cursor: progress; }
 .capito { margin-top: 12px; } .capito .etichetta-m { margin: 0 0 8px; font-size: 11.5px; }
+.capito #capito-fonte { color: var(--blu); text-transform: none; letter-spacing: 0; } .capito-motivo { margin: 0 0 10px; font-size: 12.5px; color: var(--tenue); }
 .capito .chips span { cursor: pointer; user-select: none; } .capito .chips span.si { background: var(--inchiostro); border-color: var(--inchiostro); color: #fff; }
 .campi.due { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px; }
 input[type=number] { width: 100%; font: 14px var(--testo); color: var(--inchiostro); background: var(--fondo); border: 1px solid var(--riga); padding: 8px 10px; border-radius: 0; text-transform: none; letter-spacing: 0; }

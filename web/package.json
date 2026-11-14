@@ -1,0 +1,10 @@
+{
+  "name": "flockets-sito",
+  "private": true,
+  "type": "module",
+  "description": "Sito statico di Flockets e funzione /api/leggi (lettura del testo con Claude)",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0"
+  }
+}

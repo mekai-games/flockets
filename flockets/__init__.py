@@ -50,6 +50,10 @@ def analizza(sorgente, orizzonte=14, simulazioni=2000, prove=True, cfg=None, ori
         R["note"].append("Valori di base usati perche: " + "; ".join(perche) + ". Vengono dal kit della sfida (dati simulati).")
     fc = Forecaster(R, base=base).fit(R["hist"])
     pred = fc.predict(R["fut"], n_sim=simulazioni)
+    if fc.rho["ctr"] or fc.rho["cpm"] or fc.salti:
+        R["note"].append("Lo storico cambia livello nel tempo: la previsione parte dal livello dell'ultima settimana "
+                         "(peso %.2f sul CTR, %.2f sul CPM%s). Lo ha deciso una prova interna su giorni nascosti."
+                         % (fc.rho["ctr"], fc.rho["cpm"], "; %d salti netti seguiti per intero" % fc.salti if fc.salti else ""))
     P = rapporto.pubblici(fc, R)
     S = rapporto.scenario_budget(fc, pred)
     V = rapporto.validazione(R, n_sim=simulazioni) if prove else None

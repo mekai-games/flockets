@@ -445,8 +445,32 @@
     const c = (x, lista) => (lista.includes(x) ? x : lista[0]);
     const formato = c(/video|reel|secondi|filmato/.test(s) ? 'video' : /carosello|schede|slide/.test(s) ? 'carosello' : 'immagine', D.par.formati);
     const lv = c(/black/.test(s) ? 'black_friday' : /solo oggi|scade|mezzanotte|24 ore|48 ore|countdown|timer|fino a domenica|stanotte/.test(s) ? 'urgency' : 'scarcity', D.par.leve);
-    return { f, formato, leva: lv };
+    return { f, formato, leva: lv, fonte: 'regole' };
   }
+  /* Lettura con Claude (funzione /api/leggi). Se manca la chiave o la rete, restano le regole qui sopra. */
+  const IA = { attiva: null, t: null, ultimo: null };
+  function iaPronta() {
+    if (IA.attiva !== null) return Promise.resolve(IA.attiva);
+    return fetch('api/leggi').then(r => (r.ok ? r.json() : { attiva: false })).then(j => (IA.attiva = !!j.attiva)).catch(() => (IA.attiva = false));
+  }
+  function chiediIA(testo) {
+    if (IA.ultimo && IA.ultimo.testo === testo) return IA.ultimo.p;
+    const p = iaPronta().then(ok => {
+      if (!ok || testo.length < 8) return null;
+      return fetch('api/leggi', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ testo: testo.slice(0, 800), formati: D.par.formati, leve: D.par.leve }) })
+        .then(r => (r.ok ? r.json() : null))
+        .then(j => {
+          if (!j || !D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return null;
+          const f = {};
+          Object.keys(D.par.feat_regole).forEach(k => { f[k] = j.caratteristiche && j.caratteristiche[k] ? 1 : 0; });
+          return { f, formato: j.formato, leva: j.leva, motivo: j.motivo || '', fonte: 'ia' };
+        });
+    }).catch(() => null);
+    IA.ultimo = { testo, p };
+    return p;
+  }
+  const fonteTesto = B => (B.fonte === 'ia' ? 'letto da Claude Haiku' : B.attesa && IA.attiva !== false ? 'lettura in corso…' : 'letto con parole chiave');
   function logFatica(eta, leva) {
     const lf = k => { const [fl, tau] = D.par.fatica[k]; return Math.log(fl + (1 - fl) * Math.exp(-eta / tau)); };
     return leva === 'scarcity' ? lf('scarcity') : leva === 'urgency' ? lf('urgency') : 0.5 * (lf('scarcity') + lf('urgency'));
@@ -480,7 +504,8 @@
     el.innerHTML = scheda('01', 'Descrivi l’annuncio', ['Interattivo', 'neutro'], `
         <label class="nascosta" for="lab-testo">Descrizione dell’annuncio</label>
         <textarea id="lab-testo" class="mono" rows="3">${esc(L.testo)}</textarea>
-        <p><button class="pulsante nero" id="lab-leggi">Leggi la descrizione</button></p>
+        <p><button class="pulsante nero" id="lab-leggi">Leggi la descrizione</button> <span class="mono tenue" id="lab-fonte"></span></p>
+        <p class="nota" id="lab-motivo" hidden></p>
         <p class="nota">Flockets riconosce le caratteristiche che nello storico spostano il CTR. Puoi correggerle a mano.</p>
         <div class="campi">
           <label>Formato <select id="lab-formato">${D.par.formati.map(v => `<option${v === L.formato ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
@@ -510,8 +535,21 @@
     const campi = () => {
       $('#lab-formato').value = L.formato; $('#lab-leva').value = L.leva;
       $$('.spunte input', el).forEach(i => { i.checked = !!L.f[i.dataset.f]; });
+      $('#lab-fonte').textContent = fonteTesto(L);
+      $('#lab-motivo').hidden = !(L.fonte === 'ia' && L.motivo);
+      $('#lab-motivo').textContent = L.fonte === 'ia' && L.motivo ? 'Perché: ' + L.motivo : '';
     };
-    $('#lab-leggi').addEventListener('click', () => { L.testo = $('#lab-testo').value; Object.assign(L, leggiTesto(L.testo)); campi(); esito(true); });
+    $('#lab-leggi').addEventListener('click', () => {
+      const t = $('#lab-testo').value;
+      L.testo = t; Object.assign(L, leggiTesto(t), { motivo: '', attesa: true }); campi(); esito(true);
+      chiediIA(t.trim()).then(b => {
+        if ($('#lab-testo').value !== t || S.lab !== L) return;
+        L.attesa = false;
+        if (b) { Object.assign(L, b); registra(`Descrizione letta da Claude Haiku: ${L.formato}, ${leva(L.leva)}`); }
+        if ($('#lab-fonte')) { campi(); if (b) esito(false); }
+      });
+    });
+    campi();
     $('#lab-formato').addEventListener('change', e => { L.formato = e.target.value; esito(true); });
     $('#lab-leva').addEventListener('change', e => { L.leva = e.target.value; esito(true); });
     $('#lab-lancio').addEventListener('change', e => { L.lancio = e.target.value; esito(true); });
@@ -523,11 +561,14 @@
   /* ---- consegne */
   function rConsegne(el) {
     const v = (g, m) => D.validazione.find(x => x.gruppo === g && x.modello === m) || {};
-    const riga = (n, g, f) => `<tr><td>${n}</td><td><b>${nf(v(g, 'strutturale')[f], 1)}%</b></td><td>${nf(v(g, 'ultimi 7 giorni')[f], 1)}%</td></tr>`;
+    const conMinimo = v('tutti', 'strutturale').min_ctr != null;
+    const NUMERI = ['Una volta', 'Due volte', 'Tre volte', 'Quattro volte', 'Cinque volte', 'Sei volte', 'Sette volte'];
+    const volte = NUMERI[(v('tutti', 'strutturale').tagli || 4) - 1] || (v('tutti', 'strutturale').tagli + ' volte');
+    const riga = (n, g, f) => `<tr><td>${n}</td><td><b>${nf(v(g, 'strutturale')[f], 1)}%</b></td><td>${nf(v(g, 'ultimi 7 giorni')[f], 1)}%</td>${conMinimo ? `<td>${nf(v(g, 'strutturale')['min_' + f], 1)}%</td>` : ''}</tr>`;
     const P = D.par, peso = k => (Math.exp(P.feat_w[P.feat_cols.indexOf(k) + 1]) - 1) * 100;
     el.innerHTML = scheda('01', 'Lo strumento', FATTO, `
         <p>È questo sito, più il motore di previsione che gli sta dietro. Il motore è scritto in Python e si rilancia con un comando: rifà da zero stima, validazione e previsioni in pochi secondi.</p>
-        <p><a class="pulsante nero" href="${REPO}" target="_blank" rel="noopener">Apri il codice ↗</a></p>`, 'python3 modello/run.py')
+        <p><a class="pulsante nero" href="${REPO}" target="_blank" rel="noopener">Apri il codice ↗</a></p>`, 'python3 esegui.py dati')
       + scheda('02', 'Le previsioni', FATTO, `
         <p><b>${ni(D.meta.righe_previste)} righe</b>: ${D.meta.annunci_previsti} annunci, ogni giorno dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}. Per ogni riga CTR e CPM con la loro forchetta, più costo per click, spesa, impression e click.</p>
         <p>${D.meta.righe_cold} righe riguardano creatività mai viste nello storico: sono stimate dalle caratteristiche dell’annuncio.</p>
@@ -546,16 +587,20 @@ CPM = livello del pubblico × stagione × giorno
           <li><b>Annunci migliori costano meno.</b> Il CPM scende quando la qualità sale e risale quando l’annuncio si stanca.</li>
         </ol>
         <h4>Quanto ci fidiamo</h4>
-        <p>Abbiamo nascosto al modello 14 giorni di storico, li abbiamo fatti prevedere e confrontato con i valori veri. Quattro volte, su date diverse.</p>
-        <div class="scorri"><table><thead><tr><th>Errore medio</th><th>Flockets</th><th>«Come gli ultimi 7 giorni»</th></tr></thead><tbody>
+        <p>Abbiamo nascosto al modello 14 giorni di storico, li abbiamo fatti prevedere e confrontato con i valori veri. ${volte}, su date diverse.</p>
+        <div class="scorri"><table><thead><tr><th>Errore medio</th><th>Flockets</th><th>«Come gli ultimi 7 giorni»</th>${conMinimo ? '<th>Minimo possibile</th>' : ''}</tr></thead><tbody>
           ${riga('CPM, tutti gli annunci', 'tutti', 'cpm')}${riga('CPM, annunci nuovi', 'annunci nuovi', 'cpm')}${riga('CTR, tutti gli annunci', 'tutti', 'ctr')}${riga('CTR, annunci nuovi', 'annunci nuovi', 'ctr')}
         </tbody></table></div>
+        ${conMinimo ? '<p class="nota">Minimo possibile: l’errore che resterebbe anche a un modello perfetto. Il CPM oscilla da solo da un giorno all’altro; sul CTR, con poche decine di click al giorno per annuncio, conta il caso. Abbiamo provato a spostare ogni parametro del modello: nessuna variazione avvicina di più l’errore a quel minimo.</p>' : ''}
         ${D.generalizzazione && D.generalizzazione.length ? `<h4>Vale anche su un inserzionista mai visto?</h4>
         <p>Abbiamo tolto un inserzionista alla volta. I fattori comuni (fatica, giorno della settimana, effetto del budget, peso delle caratteristiche creative) li abbiamo stimati solo sugli altri due; di lui abbiamo stimato soltanto i livelli.</p>
         <div class="scorri"><table><thead><tr><th>Errore medio</th><th>CPM</th><th>CTR</th></tr></thead><tbody>
           ${D.generalizzazione.map(x => `<tr><td>${x.storia}, ${x.modello}</td><td>${nf(x.cpm, 1)}%</td><td>${nf(x.ctr, 1)}%</td></tr>`).join('')}
         </tbody></table></div>
-        <p class="nota">I fattori imparati dagli altri valgono quanto quelli imparati sui suoi dati, e aiutano quando lo storico è corto. È una prova dentro il kit, che è fatto di dati simulati.</p>` : ''}
+        <p class="nota">I fattori imparati dagli altri valgono quasi quanto quelli imparati sui suoi dati, e aiutano quando lo storico è corto. È una prova dentro il kit, che è fatto di dati simulati.</p>` : ''}
+        ${kit() ? `<h4>E su dati veri?</h4>
+        <p>Il kit è simulato. Abbiamo provato il motore su 79 marche vere (dataset pubblico Conjura, 377 prove con 14 giorni nascosti). All’inizio perdeva contro «come gli ultimi 7 giorni»: 22,6% di errore sul CPM contro 18,6%. Ora, quando una prova interna lo consiglia, parte dal livello dell’ultima settimana, ed è alla pari: 18,6%. Sul kit non cambia nulla.</p>
+        <p>Nella settimana del Black Friday 2023 l’aumento del CPM dell’anno prima ha anticipato quello vero in rapporto 1 a 1: è la scelta su cui poggiano le nostre previsioni dal 23 al 29 novembre.</p>` : ''}
         <h4>Dove siamo più incerti</h4>
         <ul class="punti"><li>Nello storico non c’è un Black Friday, né un aumento di budget su più ad set insieme.</li><li>L’effetto del budget sul CPM viene da un solo ad set.</li><li>Le creatività mai viste hanno una forchetta larga.</li></ul>
         <p>I pubblici immaginati, con i numeri che li motivano, sono al <a href="#/sim/pubblici">passo 2</a>.</p>`, 'README · video di 3 minuti');
@@ -619,15 +664,28 @@ CPM = livello del pubblico × stagione × giorno
     const testo = $('#richiesta').value.trim(), box = $('#capito');
     if (!$('#br-lancio').options.length) $('#br-lancio').innerHTML = D.meta.giorni.slice(0, 12).map(d => `<option value="${d}">${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('');
     box.hidden = !testo;
-    if (!testo) { S.brief = null; return; }
-    if (rileggi || !S.brief) S.brief = leggiTesto(testo);
+    if (!testo) { S.brief = null; clearTimeout(IA.t); return; }
+    if (rileggi || !S.brief) {
+      // subito le regole a parole chiave; poco dopo, se c'è, la lettura di Claude le sostituisce
+      S.brief = Object.assign(leggiTesto(testo), { attesa: true });
+      clearTimeout(IA.t);
+      IA.t = setTimeout(() => chiediIA(testo).then(b => {
+        if (!S.brief || $('#richiesta').value.trim() !== testo) return;
+        if (b && !S.brief.manuale) S.brief = b; else S.brief.attesa = false;
+        rCapito(false);
+      }), 700);
+    }
     const B = S.brief;
+    $('#capito-fonte').textContent = '· ' + fonteTesto(B);
+    $('#capito-motivo').hidden = !(B.fonte === 'ia' && B.motivo);
+    $('#capito-motivo').textContent = B.fonte === 'ia' && B.motivo ? 'Perché: ' + B.motivo : '';
     $('#capito-chips').innerHTML =
       D.par.formati.map(v => `<span data-k="formato" data-v="${v}" class="${v === B.formato ? 'si' : ''}">${v}</span>`).join('')
       + D.par.leve.map(v => `<span data-k="leva" data-v="${v}" class="${v === B.leva ? 'si' : ''}">${leva(v)}</span>`).join('')
       + Object.entries(CARATT).map(([k, n]) => `<span data-k="f" data-v="${k}" class="${B.f[k] ? 'si' : ''}">${n}</span>`).join('');
     $$('#capito-chips span').forEach(s => s.addEventListener('click', () => {
       if (s.dataset.k === 'f') B.f[s.dataset.v] = B.f[s.dataset.v] ? 0 : 1; else B[s.dataset.k] = s.dataset.v;
+      B.manuale = true;   // una correzione fatta a mano non viene più sovrascritta
       rCapito(false);
     }));
   }
@@ -635,8 +693,15 @@ CPM = livello del pubblico × stagione × giorno
   function avvia() {
     const b = $('#avvia'), out = $('#esito-file');
     S.testoConsole = $('#richiesta').value.trim();
-    const brief = S.brief, budget = +$('#br-budget').value || null, lancio = $('#br-lancio').value;
+    const budget = +$('#br-budget').value || null, lancio = $('#br-lancio').value;
+    // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
+    const b0 = S.brief;
+    const lettura = b0 && b0.attesa && IA.attiva !== false
+      ? (clearTimeout(IA.t), Promise.race([chiediIA(S.testoConsole), new Promise(r => setTimeout(() => r(null), 3000))])
+        .then(b => { if (S.brief === b0) { if (b && !b0.manuale) S.brief = b; else b0.attesa = false; } }))
+      : Promise.resolve();
     const parti = () => {
+      const brief = S.brief;
       $('#registro').innerHTML = ''; S.visti = {};
       S.lab = S.testoConsole ? Object.assign({ testo: S.testoConsole, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
         brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(S.testoConsole)) : null;
@@ -644,7 +709,7 @@ CPM = livello del pubblico × stagione × giorno
     };
     if (!S.file || S.fileKit) {
       if (D && !kit()) { datiP = null; D = null; }   // si torna ai dati della sfida
-      dati().then(parti);
+      dati().then(() => lettura).then(parti);
       return;
     }
     b.disabled = true;
@@ -652,7 +717,7 @@ CPM = livello del pubblico × stagione × giorno
     MotoreFlockets.analizza(S.file, stato).then(d => {
       usa(d);
       registra('Motore eseguito nel browser su ' + S.file.length + ' file');
-      parti();
+      return lettura.then(parti);
     }).catch(err => {
       out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`);
     }).finally(() => { b.disabled = false; b.firstElementChild.textContent = 'Avvia la simulazione'; });

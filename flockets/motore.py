@@ -15,6 +15,7 @@ ogni ad set e di ogni creativita sono l'adattamento locale.
 Il motore lavora su tabelle con nomi di colonna fissi: le prepara `contratto.py`.
 """
 import itertools
+import math
 
 import numpy as np
 import pandas as pd
@@ -22,6 +23,11 @@ import pandas as pd
 FATICA_BASE = (0.55, 22.0)                                  # pavimento, tau in giorni
 DEFAULT_FATIGUE = {"scarcity": (0.6, 35.0), "urgency": (0.5, 16.0)}
 ELASTICITY_PRIOR = 0.30                                     # se lo storico non ha variazioni di budget
+INCERTEZZA_INDICE = 0.13   # peso dell'indice di mercato sul CPM: 1 nel modello; 0,87 stimato libero e 0,86-0,88 tra un anno e l'altro nei CPM mensili
+GRIGLIA_ADATTA = (0.0, 0.25, 0.5, 0.75, 1.0)                # quanto del livello dell'ultima settimana portare nella previsione
+SOGLIA_ADATTA = 0.01                                        # si adatta solo se, su giorni nascosti, l'errore scende di almeno l'1%
+PESO_LIVELLO = 20.0                                         # click fittizi: un annuncio con pochi click recenti si sposta poco
+SOGLIA_SALTO = 5.0                                          # ultima settimana oltre 5 volte il suo rumore: il livello e cambiato, si segue quello nuovo
 
 # ---------------------------------------------------------------- creativita -> caratteristiche
 FEATURE_RULES = {
@@ -255,6 +261,11 @@ class CTRModel:
 
         giorni = tr.groupby(["leva", "ad_id"]).size().groupby(level=0).max()
         leve_fit = sorted(l for l in giorni.index if giorni[l] >= self.cfg["giorni_min_fatica"])
+        # la curva di una leva si cerca nei dati solo se almeno due suoi annunci sono stati seguiti da giovani
+        # (prima settimana) fino a oltre quattro settimane: senza annunci giovani la curva non si vede
+        eta_ad = tr.groupby(["leva", "ad_id"]).age.agg(["min", "max"])
+        seguiti = ((eta_ad["min"] <= 7) & (eta_ad["max"] >= 28)).groupby(level=0).sum()
+        leve_cerca = [l for l in leve_fit if seguiti.get(l, 0) >= 2]
         if fisso:
             params = {k: tuple(v) for k, v in base["fatica"].items()}
         else:
@@ -262,11 +273,11 @@ class CTRModel:
             enough = bool(leve_fit) and tr.groupby("ad_id").size().max() >= 35 and tr.data.nunique() >= 49
             if not params:
                 params = {k: tuple(v) for k, v in base["fatica"].items()} if base is not None else {"_base": FATICA_BASE}
-            elif self.search_fatigue and enough:
-                grid_fl = [0.3, 0.4, 0.5, 0.6, 0.7]
+            elif self.search_fatigue and enough and leve_cerca:
+                grid_fl = [0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1.0]   # 1.0 = nessuna fatica
                 grid_tau = [8, 12, 16, 20, 25, 30, 35, 45, 60, 80]
                 for _ in range(2):
-                    for k in leve_fit:
+                    for k in leve_cerca:
                         best = None
                         for fl, tau in itertools.product(grid_fl, grid_tau):
                             q = dict(params)
@@ -368,9 +379,9 @@ class CTRModel:
 
 # ----------------------------------------------------------------------------- CPM
 class CPMModel:
-    def __init__(self, lam_asset=3.0, idx_col="s_cpm", idx_pen=1e6, base=None, forza=0.0):
-        # idx_pen alto = coefficiente dell'indice di mercato fissato a 1 (verificato sullo storico)
-        self.lam_asset, self.idx_col, self.idx_pen = lam_asset, idx_col, idx_pen
+    def __init__(self, lam_asset=3.0, idx_col="s_cpm", idx_pen=1e6, idx_coef=1.0, base=None, forza=0.0):
+        # idx_pen alto = coefficiente dell'indice di mercato fissato a idx_coef (1: verificato sullo storico)
+        self.lam_asset, self.idx_col, self.idx_pen, self.idx_coef0 = lam_asset, idx_col, idx_pen, idx_coef
         self.base, self.forza = base, forza
 
     def _design(self, p):
@@ -394,7 +405,7 @@ class CPMModel:
         k0 = len(self.adsets)
         pen = np.r_[np.full(k0 + 6, 1e-8), self.idx_pen, 1.0, 1e-8, 1.0, 1.0, np.full(len(self.assets_), self.lam_asset)]
         prior = np.zeros(X.shape[1])
-        prior[k0 + 6] = 1.0
+        prior[k0 + 6] = self.idx_coef0
         prior[k0 + 7] = ELASTICITY_PRIOR
         if base is not None:
             prior[k0 + 7] = base["elasticita"]            # dove lo storico non dice nulla vale il valore di base
@@ -503,12 +514,12 @@ class Forecaster:
            >= 1000 = i fattori comuni restano fissi ai valori di base e lo storico stima solo i livelli.
     """
 
-    def __init__(self, R, ctr_kw=None, cpm_kw=None, base=None, forza=0.0):
+    def __init__(self, R, ctr_kw=None, cpm_kw=None, base=None, forza=0.0, adatta=True):
         self.R = R
         self.cfg = cfg_di(R)
         self.feats = asset_features(R["assets"], self.cfg)
         self.ctr_kw, self.cpm_kw = ctr_kw or {}, cpm_kw or {}
-        self.base, self.forza = base, forza
+        self.base, self.forza, self.adatta = base, forza, adatta
 
     def fit(self, hist_rows):
         tr = flag_anomalies(make_panel(self.R, hist_rows), self.cfg)
@@ -518,7 +529,114 @@ class Forecaster:
         q, _ = self.ctr.eta(tr, self.feats, with_time=False)
         self.deliv = DeliveryModel().fit(tr, q, (self.base or {}).get("quote"))
         self.obs_age = tr.groupby("asset_id").age.agg(["min", "max"])
+        # livello recente: nei dati veri il livello di un annuncio si sposta nel tempo. Quanto fidarsi
+        # dell'ultima settimana lo decide una prova interna su giorni nascosti (vedi _scegli_adattamento).
+        self.rho = {"ctr": 0.0, "cpm": 0.0}
+        self.deriva = {"ctr": 0.0, "cpm": 0.0}
+        self.prova_adatta = None
+        self.liv = self._livello_recente(tr)
+        if self.adatta:
+            self._scegli_adattamento(hist_rows)
         return self
+
+    def _livello_recente(self, tr, giorni=7):
+        """Di quanto l'ultima settimana si scosta dal livello stimato su tutto lo storico (in logaritmo), per
+        annuncio e per ad set, e quanto quello scostamento e grande rispetto al rumore (z). Chi ha pochi dati
+        recenti viene tirato verso zero."""
+        t = tr.copy()
+        eta, _ = self.ctr.eta(t, self.feats)
+        t["lam"] = t.impression.values * np.exp(eta)
+        t["e_cpm"] = np.log(t.cpm.values) - self.cpm.mu(t, self.ctr, self.feats)
+        t["pearson"] = (t.click.values - t.lam.values) ** 2 / np.maximum(t.lam.values, 1e-9)
+        recente = t.data > t.data.max() - pd.Timedelta(days=giorni)
+        out = {}
+        for chiave in ("ad_id", "adset_id"):
+            buoni = t[~t.anom_click]
+            disp = buoni.groupby(chiave).pearson.mean().clip(lower=1.0)
+            g = buoni[recente[~t.anom_click]].groupby(chiave).agg(c=("click", "sum"), l=("lam", "sum"))
+            ctr = np.log((g.c + PESO_LIVELLO) / (g.l + PESO_LIVELLO))
+            z_ctr = np.log((g.c + 0.5) / (g.l + 0.5)) / np.sqrt(disp.reindex(g.index).fillna(1.0) / np.maximum(g.l, 1.0))
+            sd = t.groupby(chiave).e_cpm.std().fillna(self.cpm.sigma).clip(lower=0.5 * self.cpm.sigma)
+            h = t[recente].groupby(chiave).e_cpm.agg(["mean", "size"])
+            cpm = h["mean"] * h["size"] / (h["size"] + 2.0)
+            z_cpm = h["mean"] * np.sqrt(h["size"]) / sd.reindex(h.index)
+            out[chiave] = (ctr.to_dict(), cpm.to_dict(), z_ctr.abs().to_dict(), z_cpm.abs().to_dict())
+        return out
+
+    def _scostamento(self, p, rho_ctr=None, rho_cpm=None):
+        """Correzione di ogni riga verso il livello dell'ultima settimana: quella del suo annuncio, o del suo
+        ad set se l'annuncio e nuovo. Pesa `rho`; pesa 1 se l'ultima settimana e un salto netto (z oltre soglia)."""
+        rho_ctr = self.rho["ctr"] if rho_ctr is None else rho_ctr
+        rho_cpm = self.rho["cpm"] if rho_cpm is None else rho_cpm
+        ad, as_ = self.liv["ad_id"], self.liv["adset_id"]
+        out = []
+        for k, rho in ((0, rho_ctr), (1, rho_cpm)):
+            c = np.zeros(len(p))
+            for i, (a, s) in enumerate(zip(p.ad_id.values, p.adset_id.values)):
+                liv = ad if a in ad[k] else as_
+                chi = a if a in ad[k] else s
+                if chi in liv[k]:
+                    peso = 1.0 if liv[k + 2].get(chi, 0.0) > SOGLIA_SALTO else rho
+                    c[i] = peso * liv[k][chi]
+            out.append(c)
+        return out[0], out[1]
+
+    def _scegli_adattamento(self, hist_rows):
+        """Prova interna: toglie gli ultimi giorni dello storico, li prevede con piu o meno peso al livello
+        dell'ultima settimana e tiene il peso che sbaglia meno. Ripetuta su fino a tre finestre.
+        Se il livello recente non aiuta in modo netto resta fuori."""
+        giorni = hist_rows.data.nunique()
+        H = min(14, giorni // 4)
+        if H < 5:
+            return
+        somma = {r: np.zeros(2) for r in GRIGLIA_ADATTA}
+        peso = np.zeros(2)
+        ultima = None
+        for k in (1, 2, 3):
+            taglio = hist_rows.data.max() - pd.Timedelta(days=k * H)
+            prima = hist_rows[hist_rows.data <= taglio]
+            if prima.data.nunique() < 28:
+                break
+            try:
+                f0 = Forecaster(self.R, self.ctr_kw, self.cpm_kw, base=self.base, forza=self.forza, adatta=False).fit(prima)
+            except Exception:   # storico troppo povero per questa finestra
+                break
+            dopo = self.train[(self.train.data > taglio) & (self.train.data <= taglio + pd.Timedelta(days=H))]
+            if len(dopo) < 10:
+                continue
+            eta, _ = f0.ctr.eta(dopo, f0.feats)
+            lcpm = f0.cpm.mu(dopo, f0.ctr, f0.feats)
+            ok = ~dopo.anom_click.values
+            imp, clk, cpm = dopo.impression.values, dopo.click.values.astype(float), dopo.cpm.values
+            for rho in GRIGLIA_ADATTA:
+                c_ctr, c_cpm = f0._scostamento(dopo, rho, rho)
+                somma[rho] += [np.abs(imp * np.exp(eta + c_ctr) - clk)[ok].sum(), np.abs(np.exp(lcpm + c_cpm) - cpm).__truediv__(cpm).sum()]
+            peso += [max(clk[ok].sum(), 1.0), len(dopo)]
+            if ultima is None:
+                ultima = (f0, dopo, eta, lcpm, ok, imp, clk, cpm)
+        if ultima is None:
+            return
+        err = {r: somma[r] / peso for r in GRIGLIA_ADATTA}
+        self.prova_adatta = {"giorni": int(H), "errore": {str(r): [float(v[0]), float(v[1])] for r, v in err.items()}}
+        for i, k in enumerate(("ctr", "cpm")):
+            migliore = min(GRIGLIA_ADATTA, key=lambda r: err[r][i])
+            if err[migliore][i] < (1.0 - SOGLIA_ADATTA) * err[0.0][i]:
+                self.rho[k] = float(migliore)
+        # quanto il livello di un annuncio si e spostato nei giorni nascosti, oltre il rumore: entra nella forchetta
+        f0, dopo, eta, lcpm, ok, imp, clk, cpm = ultima
+        c_ctr, c_cpm = f0._scostamento(dopo, self.rho["ctr"], self.rho["cpm"])
+        d = dopo.assign(lam=imp * np.exp(eta + c_ctr), e=np.log(cpm) - (lcpm + c_cpm))
+        if self.rho["ctr"] > 0:
+            g = d[ok].groupby("ad_id").agg(c=("click", "sum"), l=("lam", "sum"))
+            g = g[g.l > 5]
+            if len(g) > 1:
+                v = np.log((g.c + 0.5) / (g.l + 0.5)).var() - (max(f0.ctr.dispersion, 1.0) / g.l).mean()
+                self.deriva["ctr"] = float(np.sqrt(max(v, 0.0)))
+        if self.rho["cpm"] > 0:
+            g = d.groupby("ad_id").e.agg(["mean", "size"])
+            if len(g) > 1:
+                v = g["mean"].var() - (f0.cpm.sigma ** 2 / g["size"]).mean()
+                self.deriva["cpm"] = float(np.sqrt(max(v, 0.0)))
 
     def valori_base(self):
         """I fattori comuni stimati qui, da usare come punto di partenza su un altro storico."""
@@ -547,6 +665,9 @@ class Forecaster:
         ase = self.ctr.param_sd(p, self.feats)
         q, _ = self.ctr.eta(p, self.feats, with_time=False)
         lcpm = self.cpm.mu(p, self.ctr, self.feats)
+        c_ctr, c_cpm = self._scostamento(p)   # livello recente: zero se la prova interna non lo ha scelto e non ci sono salti
+        eta, lcpm = eta + c_ctr, lcpm + c_cpm
+        self.salti = int(sum(z > SOGLIA_SALTO for k in (2, 3) for z in self.liv["ad_id"][k].values()))
         share = self.deliv.shares(p, q)
         spesa = self.deliv.spend_ratio * p.budget_giornaliero_adset.values * share
         cpm = np.exp(lcpm)
@@ -582,6 +703,11 @@ class Forecaster:
         piatta = 0.0 if self.R.get("stagione_nota", True) else 0.05   # senza indice di mercato la forchetta si allarga
         sd_seas_ctr = 0.03 + 0.25 * np.abs(p.s_ctr.values) + np.where(ev_day, 0.05, 0.0) + piatta
         sd_seas_cpm = max(self.cpm.sigma_week, 0.03) + np.where(ev_day, 0.05, 0.0) + piatta
+        # indice di mercato oltre i valori visti nello storico (es. settimana del Black Friday): quanto pesa li
+        # l'indice non e verificabile, e le due stime indipendenti del suo peso (0,87 e 1) danno lo scarto
+        s_tr = self.train[self.cpm.idx_col].values
+        fuori = np.maximum(p[self.cpm.idx_col].values - s_tr.max(), 0.0) + np.maximum(s_tr.min() - p[self.cpm.idx_col].values, 0.0)
+        sd_seas_cpm = np.hypot(sd_seas_cpm, INCERTEZZA_INDICE * fuori)
         sd_el = max(self.cpm.elasticity_se, 0.08) * np.abs(p.lb.values)
         sd_cold_cpm = np.where(seen, 0.0, self.cpm.q_sd)
 
@@ -596,6 +722,11 @@ class Forecaster:
                  + rng.standard_normal((n_sim, n)) * self.ctr.sigma_od)
         lcpm_s = (lcpm + z_w_cpm * sd_seas_cpm + z_e * sd_el + z_a2 * np.hypot(sd_cold_cpm, self.cpm.param_sd(p))
                   + z_bl * 0.05 * p.bud_learn.values + rng.standard_normal((n_sim, n)) * self.cpm.sigma)
+        if self.deriva["ctr"] or self.deriva["cpm"]:   # il livello di ogni annuncio puo spostarsi ancora
+            rng3 = np.random.default_rng(seed + 2)
+            grp_ad = pd.factorize(p.ad_id)[0]
+            eta_s = eta_s + rng3.standard_normal((n_sim, grp_ad.max() + 1))[:, grp_ad] * self.deriva["ctr"]
+            lcpm_s = lcpm_s + rng3.standard_normal((n_sim, grp_ad.max() + 1))[:, grp_ad] * self.deriva["cpm"]
         if not adset_noto.all():   # ad set mai visto: non conosciamo il suo livello
             rng2 = np.random.default_rng(seed + 1)
             z1 = rng2.standard_normal((n_sim, grp_s.max() + 1))[:, grp_s]
@@ -648,6 +779,14 @@ def baseline_last7(R, hist_rows, future_rows):
     return f[["data", "ad_id", "ctr_prev", "cpm_prev"]].dropna()
 
 
+def scarto_poisson(lam):
+    """E|X - lam| per X ~ Poisson(lam): l'errore assoluto atteso sui click anche conoscendo il tasso vero."""
+    lam = np.maximum(np.asarray(lam, dtype=float), 1e-9)
+    k = np.floor(lam)
+    lg = np.array([math.lgamma(x + 1.0) for x in k])
+    return 2.0 * lam * np.exp(k * np.log(lam) - lam - lg)
+
+
 def score(pred, actual, label=""):
     m = pred.drop(columns=["vertical"], errors="ignore").merge(
         actual[["data", "ad_id", "ctr", "cpm", "click", "impression", "spesa", "vertical"]], on=["data", "ad_id"])
@@ -663,6 +802,8 @@ def score(pred, actual, label=""):
     }
     nz = mc[mc.click > 0]
     r["CTR_MAPE_%"] = 100 * np.mean(np.abs(nz.ctr_prev - nz.ctr) / nz.ctr)
+    # minimo possibile: l'errore che resterebbe conoscendo il CTR vero, per il solo caso dei click di un giorno
+    r["CTR_minimo_%"] = 100 * scarto_poisson(mc.impression * mc.ctr_prev / 100.0).sum() / max(mc.click.sum(), 1)
     if "ctr_p10" in m:
         r["CTR_cop80_%"] = 100 * np.mean((mc.ctr >= mc.ctr_p10) & (mc.ctr <= mc.ctr_p90))
         r["CPM_cop80_%"] = 100 * np.mean((m.cpm >= m.cpm_p10) & (m.cpm <= m.cpm_p90))
@@ -675,6 +816,8 @@ def backtest(R, cutoff, horizon=14, ctr_kw=None, cpm_kw=None, base=None, forza=0
     cutoff = pd.Timestamp(cutoff)
     tr = h[h.data <= cutoff]
     te = h[(h.data > cutoff) & (h.data <= cutoff + pd.Timedelta(days=horizon))]
+    if tr.empty or te.empty:
+        raise ValueError("Nessuna riga %s il %s: prova non eseguibile su questa data." % ("prima del" if tr.empty else "nei giorni nascosti dopo", cutoff.date()))
     fc = Forecaster(R, ctr_kw, cpm_kw, base=base, forza=forza).fit(tr)
     pred = fc.predict(te[R["fut"].columns], n_sim=n_sim)
     riferimento = baseline_last7(R, tr, te)
@@ -685,4 +828,8 @@ def backtest(R, cutoff, horizon=14, ctr_kw=None, cpm_kw=None, base=None, forza=0
         if new_ads.any():
             rows.append(dict(score(pr, te[new_ads], nm), taglio=str(cutoff.date()), gruppo="annunci nuovi"))
             rows.append(dict(score(pr, te[~new_ads], nm), taglio=str(cutoff.date()), gruppo="annunci gia visti"))
-    return pd.DataFrame(rows), fc, pred
+    out = pd.DataFrame(rows)
+    # minimo possibile sul CPM: l'oscillazione da un giorno all'altro che nessun modello puo prevedere
+    out["CPM_minimo_%"] = 100 * fc.cpm.sigma * math.sqrt(2.0 / math.pi)
+    out.loc[out.modello != "strutturale", ["CPM_minimo_%", "CTR_minimo_%"]] = np.nan
+    return out, fc, pred

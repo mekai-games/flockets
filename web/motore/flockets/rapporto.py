@@ -5,8 +5,8 @@ import pandas as pd
 from . import motore as wm
 from .contratto import sottoinsieme
 
-COLONNE_PROVA = ["taglio", "gruppo", "modello", "righe", "CPM_MAPE_%", "CPM_bias_%", "CTR_WAPE_%", "CTR_MAPE_%",
-                 "CTR_MAE_pp", "CTR_bias_%", "CTR_cop80_%", "CPM_cop80_%"]
+COLONNE_PROVA = ["taglio", "gruppo", "modello", "righe", "CPM_MAPE_%", "CPM_minimo_%", "CPM_bias_%", "CTR_WAPE_%", "CTR_minimo_%",
+                 "CTR_MAPE_%", "CTR_MAE_pp", "CTR_bias_%", "CTR_cop80_%", "CPM_cop80_%"]
 
 
 def r(x, n=4):
@@ -110,7 +110,7 @@ def scenario_budget(fc, pred, lo=0.6, hi=1.6):
 
 
 # ---------------------------------------------------------------------------------- prove
-def validazione(R, giorni_indietro=(14, 21, 28, 42), n_sim=2000):
+def validazione(R, giorni_indietro=(14, 21, 28, 35, 42, 49, 56), n_sim=2000):
     """Prova sul passato: nasconde 14 giorni, li prevede, confronta. Ripetuta su piu date."""
     h = R["hist"]
     primo, ultimo = h.data.min(), h.data.max()
@@ -236,9 +236,14 @@ def dati_sito(R, fc, pred, P, S, V=None, G=None, origine="caricato", file_previs
                              "cosa": "spesa %.0f euro con budget %.0f: giorno escluso dalla stima delle quote" % (g.spesa.sum(), g.budget_giornaliero_adset.iloc[0])})
     val = []
     if V is not None and len(V):
-        g = V.groupby(["gruppo", "modello"])[["CPM_MAPE_%", "CTR_WAPE_%", "CTR_cop80_%", "CPM_cop80_%"]].mean().reset_index()
+        for c in ("CPM_minimo_%", "CTR_minimo_%"):
+            if c not in V:
+                V = V.assign(**{c: np.nan})
+        g = V.groupby(["gruppo", "modello"])[["CPM_MAPE_%", "CTR_WAPE_%", "CTR_cop80_%", "CPM_cop80_%", "CPM_minimo_%", "CTR_minimo_%"]].mean().reset_index()
+        tagli = int(V.taglio.nunique())
         val = [{"gruppo": x.gruppo, "modello": x.modello, "cpm": r(x["CPM_MAPE_%"], 1), "ctr": r(x["CTR_WAPE_%"], 1),
-                "cop_ctr": r(x["CTR_cop80_%"], 0), "cop_cpm": r(x["CPM_cop80_%"], 0)} for _, x in g.iterrows()]
+                "cop_ctr": r(x["CTR_cop80_%"], 0), "cop_cpm": r(x["CPM_cop80_%"], 0),
+                "min_cpm": r(x["CPM_minimo_%"], 1), "min_ctr": r(x["CTR_minimo_%"], 1), "tagli": tagli} for _, x in g.iterrows()]
     gen = []
     if G is not None and len(G):
         g = G.groupby(["storia", "modello"])[["CPM_MAPE_%", "CTR_WAPE_%"]].mean().reset_index()

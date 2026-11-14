@@ -12,7 +12,7 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 
 | Consegna | Dove sta |
 |---|---|
-| 1. Lo strumento | il [sito](https://flockets.vercel.app) (cartella [`web/`](web/)) e il motore di previsione ([`modello/`](modello/)) |
+| 1. Lo strumento | il [sito](https://flockets.vercel.app) (cartella [`web/`](web/)) e il motore di previsione ([`flockets/`](flockets/)) |
 | 2. Le previsioni | [`output/previsioni_16-30_nov.csv`](output/previsioni_16-30_nov.csv): 699 righe, 51 annunci |
 | 3. Il ragionamento | questa pagina, la scheda Consegne del sito e il video di 3 minuti |
 
@@ -37,7 +37,15 @@ Il percorso è in tre schermate.
 | 05 Laboratorio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
 | Consegne | le tre consegne della sfida |
 
-Il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo in locale:
+**Come il sito capisce il testo.** La descrizione dell'annuncio viene letta due volte. Subito, nel browser, con
+regole a parole chiave. Poco dopo da Claude Haiku, tramite la funzione [`web/api/leggi.js`](web/api/leggi.js):
+restituisce formato, leva e caratteristiche creative in forma strutturata, cioè gli stessi campi che il modello
+usa per stimare una creatività mai vista, più una frase che dice da quali parole le ha dedotte. La zona
+«Ho capito» mostra il risultato e lascia correggere ogni voce a mano. La chiave dell'API sta solo nella
+variabile d'ambiente `ANTHROPIC_API_KEY` del progetto Vercel, mai nel codice; senza chiave il sito continua
+con le regole.
+
+A parte quella funzione il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo in locale:
 
 ```bash
 python3 -m http.server 4173 --directory web
@@ -68,8 +76,9 @@ Il comando rifà tutto da zero in pochi secondi e scrive in `output/`:
 ### Non solo il kit: qualsiasi storico
 
 Il motore non è legato ai file della sfida. Gli basta **un CSV con data, annuncio, spesa, impression e click**;
-i nomi delle colonne possono essere in italiano o in inglese (per esempio l'esportazione di Meta), le date
-all'italiana, i decimali con la virgola.
+i nomi delle colonne possono essere in italiano, inglese, spagnolo, francese o tedesco (per esempio
+l'esportazione di Meta Ads Manager), le date all'italiana, i decimali con la virgola. Se lo stesso annuncio
+compare in più ad set, o lo stesso giorno è diviso in più righe, il motore lo sistema e lo dice.
 
 ```bash
 python3 esegui.py cartella_con_il_mio_storico
@@ -92,6 +101,13 @@ Come è costruito:
   `fuori dominio`; affidabilità alta, media o bassa secondo la larghezza della forchetta.
 - **Stagione a scelta**: indice settimanale di mercato se c'è, altrimenti CPM mensile, altrimenti piatta con
   forchetta più larga.
+- **Livello recente.** Nei dati veri il livello di un annuncio si sposta nel tempo. Il motore fa una prova
+  interna: nasconde gli ultimi giorni dello storico (fino a tre volte), li prevede dando più o meno peso al
+  livello dell'ultima settimana e tiene il peso che sbaglia meno. Se l'ultima settimana è un salto netto
+  (oltre 5 volte il suo rumore) la segue comunque. Sul kit la prova sceglie peso zero.
+- **Fatica solo dove si vede.** Un annuncio già attivo il primo giorno dello storico è partito prima, non si
+  sa quando: la sua fatica è considerata già assestata. La curva si cerca nei dati solo se almeno due
+  annunci sono stati seguiti dalla prima settimana fino a oltre la quarta; altrimenti valgono i valori di base.
 
 Quanto perde quando i dati sono poveri (stessa prova: 14 giorni nascosti dal 2 al 15 novembre):
 
@@ -100,10 +116,52 @@ Quanto perde quando i dati sono poveri (stessa prova: 14 giorni nascosti dal 2 a
 | Kit completo | 6,1% | 14,9% |
 | Senza indice settimanale, con il CPM mensile | 8,2% | 14,8% |
 | Senza alcun dato di mercato | 9,8% | 14,8% |
-| Solo lo storico, colonne in inglese, niente budget né creatività | 7,8% | 17,1% |
+| Solo lo storico, colonne in inglese, niente budget né creatività | 8,1% | 16,7% |
 
 L'ultima riga riguarda solo gli annunci già attivi: senza la tabella degli annunci futuri quelli nuovi non
 si possono prevedere.
+
+### Prova su dati veri
+
+Il kit è simulato, quindi abbiamo cercato dati veri e pubblici. Un export di Meta a livello annuncio,
+giornaliero e con licenza aperta non l'abbiamo trovato. Il migliore con licenza è il
+[dataset di Conjura](https://figshare.com/articles/dataset/25314841) (CC BY 4.0): 79 marche di e-commerce
+attive su Meta o TikTok, con spesa, impression e click al giorno per canale, dal 2019 al 2024. Lì ogni canale
+vale come un annuncio: non ci sono creatività né ad set, quindi si misura solo la parte del motore che segue
+i livelli nel tempo.
+
+Per ogni marca e per otto date: 91 giorni di storico, 14 nascosti. In tutto 377 prove.
+
+| Errore medio (tra parentesi la mediana) | CPM | CTR |
+|---|---|---|
+| Il motore com'era prima di questa prova | 22,6% (16,1%) | 30,3% (19,9%) |
+| Il motore di oggi, senza dati di mercato | 19,0% (14,2%) | 23,1% (16,8%) |
+| Il motore di oggi, con l'indice dell'anno prima ricavato dalle altre marche | 18,6% (13,2%) | 23,1% (16,5%) |
+| «Resta come gli ultimi 7 giorni» | 18,6% (13,7%) | 22,1% (15,6%) |
+
+Cosa abbiamo imparato:
+
+- **Il motore perdeva contro il riferimento ingenuo.** Nel kit il livello di un annuncio è stabile, nei dati
+  veri no. Da qui il *livello recente* e la *fatica solo dove si vede* descritti sopra. Sul kit non cambia
+  nulla: le 699 previsioni e la validazione sono identiche, cifra per cifra.
+- **Oggi è alla pari del riferimento, non meglio.** A livello di canale non c'è struttura da sfruttare:
+  niente creatività, pubblici o budget. Il vantaggio compare dove c'è un segnale. Nella settimana del Black
+  Friday 2023 l'indice dell'anno prima porta l'errore sul CPM dal 24,9% al 20,2%; nelle due settimane dopo
+  il motore sbaglia il 21,4% contro il 28,7% del riferimento.
+- **Il Black Friday dell'anno prima anticipa quello dopo, in rapporto 1 a 1.** Su 62 serie Meta il CPM nella
+  settimana del Black Friday sale, rispetto a ottobre, di +0,40 (in logaritmo) nel 2022 e di +0,39 nel 2023.
+  Usare l'aumento dell'anno prima con peso 1 porta l'errore da 0,47 a 0,26; con peso 0,87 è appena peggio.
+  È la conferma su dati veri della scelta più delicata delle nostre previsioni. Sul CTR invece l'indice
+  dell'anno prima non aiuta: nei dati veri il CTR di mercato in quella settimana si muove poco.
+- Le forchette all'80% contengono il valore vero l'87% delle volte sul CPM e l'80% sul CTR.
+
+Secondo controllo: un export vero di Meta Ads Manager a livello annuncio, in spagnolo (un'attività locale,
+37 giorni, 24 annunci in 5 ad set, pochi click al giorno), trovato in un repository pubblico senza licenza:
+usato solo in locale, non incluso qui. Il file viene letto così com'è, anche dal sito nel browser. Con 7
+giorni nascosti su tre date: CPM 28,4% contro 30,9% del riferimento, CTR 23,4% contro 28,4%.
+
+Per rifare le prove: [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) e
+[`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) (quest'ultimo su qualsiasi CSV).
 
 ### Come è diviso il codice
 
@@ -114,6 +172,9 @@ si possono prevedere.
 | [`flockets/rapporto.py`](flockets/rapporto.py) | pubblici, scenario di budget, prova di generalizzazione, dati per il sito |
 | [`esegui.py`](esegui.py) | esegue tutto da riga di comando |
 | [`web/`](web/) | il sito: `js/scena.js` (omini), `js/grafici.js` (grafici), `js/motore.js` (il motore nel browser), `js/app.js` |
+| [`web/api/leggi.js`](web/api/leggi.js) | la funzione che legge la descrizione di un annuncio con Claude Haiku |
+| [`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) | prova il motore su uno storico qualsiasi: nasconde gli ultimi giorni e confronta |
+| [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) | la prova sulle 79 marche vere del dataset Conjura |
 | [`strumenti/atlante.py`](strumenti/atlante.py) | unisce i fogli di animazione dei personaggi in una sola immagine |
 | [`design/`](design/) | logo e proposte di logo |
 
@@ -214,31 +275,48 @@ Cosa abbiamo trovato nei dati:
 ### Quanto ci fidiamo
 
 Abbiamo nascosto al modello 14 giorni di storico, li abbiamo fatti prevedere e confrontato con i valori veri.
-Ripetuto su quattro date diverse.
+Ripetuto su sette date diverse, una a settimana.
 
-| Errore medio | Il nostro modello | "Resta come gli ultimi 7 giorni" |
-|---|---|---|
-| CPM, tutti gli annunci | 6,0% | 8,5% |
-| CPM, annunci nuovi | 6,1% | 10,9% |
-| CTR, pesato per impression | 15,0% | 19,6% |
-| CTR, annunci nuovi | 16,7% | 24,1% |
+| Errore medio | Il nostro modello | "Resta come gli ultimi 7 giorni" | Minimo possibile |
+|---|---|---|---|
+| CPM, tutti gli annunci | 6,1% | 8,1% | 5,8% |
+| CPM, annunci nuovi | 6,2% | 11,3% | 5,8% |
+| CTR, pesato per impression | 13,7% | 18,0% | 11,0% |
+| CTR, annunci nuovi | 16,7% | 23,1% | 10,6% |
 
-Il CPM oscilla da solo di circa il 7% al giorno, quindi il 6% è vicino al minimo possibile. Le forchette
-all'80% contengono il valore vero l'82-88% delle volte.
+**Minimo possibile** è l'errore che resterebbe anche a un modello perfetto. Il CPM oscilla da solo di circa il
+7% da un giorno all'altro, senza memoria: l'errore di oggi non dice nulla su quello di domani. Sul CTR un
+annuncio raccoglie in media una quarantina di click al giorno, quindi il CTR di un singolo giorno balla per
+puro caso anche quando il tasso vero è noto. Il modello è a 0,3 punti dal minimo sul CPM e a 2,7 sul CTR; lo
+scarto sul CTR viene per metà dalle creatività mai viste, che sono un quinto delle righe: lì l'errore è
+quello della stima a freddo (circa 14%), e 30 esempi di creatività non bastano a fare meglio.
+
+**Si può abbassare ancora?** Abbiamo provato a spostare uno alla volta tutti i parametri (forza dei vincoli
+su asset e pubblici, soglia della stagione, curva di fatica su una griglia più fitta, peso dell'indice di
+mercato, effetto del budget) sulle stesse sette date: nessuna variazione migliora l'errore di più di 0,03
+punti, cioè meno del rumore tra una data e l'altra. I valori sono rimasti quelli. Le forchette all'80%
+contengono il valore vero l'81-89% delle volte.
+
+**Il punto più delicato: la settimana del Black Friday.** Lì l'indice di mercato del CPM vale +0,46 (in
+logaritmo), mentre nello storico non supera +0,18: il modello lo usa in rapporto 1 a 1 oltre ciò che ha visto.
+Due stime indipendenti di quel rapporto danno 0,87 (lasciato libero sullo storico) e 0,86-0,88 (stagione 2025
+contro 2026 nei CPM mensili del kit); in novembre 2025 però i CPM mensili salgono più dell'indice. Nelle prove
+sul passato i valori tra 0,87 e 1,07 danno lo stesso errore. Abbiamo tenuto 1 e allargato la forchetta del CPM
+dove l'indice esce dallo storico.
 
 **Vale anche su un inserzionista mai visto?** Abbiamo tolto un inserzionista alla volta: i fattori comuni
 sono stati stimati solo sugli altri due, di lui soltanto i livelli.
 
 | Errore medio | CPM | CTR |
 |---|---|---|
-| Storico intero, fattori comuni dagli altri | 6,1% | 15,3% |
+| Storico intero, fattori comuni dagli altri | 6,1% | 15,6% |
 | Storico intero, tutto dai suoi dati | 6,1% | 14,9% |
 | 3 settimane di storico, fattori comuni dagli altri | 6,2% | 16,2% |
 | 3 settimane di storico, tutto dai suoi dati | 6,4% | 17,2% |
 | «Resta come gli ultimi 7 giorni» | 8,8% | 23,6% |
 
-I fattori imparati dagli altri valgono quanto quelli imparati sui suoi dati, e aiutano quando lo storico è
-corto. È una prova dentro il kit, che è fatto di dati simulati: su dati veri va rifatta.
+I fattori imparati dagli altri valgono quasi quanto quelli imparati sui suoi dati, e aiutano quando lo
+storico è corto. È una prova dentro il kit, che è fatto di dati simulati: quella su dati veri è più sopra, in «Prova su dati veri».
 
 Cosa questa prova non copre, e quindi dove la previsione è più incerta:
 
@@ -261,7 +339,10 @@ Cosa questa prova non copre, e quindi dove la previsione è più incerta:
 
 ## Strumenti usati
 
-Da completare dal team prima della consegna (la sfida chiede di dichiarare gli strumenti usati).
+Dentro il prodotto: Claude Haiku 5.5 (API di Anthropic) legge la descrizione dell'annuncio sul sito; Pyodide fa
+girare il motore nel browser; numpy e pandas per i calcoli. Dati esterni per la prova: dataset Conjura (CC BY 4.0).
+
+Gli strumenti usati per sviluppare sono da completare dal team prima della consegna (la sfida chiede di dichiararli).
 
 ## Nota sui dati e sui personaggi
 

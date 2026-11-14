@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body data-vista="benvenuto">
 
@@ -68,8 +68,9 @@
         <div class="scatola-riga"><label class="mono" for="richiesta">&gt;_ 02 / Annuncio da provare (facoltativo)</label></div>
         <textarea id="richiesta" class="mono" rows="3" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
         <div class="capito" id="capito" hidden>
-          <p class="mono etichetta-m">Ho capito (tocca per correggere)</p>
+          <p class="mono etichetta-m">Ho capito (tocca per correggere) <span id="capito-fonte" aria-live="polite"></span></p>
           <div class="chips mono" id="capito-chips"></div>
+          <p class="capito-motivo" id="capito-motivo" hidden></p>
         </div>
         <div class="campi due">
           <label>Budget al giorno, in euro <input type="number" id="br-budget" min="1" step="1" inputmode="numeric" placeholder="facoltativo"></label>
@@ -119,9 +120,9 @@
   </div>
 </section>
 
-<script src="js/scena.js?v=14"></script>
-<script src="js/motore.js?v=14"></script>
-<script src="js/grafici.js?v=14"></script>
-<script src="js/app.js?v=14"></script>
+<script src="js/scena.js?v=16"></script>
+<script src="js/motore.js?v=16"></script>
+<script src="js/grafici.js?v=16"></script>
+<script src="js/app.js?v=16"></script>
 </body>
 </html>
