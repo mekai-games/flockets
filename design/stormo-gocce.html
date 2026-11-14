@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flockets · Stormo a gocce</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #EDEDEA; color: #111; font: 14px/1.45 Inter, system-ui, sans-serif; padding: 22px; }
+  .testa { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font: 700 20px "Inter Tight", sans-serif; margin: 0; } h2 { font: 700 15px "Inter Tight", sans-serif; margin: 26px 0 10px; }
+  .testa p { margin: 0; color: #666; font-size: 12.5px; max-width: 60em; }
+  svg { fill: currentColor; display: block; }
+  .scuro { background: #111; color: #fff; }
+  .confronto { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .confronto .fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .confronto .cella { padding: 16px 14px 12px; border-right: 1px solid rgba(128, 128, 128, .22); }
+  .confronto .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+  .confronto small { display: block; font: 500 11px "JetBrains Mono", monospace; color: #F2551D; margin-top: 8px; } .confronto .scuro small { color: #FF9466; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .carta { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .carta > header { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid #ECECE8; }
+  .carta b { font-weight: 600; } .carta b i { font: 500 12px "JetBrains Mono", monospace; color: #F2551D; margin-right: 8px; font-style: normal; }
+  .carta code { font: 11.5px "JetBrains Mono", monospace; color: #999; }
+  .due { display: grid; grid-template-columns: 1fr 1fr; } .due div { display: grid; place-items: center; height: 150px; }
+  .riga { display: flex; align-items: center; gap: 18px; padding: 12px 16px; border-top: 1px solid #ECECE8; }
+  .riga .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; flex: 1; }
+  .scheda-b { display: inline-flex; align-items: center; gap: 6px; background: #E4E4E0; border-radius: 6px 6px 0 0; padding: 5px 10px; font-size: 11.5px; color: #333; }
+  .riga.scuro .scheda-b { background: #2A2A2A; color: #ddd; }
+  .carta p { margin: 0; padding: 12px 16px 14px; border-top: 1px solid #ECECE8; color: #444; font-size: 13px; }
+  .uso > header { background: #F1F1EE; }
+</style>
+</head>
+<body>
+<div class="testa"><h1>Stormo a gocce</h1><p>Dal tuo schizzo: cinque gocce a V, con le code che si allargano verso l’esterno. Quella davanti ha la coda dritta, le altre la aprono sempre di più.</p></div>
+<h2>A colpo d’occhio</h2>
+<div class="confronto"><div class="fila" id="chiaro"></div><div class="fila scuro" id="scuro"></div></div>
+<h2>Una per una</h2>
+<div class="griglia" id="g"></div>
+<script>
+const r2 = v => Math.round(v * 100) / 100;
+const norm = v => { const l = Math.hypot(v[0], v[1]) || 1; return [v[0] / l, v[1] / l]; };
+/* Una goccia: testa tonda in (x, y), coda verso dietro che si apre di `ang` gradi verso l'esterno.
+   lato: -1 sopra, +1 sotto, 0 quella davanti. curva: la coda parte dritta e piega verso l'esterno. */
+function goccia(x, y, r, lato, ang, L, curva) {
+  if (!L) return `<circle cx="${x}" cy="${y}" r="${r}"/>`;
+  const a = ang * Math.PI / 180, u = [-Math.cos(a), lato * Math.sin(a)];
+  const T = [x + u[0] * L, y + u[1] * L];
+  const K = curva ? [x - 0.55 * L, y] : [x + u[0] * 0.5 * L, y + u[1] * 0.5 * L];
+  const d0 = norm([K[0] - x, K[1] - y]), n0 = [-d0[1], d0[0]];
+  const dT = norm([T[0] - K[0], T[1] - K[1]]), nm = norm([n0[0] - dT[1], n0[1] + dT[0]]);
+  const P1 = [x + n0[0] * 0.92 * r, y + n0[1] * 0.92 * r], P2 = [x - n0[0] * 0.92 * r, y - n0[1] * 0.92 * r];
+  const Q1 = [K[0] + nm[0] * 0.3 * r, K[1] + nm[1] * 0.3 * r], Q2 = [K[0] - nm[0] * 0.3 * r, K[1] - nm[1] * 0.3 * r];
+  const f = p => r2(p[0]) + ' ' + r2(p[1]);
+  return `<path d="M${f(P1)}Q${f(Q1)} ${f(T)}Q${f(Q2)} ${f(P2)}Z" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/><circle cx="${x}" cy="${y}" r="${r}"/>`;
+}
+/* teste: [x, y, raggio]; code: [angolo, lunghezza] per la goccia davanti, la coppia interna, la coppia esterna */
+function stormo(o) {
+  const [g, i, e] = o.teste, [cg, ci, ce] = o.code;
+  return goccia(g[0], g[1], g[2], 0, 0, cg[1], false)
+    + [-1, 1].map(s => goccia(i[0], 24 + s * i[1], i[2], s, ci[0], ci[1], o.curva)).join('')
+    + [-1, 1].map(s => goccia(e[0], 24 + s * e[1], e[2], s, ce[0], ce[1], o.curva)).join('');
+}
+const cerchi = [[37, 24, 5.5], [25.5, 15.5, 4.6], [25.5, 32.5, 4.6], [14, 7.5, 3.8], [14, 40.5, 3.8]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`).join('');
+const base = [[41, 24, 5], [32.7, 7.5, 4], [24.4, 15, 3.5]];   // x, distanza dal centro in verticale, raggio
+const LOGHI = [
+  { id: 'cerchi', nome: 'Adesso', uso: true, d: cerchi, t: 'Il logo di oggi, con i cerchi.' },
+  { id: 'ventaglio', nome: 'Ventaglio', d: stormo({ teste: base, code: [[0, 9], [7, 15], [22, 19]] }),
+    t: 'Code dritte che si aprono a ventaglio: la più fedele allo schizzo. La V è appena più aperta di quella di adesso, per far passare le code senza toccarsi.' },
+  { id: 'curve', nome: 'Code che piegano', d: stormo({ teste: base, code: [[0, 9], [16, 15], [24, 18]], curva: true }),
+    t: 'Le code partono dritte e piegano verso l’esterno in punta, come nel tuo disegno. Più morbido, sembra un’ala.' },
+  { id: 'lunghe', nome: 'Scie lunghe', d: stormo({ teste: [[42, 24, 4.6], [34.2, 7.2, 3.7], [26.4, 14.4, 3.2]], code: [[0, 11], [7, 18], [20, 22]] }),
+    t: 'Teste più piccole e code più lunghe: più velocità, più cometa. In piccolo le punte si assottigliano.' },
+  { id: 'corte', nome: 'Code corte', d: stormo({ teste: [[40, 24, 5.4], [30.6, 8, 4.5], [21.2, 16, 3.9]], code: [[0, 7], [10, 9.5], [22, 11.5]] }),
+    t: 'Code appena accennate: restano gocce, piene e compatte. È quella che regge meglio a 16 pixel.' },
+  { id: 'uguali', nome: 'Tutte uguali', d: stormo({ teste: [[41, 24, 4.2], [32.7, 8, 4.2], [24.4, 16.5, 4.2]], code: [[0, 13], [8, 14], [20, 15]] }),
+    t: 'Cinque gocce della stessa misura. Più ordinato, ma non si vede più chi guida.' },
+  { id: 'guida-tonda', nome: 'Guida tonda', d: stormo({ teste: [[40, 24, 5.6], [31.5, 7.8, 4], [23.2, 15.3, 3.5]], code: [[0, 0], [7, 15], [22, 19]] }),
+    t: 'Chi guida è un cerchio pieno, senza coda; gli altri lo seguono lasciando la scia. Tiene un legame con il logo di adesso.' },
+  { id: 'aperto', nome: 'Più aperto', d: stormo({ teste: [[40.5, 24, 5], [32.9, 8.4, 4], [25.3, 16.8, 3.5]], code: [[0, 9], [12, 15], [24, 16]] }),
+    t: 'V più larga, come nella foto. Riempie meglio il quadrato in altezza; accanto al nome risulta un po’ più alto.' },
+  { id: 'posizione', nome: 'Posizione di adesso', d: stormo({ teste: [[38, 24, 5.3], [26.5, 8.5, 4.3], [15, 16.5, 3.6]], code: [[0, 8], [6, 10.5], [10, 12]] }),
+    t: 'Le teste stanno esattamente dove sono i cerchi oggi. Per non uscire dal quadrato le code si aprono poco.' },
+];
+const svg = (d, n) => `<svg width="${n}" height="${n}" viewBox="0 0 48 48">${d}</svg>`;
+let n = 0;
+LOGHI.forEach(l => { l.num = l.uso ? '' : String(++n).padStart(2, '0'); });
+const cella = l => `<div class="cella"><span class="nome">${svg(l.d, 28)}Flockets</span><small>${l.num ? l.num + ' · ' : ''}${l.nome}</small></div>`;
+document.getElementById('chiaro').innerHTML = LOGHI.map(cella).join('');
+document.getElementById('scuro').innerHTML = LOGHI.map(cella).join('');
+document.getElementById('g').innerHTML = LOGHI.map(l => `
+  <article class="carta${l.uso ? ' uso' : ''}">
+    <header><b>${l.num ? `<i>${l.num}</i>` : ''}${l.nome}</b><code>${l.id}${l.uso ? ' · in uso sul sito' : ''}</code></header>
+    <div class="due"><div>${svg(l.d, 96)}</div><div class="scuro">${svg(l.d, 96)}</div></div>
+    <div class="riga">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga scuro">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <div class="riga scuro"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <p>${l.t}</p>
+  </article>`).join('');
+</script>
+</body>
+</html>
