@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flockets · Stormo, versioni migliorate</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #EDEDEA; color: #111; font: 14px/1.45 Inter, system-ui, sans-serif; padding: 22px; }
+  .testa { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font: 700 20px "Inter Tight", sans-serif; margin: 0; } h2 { font: 700 15px "Inter Tight", sans-serif; margin: 26px 0 10px; }
+  .testa p { margin: 0; color: #666; font-size: 12.5px; max-width: 60em; }
+  svg { fill: currentColor; display: block; }
+  .scuro { background: #111; color: #fff; }
+  .confronto { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .confronto .fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .confronto .cella { padding: 16px 14px 12px; border-right: 1px solid rgba(128, 128, 128, .22); }
+  .confronto .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+  .confronto small { display: block; font: 500 11px "JetBrains Mono", monospace; color: #F2551D; margin-top: 8px; } .confronto .scuro small { color: #FF9466; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .carta { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .carta > header { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid #ECECE8; }
+  .carta b { font-weight: 600; } .carta b i { font: 500 12px "JetBrains Mono", monospace; color: #F2551D; margin-right: 8px; font-style: normal; }
+  .carta code { font: 11.5px "JetBrains Mono", monospace; color: #999; }
+  .due { display: grid; grid-template-columns: 1fr 1fr; } .due div { display: grid; place-items: center; height: 150px; }
+  .riga { display: flex; align-items: center; gap: 18px; padding: 12px 16px; border-top: 1px solid #ECECE8; }
+  .riga .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; flex: 1; }
+  .scheda-b { display: inline-flex; align-items: center; gap: 6px; background: #E4E4E0; border-radius: 6px 6px 0 0; padding: 5px 10px; font-size: 11.5px; color: #333; }
+  .riga.scuro .scheda-b { background: #2A2A2A; color: #ddd; }
+  .carta p { margin: 0; padding: 12px 16px 14px; border-top: 1px solid #ECECE8; color: #444; font-size: 13px; }
+  .uso > header { background: #F1F1EE; } .scelta > header { background: #FFF3EC; }
+</style>
+</head>
+<body>
+<div class="testa"><h1>Stormo, versioni migliorate</h1><p>Stessa idea, cinque punti in formazione a V. Cosa non andava: punti piccoli e lontani tra loro, quindi a 16 pixel quelli esterni quasi sparivano, e accanto al nome il segno sembrava leggero.</p></div>
+<h2>A colpo d’occhio</h2>
+<div class="confronto"><div class="fila" id="chiaro"></div><div class="fila scuro" id="scuro"></div></div>
+<h2>Una per una</h2>
+<div class="griglia" id="g"></div>
+<script>
+const c = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}"/>`;
+const anello = (x, y, r, w) => `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="currentColor" stroke-width="${w}"/>`;
+const pieno = c(38, 24, 7) + c(25, 14.5, 5.8) + c(25, 33.5, 5.8) + c(13.5, 6.6, 4.6) + c(13.5, 41.4, 4.6);
+const LOGHI = [
+  { id: 'adesso', nome: 'Adesso', uso: true, d: c(37, 24, 5.5) + c(25.5, 15.5, 4.6) + c(25.5, 32.5, 4.6) + c(14, 7.5, 3.8) + c(14, 40.5, 3.8),
+    t: 'Il logo di oggi, per confronto.' },
+  { id: 'pieno', nome: 'Pieno', scelta: true, d: pieno,
+    t: 'Punti più grandi e più vicini, quello davanti chiaramente più grosso. La V si legge come una forma sola e regge a 16 pixel. È la correzione più fedele.' },
+  { id: 'uguale', nome: 'Tutti uguali', d: c(39, 24, 5.5) + c(27, 15.6, 5.5) + c(27, 32.4, 5.5) + c(15, 7.2, 5.5) + c(15, 40.8, 5.5),
+    t: 'Cinque punti della stessa misura. Più ordinato e più «marchio», ma si perde chi guida.' },
+  { id: 'profondita', nome: 'Profondità', d: c(37, 24, 8) + c(23.2, 13.6, 5.6) + c(23.2, 34.4, 5.6) + c(12.4, 5.6, 3.6) + c(12.4, 42.4, 3.6),
+    t: 'Differenza forte tra il primo e gli ultimi: dà l’idea di uno stormo che viene verso di te. Da piccolissimo gli ultimi due tornano sottili.' },
+  { id: 'salita', nome: 'In salita', d: `<g transform="translate(3.4 -4.4) rotate(-45 25 24)">${pieno}</g>`,
+    t: 'Lo stesso segno girato di 45 gradi: punta in alto a destra, come la freccia di un grafico che cresce. Riempie meglio il quadrato.' },
+  { id: 'asimmetrico', nome: 'Un’ala lunga', d: c(38.5, 28, 7) + c(26.3, 19.2, 5.8) + c(15.6, 11.6, 4.7) + c(7, 5.5, 3.6) + c(27, 39.5, 5.8),
+    t: 'Un’ala di tre e una di uno, come negli stormi veri. Meno prevedibile, ma può ricordare un segno di spunta.' },
+  { id: 'sette', nome: 'Sette', d: c(40.5, 24, 6.4) + c(29.8, 16.4, 5.2) + c(29.8, 31.6, 5.2) + c(20.4, 9.7, 4.2) + c(20.4, 38.3, 4.2) + c(12.3, 3.95, 3.2) + c(12.3, 44.05, 3.2),
+    t: 'Due punti in più: più «stormo», più freccia. Bello in grande, più debole come icona piccola.' },
+  { id: 'guida-vuota', nome: 'Guida vuota', d: anello(38, 24, 5.2, 3.6) + c(25, 14.5, 5.8) + c(25, 33.5, 5.8) + c(13.5, 6.6, 4.6) + c(13.5, 41.4, 4.6),
+    t: 'Il primo è un cerchio vuoto: il cliente che non esiste, seguito da quelli veri. Unisce lo stormo al titolo della sfida.' },
+  { id: 'stretto', nome: 'Stretto', d: c(40, 24, 6.6) + c(26.5, 17.1, 5.4) + c(26.5, 30.9, 5.4) + c(14.35, 10.9, 4.3) + c(14.35, 37.1, 4.3),
+    t: 'V più chiusa: sembra una freccia che va avanti. Più compatto, sta bene vicino al nome.' },
+];
+const svg = (d, n) => `<svg width="${n}" height="${n}" viewBox="0 0 48 48">${d}</svg>`;
+let n = 0;
+LOGHI.forEach(l => { l.num = l.uso ? '' : String(++n).padStart(2, '0'); });
+const cella = l => `<div class="cella"><span class="nome">${svg(l.d, 28)}Flockets</span><small>${l.num ? l.num + ' · ' : ''}${l.nome}</small></div>`;
+document.getElementById('chiaro').innerHTML = LOGHI.map(cella).join('');
+document.getElementById('scuro').innerHTML = LOGHI.map(cella).join('');
+document.getElementById('g').innerHTML = LOGHI.map(l => `
+  <article class="carta${l.uso ? ' uso' : ''}${l.scelta ? ' scelta' : ''}">
+    <header><b>${l.num ? `<i>${l.num}</i>` : ''}${l.nome}</b><code>${l.id}${l.uso ? ' · in uso sul sito' : ''}${l.scelta ? ' · consigliato' : ''}</code></header>
+    <div class="due"><div>${svg(l.d, 96)}</div><div class="scuro">${svg(l.d, 96)}</div></div>
+    <div class="riga">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga scuro">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <div class="riga scuro"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <p>${l.t}</p>
+  </article>`).join('');
+</script>
+</body>
+</html>
