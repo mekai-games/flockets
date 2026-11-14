@@ -158,7 +158,14 @@ CAMPAGNA_BASE = {
     "nome": "Campagna nuova", "descrizione_prodotto": "", "categoria": None, "prezzo": None, "sconto": 0.0, "marchio": "conosciuto",
     "obiettivo": "vendite", "canale": "social", "formato": None, "leve": [], "testo_annuncio": "", "creativita": {},
     "pubblico": {"tipo": "ampio"}, "budget_giorno": 100.0, "giorni": 14, "inizio": None, "trend": 1.0, "qualita_sito": 0.8,
+    "filtri": {}, "extra": [], "forza": None,
 }
+# vantaggi dell'offerta che il testo può nominare: ognuno alza un po' la probabilità di comprare dopo il click (ipotesi)
+EXTRA = {"spedizione_gratuita": "spedizione gratuita", "reso_gratuito": "reso gratuito", "garanzia": "garanzia",
+         "rate": "pagamento a rate", "regalo": "regalo con l'acquisto", "prova_gratuita": "prova gratuita"}
+PESO_EXTRA, TETTO_EXTRA = 0.08, 0.24   # +8% circa di acquisti per vantaggio, al massimo +27%
+BUDGET_RIF = 100.0                     # budget al giorno a cui si riferiscono i costi tipici del settore
+PESO_FORZA = 0.06                      # forza del messaggio 0-10: da circa -26% a +35% di click rispetto a un messaggio medio (5)
 
 
 def leggi_testo(testo):
@@ -176,13 +183,25 @@ def leggi_testo(testo):
 
 def normalizza(c):
     """Completa la campagna con valori prudenti e dice cosa ha assunto."""
+    marchio_detto = bool((c or {}).get("marchio"))
     c = {**CAMPAGNA_BASE, **(c or {})}
     c["pubblico"] = {**CAMPAGNA_BASE["pubblico"], **(c.get("pubblico") or {})}
     ipotesi = []
+    if not marchio_detto:
+        ipotesi.append("Marchio non indicato: conosciuto da una parte del pubblico, con visitatori del sito da raggiungere di nuovo")
     letto = leggi_testo(" ".join([c.get("testo_annuncio") or "", c.get("descrizione_prodotto") or ""]))
+    ia = c.get("categoria_ia")
+    if not c.get("categoria") and ia in pe.CATEGORIE:
+        testo = " ".join([c.get("testo_annuncio") or "", c.get("descrizione_prodotto") or ""]).lower()
+        if letto["categoria"] and letto["categoria"] != ia and not re.search(CATEGORIE_TESTO[ia], testo):
+            ipotesi.append("Categoria: il testo parla di %s, non di %s" % (letto["categoria"], ia))
+        else:
+            c["categoria"] = ia
     if not c.get("categoria"):
-        c["categoria"] = letto["categoria"] or "generica"
-        ipotesi.append("Categoria " + ("letta dalla descrizione: " + c["categoria"] if letto["categoria"] else "non indicata: media di tutte le categorie"))
+        riserva = c.get("categoria_riserva") if c.get("categoria_riserva") in pe.CATEGORIE else None   # dallo storico
+        c["categoria"] = letto["categoria"] or riserva or "generica"
+        ipotesi.append("Categoria " + ("letta dalla descrizione: " + c["categoria"] if letto["categoria"] else
+                                       "presa dallo storico: " + riserva if riserva else "non indicata: media di tutte le categorie"))
     if c["categoria"] not in pe.CATEGORIE and c["categoria"] != "generica":
         raise ValueError("Categoria sconosciuta: %s" % c["categoria"])
     if c["canale"] not in CANALI:
@@ -213,6 +232,16 @@ def normalizza(c):
     if not c.get("inizio"):
         c["inizio"] = (date.today() + timedelta(days=1)).isoformat()
     c["trend"] = float(min(max(c.get("trend") or 1.0, 0.3), 3.0))
+    # pubblico indicato nel testo («per donne 25-44 al Nord»): vale per tutti i tipi di pubblico provati
+    filtri = {k: [v for v in (vals or []) if v in pe.DIMENSIONI[k]] for k, vals in (c.get("filtri") or {}).items() if k in pe.DIMENSIONI}
+    filtri = {k: v for k, v in filtri.items() if v and len(v) < len(pe.DIMENSIONI[k])}
+    c["filtri"] = filtri
+    c["pubblico"] = {**c["pubblico"], **filtri}
+    if filtri:
+        ipotesi.append("Pubblico indicato: " + ", ".join(" o ".join(str(pe.ETICHETTE.get(v, v)) for v in vals) for vals in filtri.values()))
+    c["extra"] = sorted({e for e in (c.get("extra") or []) if e in EXTRA})
+    f = c.get("forza")
+    c["forza"] = None if f is None else float(min(max(f, 0.0), 10.0))
     c["qualita_sito"] = float(min(max(c.get("qualita_sito") or 0.8, 0.2), 1.0))
     if c["canale"] == "email" and c["pubblico"].get("tipo") != "retargeting":
         c["pubblico"]["tipo"] = "retargeting"
@@ -295,6 +324,7 @@ def _contributi(P, c, cat, giorno, rif):
         leve = leve + 0.5 * c["sconto"] * P.sens_sconto.values
     click["leve"] = leve
     click["creativita"] = np.full(len(P), _qualita_creativa(c["creativita"]))
+    click["messaggio"] = np.full(len(P), 0.0 if c.get("forza") is None else PESO_FORZA * (c["forza"] - 5.0))
     m = MARCHIO[c["marchio"]]
     marchio = np.full(len(P), 0.35 * (m["noto"] - MARCHIO["conosciuto"]["noto"]))
     if c["pubblico"].get("tipo") == "retargeting":
@@ -323,6 +353,7 @@ def _contributi(P, c, cat, giorno, rif):
         if lv in c["leve"]:
             urg = urg + 0.15 * P["sens_" + lv].values
     compra["leve"] = urg
+    compra["offerta"] = np.full(len(P), min(TETTO_EXTRA, PESO_EXTRA * len(c.get("extra") or [])))
     return click, compra
 
 
@@ -380,7 +411,9 @@ def simula(campagna, n_sim=400, seed=7, dettaglio=True, scarto_ctr=0.0, scarto_c
     cat, k = c["categoria"], c["canale"]
     tar = _taratura(P, k, cat)
     b = _bench_canale(k)
-    cpm_base = b["cpm_eur"][1] * math.exp(scarto_cpm)
+    el_b = (BASE or {}).get("cpm", {}).get("elasticita", 0.26)
+    # più budget al giorno, ogni visualizzazione costa di più (elasticità stimata dal modello di previsione; 100 €/giorno = valore tipico)
+    cpm_base = b["cpm_eur"][1] * math.exp(scarto_cpm) * (c["budget_giorno"] / BUDGET_RIF) ** el_b
     gamma = OBIETTIVI[c["obiettivo"]]
     costo_rel = P.costo_relativo.values / tar["costo_medio"]
     el = (BASE or {}).get("cpm", {}).get("elasticita", 0.26)
@@ -762,8 +795,13 @@ DESCRIZIONI = {"ampio": "Tutti, senza filtri: decide la piattaforma a chi mostra
 
 def analizza_campagna(spec, consigli=True, n_persone=6):
     """Campagna nuova: la stessa campagna simulata su ogni tipo di pubblico, con lo stesso budget.
-    Il pubblico migliore e una conseguenza dell'analisi (piu acquisti, click o persone raggiunte, secondo l'obiettivo)."""
-    c0 = normalizza({k: v for k, v in (spec or {}).items() if k != "pubblico"})
+    Il pubblico migliore e una conseguenza dell'analisi (piu acquisti, click o persone raggiunte, secondo l'obiettivo).
+    spec["taratura"] = {"ctr": x, "cpm": y}: scarti in scala logaritmica misurati su uno storico (stessa marca),
+    per portare i livelli di partenza del settore a quelli veri della marca."""
+    spec = dict(spec or {})
+    tar = spec.pop("taratura", None) or {}
+    s_ctr, s_cpm = float(tar.get("ctr") or 0.0), float(tar.get("cpm") or 0.0)
+    c0 = normalizza({k: v for k, v in spec.items() if k != "pubblico"})
     tipi = ["ampio", "interessi", "sosia"] + ([] if c0["marchio"] == "nuovo" else ["retargeting"])
     if c0["canale"] in ("ricerca", "shopping"):
         tipi = ["ampio"] + ([] if c0["marchio"] == "nuovo" else ["retargeting"])
@@ -772,9 +810,10 @@ def analizza_campagna(spec, consigli=True, n_persone=6):
     base = {k: v for k, v in c0.items() if not k.startswith("_")}
     pubblici = []
     for i, tipo in enumerate(tipi):
-        r = simula({**base, "pubblico": {"tipo": tipo}}, seed=7 + 11 * i, n_persone=n_persone)
+        r = simula({**base, "pubblico": {"tipo": tipo}}, seed=7 + 11 * i, n_persone=n_persone, scarto_ctr=s_ctr, scarto_cpm=s_cpm)
         r.pop("_T", None)
-        pubblici.append({"tipo": tipo, "nome": PUBBLICI[tipo].split(":")[0], "descrizione": DESCRIZIONI[tipo],
+        descr = DESCRIZIONI[tipo] if not (c0["filtri"] and tipo == "ampio") else "Tutte le persone del pubblico che hai indicato: decide la piattaforma."
+        pubblici.append({"tipo": tipo, "nome": PUBBLICI[tipo].split(":")[0], "descrizione": descr,
                          "totali": r["totali"], "forchetta": r["forchetta"], "giorni": r["giorni"], "segmenti": r["segmenti"],
                          "migliori": r["migliori"][:5], "persone": r["persone"], "pubblico": r["pubblico"],
                          "risultato": _risultato(r["totali"], c0["obiettivo"])})
@@ -782,7 +821,7 @@ def analizza_campagna(spec, consigli=True, n_persone=6):
     out = {"campagna": base, "ipotesi": c0["_ipotesi"] + ([] if "retargeting" in tipi else
                                                           ["Il pubblico di chi ha già visitato il sito non c'è: il marchio è nuovo"]),
            "valori_reali": simula({**base, "pubblico": {"tipo": migliore["tipo"]}}, dettaglio=False)["valori_reali"],
-           "pubblici": pubblici, "migliore": migliore["tipo"]}
+           "pubblici": pubblici, "migliore": migliore["tipo"], "taratura": {"ctr": s_ctr, "cpm": s_cpm} if tar else None}
     if consigli:
         out["consigli"] = consiglia(base)
     return out

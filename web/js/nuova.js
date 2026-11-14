@@ -18,7 +18,7 @@ window.Nuova = (function () {
     display: ['Banner su siti e app', ['immagine', 'video']], video: ['Video (YouTube)', ['video']], email: ['Email e newsletter', ['immagine', 'testo']],
   };
   const FORMATI = { immagine: 'immagine', carosello: 'carosello', video_breve: 'video breve', video: 'video', testo: 'testo (annuncio di ricerca)' };
-  let pronto = false;
+  let pronto = false, altro = null;   // dal prompt: pubblico indicato, vantaggi, forza del messaggio, taratura (non hanno un campo nel modulo)
 
   function formati() {
     const k = $('#nc-canale').value, prima = $('#nc-formato').value;
@@ -51,6 +51,7 @@ window.Nuova = (function () {
       obiettivo: $('#nc-obiettivo').value, canale: $('#nc-canale').value, formato: $('#nc-formato').value || null,
       testo_annuncio: $('#nc-annuncio').value.trim(), budget_giorno: num('#nc-budget', 100), giorni: Math.round(num('#nc-giorni', 14)),
       inizio: $('#nc-inizio').value || null,
+      ...(altro && altro.testo === $('#nc-annuncio').value ? altro.campi : {}),
     };
   }
   function simula() {
@@ -71,6 +72,8 @@ window.Nuova = (function () {
     metti('#nc-prezzo', c.prezzo); metti('#nc-sconto', Math.round((c.sconto || 0) * 100)); metti('#nc-marchio', c.marchio);
     metti('#nc-obiettivo', c.obiettivo); metti('#nc-canale', c.canale); formati(); metti('#nc-formato', c.formato);
     metti('#nc-annuncio', c.testo_annuncio); metti('#nc-budget', Math.round(c.budget_giorno)); metti('#nc-giorni', c.giorni); metti('#nc-inizio', c.inizio);
+    metti('#nc-trend', c.trend);
+    altro = { testo: c.testo_annuncio, campi: { filtri: c.filtri || {}, extra: c.extra || [], forza: c.forza, taratura: c.taratura || undefined } };
   }
   return { apri, riempi };
 })();

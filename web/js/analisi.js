@@ -30,7 +30,20 @@ window.Analisi = (function () {
     auto_moto: 'auto e moto', finanza: 'finanza', formazione_lavoro: 'corsi e lavoro', intrattenimento: 'cultura e intrattenimento', generica: 'categoria non riconosciuta' };
   const LEVE = { sconto: 'sconto', urgenza: 'urgenza', scarsita: 'pochi pezzi', prova_sociale: 'recensioni', novita: 'novità', esperto: 'parere esperto', valori: 'valori' };
   const FRASE_LEVA = { urgenza: '«solo fino a domenica»', scarsita: '«ultimi pezzi»', prova_sociale: '«migliaia di recensioni a 5 stelle»', novita: '«la novità della stagione»', esperto: '«consigliato da un esperto»', valori: '«prodotto sostenibile»', sconto: 'uno sconto' };
-  const ELASTICITA = 0.262;   // dal motore: raddoppiando il budget ogni visualizzazione costa circa il 20% in più
+  const ELASTICITA = 0.262;
+  const PESO_FORZA = 0.06;   // come nel simulatore: ogni punto di forza del messaggio sposta la probabilità di click
+  const CRITERI = { beneficio: 'Beneficio chiaro', concretezza: 'Offerta concreta', prova: 'Credibilità', invito: 'Invito all’azione', adatto: 'Adatto al canale' };
+  const EXTRA = { spedizione_gratuita: 'spedizione gratuita', reso_gratuito: 'reso gratuito', garanzia: 'garanzia', rate: 'pagamento a rate', regalo: 'regalo', prova_gratuita: 'prova gratuita' };
+  const VALORI = { donna: 'donne', uomo: 'uomini', nord_ovest: 'Nord-Ovest', nord_est: 'Nord-Est', centro: 'Centro', sud: 'Sud', isole: 'Isole',
+    grande_citta: 'grandi città', citta_media: 'città medie', piccolo_comune: 'piccoli comuni', basso: 'reddito basso', medio: 'reddito medio', alto: 'reddito alto',
+    single: 'senza partner né figli', coppia: 'in coppia', figli_piccoli: 'con figli piccoli', figli_grandi: 'con figli grandi' };
+  const TREND = { 0.8: 'categoria in calo', 1.3: 'categoria in crescita', 1.6: 'categoria di moda' };
+  // fasce di età vicine in un'unica etichetta: 25-34 e 35-44 → «25-44 anni»
+  function etaInBreve(fasce) {
+    const r = fasce.map(f => (f === '65+' ? [65, 120] : f.split('-').map(Number))).sort((a, b) => a[0] - b[0]), out = [];
+    r.forEach(x => { const u = out[out.length - 1]; if (u && x[0] === u[1] + 1) u[1] = x[1]; else out.push(x.slice()); });
+    return out.map(([a, b]) => (b >= 120 ? `over ${a}` : `${a}-${b} anni`)).join(', ');
+  }   // dal motore: raddoppiando il budget ogni visualizzazione costa circa il 20% in più
   const UNITA = {
     acquisti: { plur: 'acquisti', sing: 'acquisto', fatto: ['Ha comprato', 'Ha comprato'], costo: 'Costo per acquisto', ogni: 'ad acquisto' },
     download: { plur: 'download', sing: 'download', fatto: ['Ha scaricato', 'Ha scaricato'], costo: 'Costo per download', ogni: 'a download' },
@@ -42,7 +55,8 @@ window.Analisi = (function () {
 
   /* ---------------------------------------------------------- leggere il prompt */
   // dalla frase scritta nella pagina di partenza ai dati di una campagna nuova; il resto lo legge il motore (categoria, leve, creatività)
-  function leggiPrompt(testo, brief) {
+  // riserva: valori presi dallo storico (budget, durata, partenza, categoria) quando il testo non li dice
+  function leggiPrompt(testo, brief, riserva) {
     const s = ' ' + testo.toLowerCase().replace(/\s+/g, ' ') + ' ';
     const num = x => parseFloat(String(x).replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
     const spec = { testo_annuncio: testo, descrizione_prodotto: testo };
@@ -66,16 +80,41 @@ window.Analisi = (function () {
     else if (/famos|notissim|\bleader\b/.test(s)) spec.marchio = 'famoso';
     if (/notoriet|farsi conoscere|awareness|visibilit/.test(s)) spec.obiettivo = 'notorieta';
     else if (/\bvisite\b|traffico|portare (?:gente|persone) sul sito/.test(s)) spec.obiettivo = 'traffico';
+    // a chi è rivolto, vantaggi dell'offerta, quando parte (regole di riserva, se Claude non risponde)
+    const filtri = {};
+    if (/\bdonne\b|ragazze|mamme|\bsignore\b|femminil/.test(s) && !/uomini/.test(s)) filtri.genere = ['donna'];
+    else if (/\buomini\b|papà|maschil/.test(s) && !/donne|ragazze/.test(s)) filtri.genere = ['uomo'];
+    const FASCE = [['18-24', 18, 24], ['25-34', 25, 34], ['35-44', 35, 44], ['45-54', 45, 54], ['55-64', 55, 64], ['65+', 65, 120]];
+    const anni = s.match(/\b(?:da\s*)?(1[89]|[2-9]\d)\s*(?:-|–|a)\s*([2-9]\d)\b(?!\s*(?:%|€|euro))/) || s.match(/(?:over|oltre i?)\s*(\d{2})()/);
+    if (anni) { const a = +anni[1], b = anni[2] ? +anni[2] : 120; filtri.eta = FASCE.filter(f => f[2] >= a && f[1] <= b).map(f => f[0]); }
+    else if (/\bgiovani\b|ragazz[ie]\b|ventenni|gen z|studenti/.test(s)) filtri.eta = ['18-24', '25-34'];
+    else if (/pensionat|anzian|terza età/.test(s)) filtri.eta = ['65+'];
+    if (/mamme|neogenitori|genitori|con bambini|figli piccoli/.test(s)) filtri.famiglia = ['figli_piccoli'];
+    const aree = [[/milano|torino|genova|lombardia|piemonte|liguria|nord-?ovest/, 'nord_ovest'], [/venezia|bologna|verona|veneto|emilia|trentino|friuli|nord-?est/, 'nord_est'],
+      [/\broma\b|firenze|toscana|lazio|marche|umbria|centro italia/, 'centro'], [/napoli|\bbari\b|campania|puglia|calabria|\bsud\b/, 'sud'], [/sicilia|sardegna|palermo|cagliari/, 'isole']];
+    const ar = aree.filter(([rx]) => rx.test(s)).map(x => x[1]);
+    if (ar.length) filtri.area = ar;
+    spec.filtri = filtri;
+    spec.extra = [[/spedizion\w* gratu/, 'spedizione_gratuita'], [/reso gratu|soddisfatti o rimborsati/, 'reso_gratuito'], [/garanzia/, 'garanzia'],
+      [/a rate|rateal|in \d+ rate/, 'rate'], [/in regalo|in omaggio|omaggio/, 'regalo'], [/prova gratu|campione gratu/, 'prova_gratuita']].filter(([rx]) => rx.test(s)).map(x => x[1]);
+    const oggi = new Date(), anno = oggi.getFullYear();
+    const futura = (m, gg) => { let d = new Date(Date.UTC(anno, m, gg)); if (d < oggi) d = new Date(Date.UTC(anno + 1, m, gg)); return d.toISOString().slice(0, 10); };
+    const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+    const mese = MESI.findIndex(x => new RegExp('\\b(?:a|ad|da|di|per|in|dal|dall’|dall\')\\s*' + x).test(s));
+    if (/black friday/.test(s)) { const nov = new Date(Date.UTC(anno, 10, 1)), bf = new Date(nov); bf.setUTCDate(1 + ((5 - nov.getUTCDay() + 7) % 7) + 21); bf.setUTCDate(bf.getUTCDate() - 7); if (bf > oggi) spec.inizio = bf.toISOString().slice(0, 10); }
+    else if (/natale|natalizi/.test(s)) spec.inizio = futura(11, 1);
+    else if (mese >= 0) spec.inizio = futura(mese, 1);
     let unita = /scaric|download|install|\bapp\b|gioco (?:per|sul|da) (?:telefono|cellulare|smartphone)|mobile game/.test(s) ? 'download'
       : /iscri|registra/.test(s) ? 'iscrizioni' : 'acquisti';
-    let gratis = /gratis|gratuit|\bfree\b/.test(s), ia = false;
-    // quello che ha capito Claude Haiku (funzione /api/leggi) vale più delle regole a parole chiave; 0 o non_indicato = non detto
+    // gratis vale per il prodotto, non per spedizione, reso o prova
+    let gratis = /gratis|gratuit|\bfree\b/.test(s.replace(/(?:spedizion\w*|reso|consegna|prova|campione|resi)\s+(?:è\s+)?gratu\w*|gratis la spedizione/g, ' ')), ia = false, messaggio = null, suggerimenti = [];
+    // quello che ha capito Claude Haiku (funzione /api/leggi) vale più delle regole a parole chiave; 0, vuoto o non_indicato = non detto
     const ia2 = brief && brief.fonte === 'ia' ? brief.campagna : null;
     if (brief && brief.fonte === 'ia' && brief.f) spec.creativita = brief.f;
     if (ia2) {
       ia = true;
       if (ia2.canale !== 'non_indicato') spec.canale = ia2.canale;
-      if (ia2.categoria && ia2.categoria !== 'generica') spec.categoria = ia2.categoria;
+      if (ia2.categoria && ia2.categoria !== 'generica') spec.categoria_ia = ia2.categoria;   // il motore la controlla con le parole del testo
       if (ia2.formato_campagna !== 'non_indicato') spec.formato = ia2.formato_campagna;
       if (ia2.budget_giorno > 0) spec.budget_giorno = ia2.budget_giorno;
       if (ia2.giorni > 0) spec.giorni = ia2.giorni;
@@ -85,9 +124,43 @@ window.Analisi = (function () {
       spec.obiettivo = ia2.obiettivo;
       if (ia2.leve && ia2.leve.length) spec.leve = ia2.leve;
       if (ia2.prodotto) spec.descrizione_prodotto = ia2.prodotto + '. ' + testo;
+      if (ia2.pubblico) Object.entries(ia2.pubblico).forEach(([k, v]) => { if (v && v.length) spec.filtri[k] = v; });   // le regole restano dove Claude tace
+      if (ia2.inizio) spec.inizio = ia2.inizio;
+      if (ia2.trend && ia2.trend !== 'non_indicato') spec.trend = { in_calo: 0.8, normale: 1, in_crescita: 1.3, di_moda: 1.6 }[ia2.trend];
+      if (ia2.extra) spec.extra = [...new Set([...spec.extra, ...ia2.extra])];
       unita = ia2.risultato; gratis = ia2.gratis;
     }
-    return { spec, unita, gratis, ia, prodotto: ia2 && ia2.prodotto ? ia2.prodotto : '' };
+    if (brief && brief.fonte === 'ia' && brief.messaggio) {
+      // voto del messaggio: concretezza, credibilità e invito all'azione contati sul testo (stabili tra prompt simili),
+      // beneficio e adatto al canale giudicati da Claude
+      const ann = s.replace(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:al|a|\/|ogni|per)\s*(?:giorno|gg|day)/g, ' ').replace(/budget[^.;]*/g, ' ')
+        .replace(/\b(?:per\s*)?\d+\s*(?:giorni|gg|settiman\w*|mesi?)\b/g, ' ');
+      const concretezza = Math.min(2, [/\d{1,2}\s*%/, /\d[\d.,]*\s*(?:€|euro)/, /solo (?:oggi|fino|per)|entro |scade|fino a \w+|ultimi \d|\d+\s*(?:ml|pezzi|ore)\b/]
+        .filter(rx => rx.test(ann)).length);
+      const prova = /\d[\d.]*\s*(?:recensioni|clienti|persone|utenti|giocatori|download|ordini|venduti|mamme|donne)|\d(?:[.,]\d)?\s*stelle/.test(ann) ? 2
+        : /recension|testimonian|consigliat|dermatolog|esperti|premiat|best ?seller|più vendut|amat[oa] da/.test(ann) ? 1 : 0;
+      const invito = /\b(?:compra|acquista|ordina|scopri|scarica|iscriviti|clicca|prenota|approfitta|non perdere|corri|vai sul sito|link in bio|prova ora|provala|provalo)\b/.test(ann) ? 2 : 0;
+      const g = brief.messaggio;
+      // adatto al canale: il formato rispetto a quello che il canale preferisce (se il formato non si capisce, decide Claude)
+      const PREF = { social: { video_breve: 2, carosello: 2, immagine: 1, video: 2 }, video_brevi: { video_breve: 2, video: 2 }, ricerca: { testo: 2 },
+        shopping: { immagine: 2 }, display: { immagine: 2, video: 1 }, video: { video: 2, video_breve: 1 }, email: { immagine: 2, testo: 2 } };
+      const fmt = spec.formato || (/video|reel|secondi|clip/.test(s) ? (spec.canale === 'video' ? 'video' : 'video_breve') : /carosello|slide|schede/.test(s) ? 'carosello'
+        : /\bfoto\b|immagine|grafica/.test(s) ? 'immagine' : spec.canale === 'ricerca' ? 'testo' : null);
+      const adatto = fmt ? ((PREF[spec.canale] || {})[fmt] || 0) : g.adatto;
+      messaggio = { beneficio: g.beneficio, concretezza, prova, invito, adatto };
+      messaggio.forza = messaggio.beneficio + concretezza + prova + invito + messaggio.adatto;
+      spec.forza = messaggio.forza; suggerimenti = brief.suggerimenti || [];
+    }
+    // dallo storico, solo dove il testo tace
+    if (riserva) {
+      if (!spec.budget_giorno && riserva.budget_giorno) spec.budget_giorno = riserva.budget_giorno;
+      if (!spec.giorni && riserva.giorni) spec.giorni = riserva.giorni;
+      if (!spec.inizio && riserva.inizio) spec.inizio = riserva.inizio;
+      if (!spec.marchio) spec.marchio = 'conosciuto';   // c'è uno storico: la marca ha già clienti e visitatori
+      if (!spec.categoria && riserva.categoria) spec.categoria_riserva = riserva.categoria;
+      if (riserva.taratura) spec.taratura = riserva.taratura;
+    }
+    return { spec, unita, gratis, ia, messaggio, suggerimenti, prodotto: ia2 && ia2.prodotto ? ia2.prodotto : '' };
   }
 
   /* ------------------------------------------------------------------ modelli */
@@ -185,20 +258,27 @@ window.Analisi = (function () {
       a.push(`Sposta ${ni(sposta)} € al giorno da «${m.etichettaPubblico(peggio)}» a «${m.etichettaPubblico(best)}»: circa ${n1(guadagno)} ${u} in più nello stesso periodo.`);
     }
     if (m.sorgente === 'nuova') {
+      // pubblico troppo piccolo per il budget: ogni persona vedrebbe l'annuncio troppe volte
+      const scelto = m.nuova.pubblici.find(p => p.tipo === m.nuova.migliore), fr = scelto ? scelto.totali.frequenza : 0;
+      if (fr > 5) a.push(`Il pubblico è troppo piccolo per questo budget: ogni persona vedrebbe l’annuncio ${n1(fr)} volte. Allarga il pubblico o abbassa il budget.`);
       const C = m.nuova.campagna, ampio = m.pubblici.find(p => p.id === 'ampio');
       if (ampio && best.id !== 'ampio') a.push(`Usa il pubblico «${best.nome}»: ${n1(best.acq)} ${u} contro ${n1(ampio.acq)} con il pubblico ampio, a parità di budget.`);
       else a.push('Il pubblico ampio è già la scelta migliore: la piattaforma trova da sola chi risponde.');
-      // dal consiglio: stesso pubblico del migliore, cambia solo canale o leva (confronto alla pari)
-      const cl = (m.nuova.consigli && m.nuova.consigli.classifica) || [], rif = best.risultato || 1;
+      // dal consiglio, confronti alla pari: per il canale pubblico ampio contro pubblico ampio (chi conosce già il marchio
+      // gonfierebbe i canali di ricerca), per le leve stesso pubblico e stesso canale del migliore
+      const cl = (m.nuova.consigli && m.nuova.consigli.classifica) || [], rif = best.risultato || 1, rifAmpio = ampio ? ampio.risultato || 1 : 0;
       // Shopping vende prodotti fisici: non si propone per download o iscrizioni
-      const canale = cl.filter(x => x.pubblico === best.tipo && x.canale !== C.canale && !(x.canale === 'shopping' && m.u !== UNITA.acquisti))
-        .sort((x, y) => y.risultato - x.risultato)[0];
-      if (canale && canale.risultato / rif > 1.15) a.push(`Prova anche ${CANALI[canale.canale] || canale.canale} (${FORMATI[canale.formato] || canale.formato}): circa ×${nf(canale.risultato / rif, 1)} ${u} con lo stesso pubblico e lo stesso budget.`);
+      const canale = rifAmpio ? cl.filter(x => x.pubblico === 'ampio' && x.canale !== C.canale && !(x.canale === 'shopping' && m.u !== UNITA.acquisti))
+        .sort((x, y) => y.risultato - x.risultato)[0] : null;
+      if (canale && canale.risultato / rifAmpio > 1.15) a.push(`Prova anche ${CANALI[canale.canale] || canale.canale} (${FORMATI[canale.formato] || canale.formato}): con il pubblico ampio circa ×${nf(canale.risultato / rifAmpio, 1)} ${u}, con lo stesso budget.`);
       const leva = cl.filter(x => x.pubblico === best.tipo && x.canale === C.canale && x.leve.some(l => !C.leve.includes(l))).sort((x, y) => y.risultato - x.risultato)[0];
       if (leva && leva.risultato / rif > 1.08) {
         const nuove = leva.leve.filter(l => !C.leve.includes(l));
         a.push(`Aggiungi all’annuncio ${nuove.map(l => FRASE_LEVA[l] || LEVE[l]).join(' e ')}: circa +${ni((leva.risultato / rif - 1) * 100)}% ${u}.`);
       }
+    }
+    if (m.sorgente === 'nuova' && contesto.messaggio && contesto.messaggio.forza <= 6 && (contesto.suggerimenti || []).length) {
+      a.splice(1, 0, `Rafforza il testo (${ni(contesto.messaggio.forza)}/10): ${contesto.suggerimenti[0].replace(/\.$/, '')}.`);
     }
     if (m.gruppi && m.gruppi.eta) {
       const top = t => m.gruppi[t].slice().sort((x, y) => y.resa - x.resa)[0];
@@ -365,10 +445,14 @@ window.Analisi = (function () {
       CATEGORIE[C.categoria] || C.categoria, CANALI[C.canale], FORMATI[C.formato],
       `${eur(C.budget_giorno)} al giorno`, `${C.giorni} giorni dal ${giornoLungo(C.inizio)}`,
       contesto.gratis ? 'gratis' : C.prezzo ? `prezzo ${eur(C.prezzo)}${C.sconto ? ` −${ni(C.sconto * 100)}%` : ''}` : '',
-      ...C.leve.map(l => LEVE[l]), C.marchio === 'nuovo' ? 'marchio nuovo' : C.marchio === 'famoso' ? 'marchio famoso' : '',
+      ...C.leve.map(l => LEVE[l]), ...(C.extra || []).map(e => EXTRA[e] || e),
+      C.marchio === 'nuovo' ? 'marchio nuovo' : C.marchio === 'famoso' ? 'marchio famoso' : '', TREND[C.trend] || '',
+      ...Object.entries(C.filtri || {}).map(([k, v]) => (k === 'eta' ? 'per ' + etaInBreve(v) : 'per ' + v.map(x => VALORI[x] || x).join(' o '))),
+      C.forza != null ? `messaggio ${ni(C.forza)}/10` : '',
     ].filter(Boolean);
     return `<div class="a-capito"><span class="a-capito-t">${contesto.ia ? 'Claude ha capito' : 'Ho capito'}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
-      ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}`;
+      ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
+      ${m.nuova.taratura ? `<p class="a-nota a-tarato">Tarato su ${esc(contesto.fonte || 'il tuo storico')}${contesto.marca ? ' (' + esc(contesto.marca) + ')' : ''}: per questa marca i click partono da ×${nf(Math.exp(m.nuova.taratura.ctr), 2)} e il costo da ×${nf(Math.exp(m.nuova.taratura.cpm), 2)} rispetto al tipico del settore.</p>` : ''}`;
   }
   function rAnalisi() {
     const m = M, T = m.tot, best = m.migliore, el = $('#a-contenuto'), u = m.u, nuova = m.sorgente === 'nuova';
@@ -438,6 +522,7 @@ window.Analisi = (function () {
           ${nuova ? '<p class="a-nota">Scelto dall’analisi: la stessa campagna provata su ogni tipo di pubblico, con lo stesso budget.</p>' : ''}`, 'evidenza a-luce')}
         ${card(i++, 'Cosa fare adesso', `<ol class="a-azioni">${m.azioni.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`, 'a-luce')}
       </div>
+      ${messaggio(i++)}
       ${annuncioProvato(i++)}
       <section class="a-card a-entra a-esplora" style="--i:${i++}">
         <div class="a-es-testa"><h3>Studia i numeri</h3>
@@ -461,11 +546,26 @@ window.Analisi = (function () {
     $$('.a-seg', el).forEach(g => $$('button', g).forEach(b => b.addEventListener('click', () => {
       es[g.dataset.k] = b.dataset.v; $$('button', g).forEach(x => x.setAttribute('aria-pressed', x === b)); rEsplora();
     })));
-    $$('[data-modifica]', el).forEach(a => a.addEventListener('click', () => { if (nuova && window.Nuova && window.Nuova.riempi) window.Nuova.riempi(m.nuova.campagna); }));
+    $$('[data-modifica]', el).forEach(a => a.addEventListener('click', () => { if (nuova && window.Nuova && window.Nuova.riempi) window.Nuova.riempi(Object.assign({}, m.nuova.campagna, { taratura: m.nuova.taratura })); }));
     const rb = $('#a-budget', el);
     rb.addEventListener('input', () => rBudget(+rb.value));
     rEsplora(); rBudget(1); rPareggio();
     contaSu(el); luce(el);
+  }
+  // il testo dell'annuncio giudicato da Claude: cinque criteri, il voto entra nel simulatore come forza del messaggio
+  function messaggio(i) {
+    const g = contesto.messaggio;
+    if (!g || M.sorgente !== 'nuova') return '';
+    const f = g.forza, u = M.u, verso8 = f < 8 ? Math.exp(PESO_FORZA * (8 - f)) - 1 : 0;
+    const sugg = (contesto.suggerimenti || []).slice(0, 3);
+    return `<section class="a-card a-entra a-luce a-msg" style="--i:${i}"><h3>Il tuo messaggio</h3>
+      <div class="a-msg-corpo">
+        <div class="a-msg-voto"><b data-conta="${f}" data-f="ni">${ni(f)}</b><span>/10</span><small>${f >= 8 ? 'forte' : f >= 5 ? 'nella media' : 'debole'}</small></div>
+        <div class="a-msg-crit">${Object.entries(CRITERI).map(([k, n]) => `<div><span>${n}</span><em>${[0, 1].map(x => `<i class="${g[k] > x ? 'si' : ''}"></i>`).join('')}</em></div>`).join('')}</div>
+        <div class="a-msg-sugg">${verso8 > 0.01 ? `<p>Con un messaggio da 8/10: circa <b>+${pc(verso8 * 100)}</b> di click e di ${esc(u.plur)}, con lo stesso budget.</p>` : '<p>Il messaggio è già forte: il margine è nel pubblico e nel canale.</p>'}
+          ${sugg.length ? `<ul class="a-azioni">${sugg.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
+      </div>
+      <p class="a-nota">Offerta concreta, credibilità e invito all’azione sono contati sul testo; adatto al canale viene dal formato; il beneficio lo giudica Claude. Nel modello il voto sposta la probabilità di click: da circa −26% (0/10) a +35% (10/10) rispetto a un messaggio medio (5/10).</p></section>`;
   }
   // l'annuncio scritto nella pagina di partenza, provato sui pubblici del file
   function annuncioProvato(i) {
@@ -615,6 +715,15 @@ window.Analisi = (function () {
   /* ---------------------------------------------------------------------- API */
   function costruisci() {
     M = sorgente === 'nuova' ? daNuova(nuovaDati) : daStorico();
+    const fonte = $('#a-fonte'), doppio = !!(contesto.storico && nuovaDati);
+    fonte.hidden = !doppio;
+    if (doppio) {
+      fonte.innerHTML = [['nuova', 'Il tuo annuncio'], ['storico', 'Le tue campagne']].map(([v, n]) => `<button type="button" data-s="${v}" aria-pressed="${sorgente === v}">${n}</button>`).join('');
+      $$('button', fonte).forEach(b => b.addEventListener('click', () => {
+        if (sorgente === b.dataset.s) return;
+        sorgente = b.dataset.s; M = null; filtroPub = 'tutti'; mostra(modo);
+      }));
+    }
     $('#a-titolo').textContent = sorgente === 'nuova' ? `«${M.titolo.length > 70 ? M.titolo.slice(0, 67) + '…' : M.titolo}»` : M.titolo;
     $('#a-periodo').textContent = `${giornoLungo(M.dal)} – ${giornoLungo(M.al)}`;
   }

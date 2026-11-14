@@ -544,10 +544,11 @@
         .then(j => {
           if (!j) return null;
           // la campagna (canale, budget, durata…) serve anche senza file; formato e leva solo se il modello li conosce
-          if (!D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return Object.assign(leggiTesto(testo), { campagna: j.campagna || null, motivo: j.motivo || '', fonte: 'ia' });
+          const extra = { campagna: j.campagna || null, messaggio: j.messaggio || null, suggerimenti: j.suggerimenti || [], motivo: j.motivo || '', fonte: 'ia' };
+          if (!D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return Object.assign(leggiTesto(testo), extra);
           const f = {};
           Object.keys(D.par.feat_regole).forEach(k => { f[k] = j.caratteristiche && j.caratteristiche[k] ? 1 : 0; });
-          return { f, formato: j.formato, leva: j.leva, motivo: j.motivo || '', campagna: j.campagna || null, fonte: 'ia' };
+          return Object.assign({ f, formato: j.formato, leva: j.leva }, extra);
         });
     }).catch(() => null);
     IA.ultimo = { testo, p };
@@ -882,17 +883,27 @@ CPM = livello del pubblico × stagione × giorno
       let L = null;
       const lavoro = lettura.then(() => { L = window.Analisi.leggiPrompt(S.testoConsole, S.brief); return MotoreFlockets.campagna(L.spec, () => {}); });
       window.Analisi.transizione(lavoro, da)
-        .then(d => window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis, ia: L.ia }))
+        .then(d => window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis, ia: L.ia, messaggio: L.messaggio, suggerimenti: L.suggerimenti }))
         .catch(errore).finally(libera);
       return;
     }
-    let fonte = '';
-    const parti = () => {
+    let fonte = '', L = null;
+    const parti = d => {
       const brief = S.brief;
       S.visti = {};
       S.lab = S.testoConsole ? Object.assign({ testo: S.testoConsole, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
         brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(S.testoConsole)) : null;
-      window.Analisi.apri('storico', null, { prompt: S.testoConsole, fonte });
+      if (d && L) window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis, ia: L.ia, messaggio: L.messaggio,
+        suggerimenti: L.suggerimenti, storico: true, fonte, marca: L.marca });
+      else window.Analisi.apri('storico', null, { prompt: S.testoConsole, fonte });
+    };
+    // con un annuncio scritto: la stessa campagna simulata sulle persone, con i livelli veri della marca presi dallo storico
+    const provaAnnuncio = () => {
+      if (!S.testoConsole) return null;
+      const L0 = window.Analisi.leggiPrompt(S.testoConsole, S.brief), r = riservaDaStorico(S.testoConsole, L0.spec.categoria_ia);
+      L = window.Analisi.leggiPrompt(S.testoConsole, S.brief, r);
+      L.marca = r ? r.marca : '';
+      return MotoreFlockets.campagna(L.spec, () => {});
     };
     const sfida = scelta === 'kit' || (scelta === 'file' && S.fileKit);
     // mentre il motore calcola, gli omini corrono a schermo intero
@@ -907,7 +918,32 @@ CPM = livello del pubblico × stagione × giorno
           usa(d);
           return lettura;
         }));
-    window.Analisi.transizione(lavoro, da).then(parti).catch(errore).finally(libera);
+    window.Analisi.transizione(lavoro.then(provaAnnuncio), da).then(parti).catch(errore).finally(libera);
+  }
+
+  /* Dallo storico all'annuncio scritto: budget, durata, partenza e categoria quando il testo non li dice, e la taratura:
+     di quanto i click e i costi veri della marca si discostano dal simulatore a freddo (media pesata sulla spesa, scala log).
+     Se il testo nomina una delle campagne del file, si usa solo quella; se no le campagne della stessa categoria. */
+  function riservaDaStorico(testo, categoria) {
+    const P = D.persone || {}, giorni = D.meta.giorni, s = testo.toLowerCase();
+    const camp = D.campagne.find(c => c.nome && s.includes(c.nome.toLowerCase()));
+    let ks = Object.keys(P).filter(k => P[k].a_freddo && P[k].previsto);
+    if (camp) ks = ks.filter(k => camp.adset.includes(k));
+    else if (categoria && ks.some(k => P[k].categoria === categoria)) ks = ks.filter(k => P[k].categoria === categoria);
+    if (!ks.length) return null;
+    const spesa = k => giorni.reduce((a, d) => a + (((D.zona[k] || {})[d] || {}).spesa || 0), 0);
+    let w = 0, sc = 0, sp = 0;
+    const cat = {};
+    ks.forEach(k => {
+      const a = P[k].a_freddo, b = P[k].previsto, x = spesa(k) || 1;
+      cat[P[k].categoria] = (cat[P[k].categoria] || 0) + x;
+      if (a.ctr > 0 && b.ctr > 0 && a.cpm > 0 && b.cpm > 0) { w += x; sc += x * Math.log(b.ctr / a.ctr); sp += x * Math.log(b.cpm / a.cpm); }
+    });
+    const campagne = camp ? 1 : D.campagne.filter(c => c.adset.some(k => ks.includes(k))).length;
+    const totale = ks.reduce((a, k) => a + spesa(k), 0);
+    return { budget_giorno: Math.round(totale / giorni.length / Math.max(campagne, 1)), giorni: giorni.length, inizio: giorni[0],
+      categoria: Object.entries(cat).sort((x, y) => y[1] - x[1])[0][0], marca: camp ? camp.nome : '',
+      taratura: w ? { ctr: sc / w, cpm: sp / w } : null };
   }
 
   /* ------------------------------------------------------------------ avvio */

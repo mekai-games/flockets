@@ -13,7 +13,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=36">
 </head>
 <body data-vista="benvenuto">
 
@@ -105,7 +105,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
       <li><span>E</span><div><b>Con lo storico, si allinea</b><p>Quando ci sono dati, le persone di ogni pubblico vengono tarate finché click e costi tornano con le previsioni del modello. Le previsioni restano quelle; le persone aggiungono chi clicca e chi compra.</p></div></li>
       <li><span>F</span><div><b>Il pubblico migliore viene fuori dall’analisi</b><p>Non lo scegli tu prima. In una campagna nuova la stessa campagna, con lo stesso budget, viene provata su ogni tipo di pubblico: tutti, chi segue la categoria, chi somiglia ai clienti, chi ha già visitato il sito. Vince quello che porta più acquisti (o click, o persone raggiunte, secondo l’obiettivo).</p></div></li>
     </ol>
-    <p><b>Prova a freddo.</b> Sui dati della sfida abbiamo previsto i 12 pubblici senza usare lo storico: solo categoria, tipo di pubblico, budget, creatività e date. Errore sul CPM 17% (un valore tipico fisso sbaglia del 22%), sul CTR 25% (un valore fisso del 23%). L’ordine dei pubblici è giusto: correlazione 0,94 sul CTR e 0,97 sul CPM, che un valore fisso non sa dare.</p>
+    <p><b>Prova a freddo.</b> Sui dati della sfida abbiamo previsto i 12 pubblici senza usare lo storico: solo categoria, tipo di pubblico, budget, creatività e date. Errore sul CPM 13% (un valore tipico fisso sbaglia del 22%), sul CTR 25% (un valore fisso del 23%). L’ordine dei pubblici è quello giusto: correlazione 0,94 sul CTR e 0,81 sul CPM, che un valore fisso non sa dare.</p>
     <p class="nota">Le quote della popolazione sono approssimazioni ragionate dei dati ISTAT ed Eurostat, non tabelle ufficiali; le sensibilità alle leve sono ipotesi dichiarate. Stanno tutte in un file (flockets/persone.py) e si possono sostituire. Il database completo è in output/persone.csv.gz.</p>
     <p><a class="pulsante bordo" href="#/nuova">Prova una campagna nuova</a></p>
 
@@ -236,6 +236,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
   </header>
   <div class="riga-a">
     <div class="a-nome"><b id="a-titolo"></b><span id="a-periodo"></span></div>
+    <div class="a-seg a-fonte" id="a-fonte" role="group" aria-label="Cosa guardare" hidden></div>
   </div>
   <div class="modo-persone" id="a-persone">
     <canvas id="a-prato" aria-hidden="true"></canvas>
@@ -282,12 +283,12 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
   </div>
 </section>
 
-<script src="js/scena.js?v=31"></script>
-<script src="js/motore.js?v=31"></script>
-<script src="js/grafici.js?v=31"></script>
-<script src="js/nuova.js?v=31"></script>
-<script src="js/esplora.js?v=31"></script>
-<script src="js/analisi.js?v=31"></script>
-<script src="js/app.js?v=31"></script>
+<script src="js/scena.js?v=36"></script>
+<script src="js/motore.js?v=36"></script>
+<script src="js/grafici.js?v=36"></script>
+<script src="js/nuova.js?v=36"></script>
+<script src="js/esplora.js?v=36"></script>
+<script src="js/analisi.js?v=36"></script>
+<script src="js/app.js?v=36"></script>
 </body>
 </html>

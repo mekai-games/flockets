@@ -94,6 +94,57 @@ detto resta alle regole o a un valore prudente. Nell'analisi la riga «Claude ha
 variabile d'ambiente `ANTHROPIC_API_KEY` del progetto Vercel, mai nel codice; senza chiave il sito continua
 con le regole.
 
+**Prompt e storico: due ingressi facoltativi e complementari.** Serve almeno uno dei due.
+
+| Cosa mandi | Cosa succede |
+|---|---|
+| Solo il prompt | campagna nuova: tutto quello che il testo dice diventa un ingresso del simulatore; il resto prende valori prudenti, scritti nell'analisi |
+| Solo il file | previsioni del modello sulle tue campagne, con le persone tarate sopra |
+| Prompt e file | l'annuncio scritto viene simulato con i livelli veri della tua marca presi dal file (taratura: di quanto i tuoi click e i tuoi costi si discostano dal tipico del settore, media pesata sulla spesa; se il testo nomina una delle campagne del file si usa solo quella). Budget, durata, partenza e categoria vengono dal file quando il testo non li dice. Un interruttore passa da «Il tuo annuncio» a «Le tue campagne», dove c'è anche come andrebbe l'annuncio su ognuna |
+
+**Cosa pesa del prompt.** Oltre a canale, budget, durata, prezzo, sconto, categoria, marchio, obiettivo e leve:
+
+- **a chi è rivolto** («per donne 25-44 a Milano», «per mamme», «over 55»): diventa un filtro su tutti i tipi di
+  pubblico provati (età, genere, area, comune, reddito, famiglia);
+- **quando parte** («a dicembre», «per Natale», «per il Black Friday»): cambia stagione, costi e propensione all'acquisto;
+- **vantaggi dell'offerta** (spedizione o reso gratuiti, garanzia, rate, regalo, prova gratuita): circa +8% di acquisti
+  dopo il click ciascuno, al massimo +27% (ipotesi);
+- **forza del messaggio**, da 0 a 10, su cinque criteri da 0 a 2: offerta concreta, credibilità e invito all'azione
+  contati sul testo (così prompt quasi uguali hanno lo stesso voto), adatto al canale dal formato, beneficio giudicato
+  da Claude. Nel simulatore sposta la probabilità di click di circa il 6% a punto (da −26% a +35% rispetto a 5/10).
+  Claude propone anche fino a tre modifiche al testo, mostrate nella scheda «Il tuo messaggio».
+
+Senza Claude le stesse cose vengono lette con regole a parole chiave (pubblico, vantaggi, periodo), tranne la forza del
+messaggio. Con Claude, dove Claude non dice niente restano le regole; la categoria scelta da Claude viene controllata
+con le parole del testo (in una prova aveva preso una crema viso per «bambini e famiglia»).
+
+**Prove sul prompt** ([`strumenti/prova_prompt.mjs`](strumenti/prova_prompt.mjs), [`strumenti/simula_prove.py`](strumenti/simula_prove.py),
+risultati in [`output/prova_prompt.csv`](output/prova_prompt.csv)). Sedici annunci quasi uguali, letti dal vero
+Claude Haiku e simulati dal motore. Base: «Video su TikTok: una ragazza prova la crema viso alla vitamina C. -20% solo
+fino a domenica. 50 euro al giorno per 2 settimane.»
+
+| Una sola differenza rispetto alla base | Voto | Acquisti | Perché |
+|---|---|---|---|
+| la stessa base, letta una seconda volta dal vivo | 5 | +3% | rumore della lettura: le caratteristiche creative lette da Claude |
+| sconto 30% invece di 20% | 5 | +22% | più persone sensibili allo sconto cliccano e comprano |
+| senza sconto | 3 | −45% | niente leva sul prezzo, offerta meno concreta |
+| Instagram invece di TikTok | 5 | +109% | costo per 1.000 visualizzazioni più basso e più acquisti dopo il click (dati di settore) |
+| 100 € al giorno invece di 50 | 5 | +67% | più persone, ma ogni visualizzazione costa circa il 20% in più |
+| + per donne 25-44 | 5 | −13% | pubblico più stretto: clicca un po' di più ma costa il 27% in più |
+| + spedizione gratuita | 5 | +8% | più acquisti dopo il click |
+| + 5.000 recensioni a 5 stelle | 7 | +19% | credibilità e leva della prova sociale |
+| + «Compra ora!» | 7 | +9% | invito all'azione |
+| messaggio debole («Crema viso. Su TikTok…») | 1 | −51% | niente beneficio, niente offerta |
+| marchio appena nato | 5 | −56% | meno fiducia e niente pubblico di chi conosce già il marchio: vince «sosia dei clienti» |
+| prezzo 89 € invece del tipico 35 € | 5 | −40% | il prezzo pesa sul portafoglio di molte persone |
+| a dicembre, per Natale | 5 | +11% | dicembre costa meno di novembre e si compra di più |
+| per uomini over 55 | 5 | −99% | pubblico minuscolo e poco interessato: l'analisi avvisa che il budget è troppo per loro |
+| annuncio su Google | 5 | +565% | chi cerca è già pronto a comprare; il numero è gonfiato dall'ipotesi che il marchio abbia visitatori da raggiungere di nuovo (con il pubblico ampio: +134%) |
+
+Le direzioni sono quelle attese e le differenze piccole danno cambi piccoli. Le differenze sotto il 5% stanno nel
+rumore della lettura. Quando il testo non dice se il marchio è nuovo, il modello assume che sia conosciuto e che ci
+siano visitatori del sito da raggiungere: per questo «Già vicini al marchio» vince spesso, e l'analisi lo scrive.
+
 A parte quella funzione il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo in locale:
 
 ```bash
@@ -271,13 +322,20 @@ tipo di pubblico, budget, creatività e date ([`output/prova_a_freddo.csv`](outp
 | Ultimi 28 giorni | Simulazione delle persone | Valore tipico fisso |
 |---|---|---|
 | Errore sul CTR | 25,1% | 22,7% |
-| Errore sul CPM | 17,2% | 22,3% |
-| Ordine dei pubblici, correlazione CTR / CPM | 0,94 / 0,97 | non lo distingue |
+| Errore sul CPM | 13,3% | 22,3% |
+| Ordine dei pubblici, correlazione CTR / CPM | 0,94 / 0,81 | non lo distingue |
 
 A freddo il livello del CTR non è migliore di un valore fisso; il costo sì, e soprattutto l'**ordine** dei pubblici
 (chi clicca di più, chi costa di più) è giusto. Onestà: la correzione sui click social e la regola sui pubblici
 stretti le abbiamo aggiunte dopo aver visto un primo risultato peggiore (CTR 144%, ordine del CPM 0,56), quindi
 la prova non è del tutto cieca. Sono regole generali, non numeri presi dal kit.
+
+Il 14/11 il simulatore ha preso anche l'elasticità del costo al budget stimata dal modello di previsione (0,26: con il
+doppio del budget ogni visualizzazione costa circa il 20% in più). Prima un budget doppio dava esattamente il doppio
+degli acquisti. Sulla prova a freddo l'errore sul CPM è sceso da 17,2% a 13,3%, ma l'ordine dei pubblici per costo è
+sceso da 0,97 a 0,81: nei dati della sfida i pubblici di chi conosce già il marchio hanno budget piccoli e costi alti,
+e l'elasticità, che vale per lo stesso pubblico nel tempo, li avvicina agli altri. Lo teniamo perché le prove sul
+budget di una campagna nuova devono avere rendimenti decrescenti.
 
 Sul sito: pagina **Campagna nuova** e vista **Persone** dell'analisi. Da riga di comando:
 

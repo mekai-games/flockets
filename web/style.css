@@ -597,3 +597,17 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 :root[data-tema="scuro"] .a-luce::before { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(125, 139, 255, .10), transparent 45%); }
 :root[data-tema="scuro"] .interruttore::before { box-shadow: 0 2px 10px rgba(0, 0, 0, .5); }
 :root[data-tema="scuro"] #prato { filter: brightness(.6) saturate(1.15); }
+
+/* il tuo messaggio: voto, criteri, suggerimenti */
+.a-msg-corpo { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.3fr); gap: 24px; align-items: start; }
+.a-msg-voto { display: grid; justify-items: center; align-content: start; min-width: 84px; }
+.a-msg-voto b { font: 800 46px/1 var(--titoli); letter-spacing: -.03em; } .a-msg-voto span { color: var(--tenue); font-size: 14px; }
+.a-msg-voto small { margin-top: 6px; font: 600 11.5px var(--testo); padding: 3px 10px; border-radius: 999px; background: var(--morbido); color: var(--tenue); }
+.a-msg-crit { display: grid; gap: 7px; }
+.a-msg-crit div { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13.5px; color: var(--testo2); }
+.a-msg-crit em { display: inline-flex; gap: 3px; } .a-msg-crit i { width: 22px; height: 8px; border-radius: 4px; background: var(--morbido); }
+.a-msg-crit i.si { background: var(--blu); }
+.a-msg-sugg p { font-size: 14px; margin: 0 0 8px; }
+.a-fonte { flex: none; }
+.a-tarato { color: var(--blu) !important; }
+@media (max-width: 760px) { .a-msg-corpo { grid-template-columns: auto minmax(0, 1fr); } .a-msg-sugg { grid-column: 1 / -1; } }

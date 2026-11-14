@@ -58,6 +58,32 @@ const LEVE_CAMPAGNA = {
   valori: "sostenibile, etico, fatto in Italia, naturale",
 };
 
+// Pubblico indicato nel testo: gli stessi valori dei tipi di persona del simulatore (flockets/persone.py)
+const PUBBLICO = {
+  eta: ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"],
+  genere: ["donna", "uomo"],
+  area: ["nord_ovest", "nord_est", "centro", "sud", "isole"],
+  comune: ["grande_citta", "citta_media", "piccolo_comune"],
+  reddito: ["basso", "medio", "alto"],
+  famiglia: ["single", "coppia", "figli_piccoli", "figli_grandi"],
+};
+const EXTRA = {
+  spedizione_gratuita: "spedizione gratuita",
+  reso_gratuito: "reso gratuito o soddisfatti o rimborsati",
+  garanzia: "garanzia",
+  rate: "pagamento a rate",
+  regalo: "regalo o omaggio con l'acquisto",
+  prova_gratuita: "prova gratuita o campione",
+};
+const TREND = ["in_calo", "normale", "in_crescita", "di_moda", "non_indicato"];
+const CRITERI = {
+  beneficio: "dice chiaramente cosa ci guadagna chi guarda",
+  concretezza: "offerta o dettaglio concreto: numeri, prezzo, risultato, tempi",
+  prova: "credibilita: recensioni, numeri di clienti, esperti, prima e dopo",
+  invito: "invito all'azione chiaro: compra, scarica, prova, scopri",
+  adatto: "adatto al canale e al formato indicati (per esempio video verticale e veloce su TikTok)",
+};
+
 const visite = new Map();
 function troppeRichieste(ip) {
   const ora = Date.now();
@@ -85,8 +111,10 @@ function elenco(voci, note) {
   return voci.map((v) => `- ${v}${note[v] ? ": " + note[v] : ""}`).join("\n");
 }
 
-function istruzioni(formati, leve) {
-  return `Leggi la descrizione di un annuncio pubblicitario per i social (Meta, TikTok e simili) e riportane le caratteristiche in forma strutturata.
+function istruzioni(formati, leve, oggi) {
+  return `Oggi e il ${oggi}.
+
+Leggi la descrizione di un annuncio pubblicitario per i social (Meta, TikTok e simili) e riportane le caratteristiche in forma strutturata.
 
 Il risultato entra in un modello statistico che stima il CTR di una creativita mai pubblicata. Conta solo cio che la descrizione dice o lascia capire con chiarezza: se una caratteristica non compare, mettila a false, perche un falso positivo sposta la previsione piu di un'omissione.
 
@@ -106,7 +134,7 @@ motivo: una frase sola, al massimo 25 parole, nella lingua della descrizione, ch
 
 campagna: i dati della campagna, se il testo li dice o li lascia capire con chiarezza. Per ogni numero non indicato metti 0; per ogni scelta non indicata metti non_indicato. Non inventare.
 - prodotto: il prodotto o servizio pubblicizzato, al massimo 6 parole.
-- categoria, una tra: ${CATEGORIE.join(", ")} (generica se nessuna va bene).
+- categoria del prodotto pubblicizzato (non del pubblico: una crema viso e beauty anche se parla di mamme o di un marchio appena nato), una tra: ${CATEGORIE.join(", ")} (generica se nessuna va bene).
 - canale, uno tra:
 ${elenco(Object.keys(CANALI), CANALI)}
 - formato_campagna, uno tra: ${FORMATI_CAMPAGNA.join(", ")} (video_breve per video fino a 60 secondi su social e TikTok).
@@ -119,7 +147,24 @@ ${elenco(Object.keys(CANALI), CANALI)}
 - risultato: cosa conta come conversione: acquisti, download (app e giochi da scaricare) o iscrizioni.
 - gratis: true se il prodotto si ottiene gratis (app o gioco gratuito, prova gratuita).
 - leve: le leve dell'offerta presenti nel testo, tra:
-${elenco(Object.keys(LEVE_CAMPAGNA), LEVE_CAMPAGNA)}`;
+${elenco(Object.keys(LEVE_CAMPAGNA), LEVE_CAMPAGNA)}
+- pubblico: solo se il testo dice a chi e rivolto l'annuncio; liste vuote per tutto cio che non dice. Valori ammessi:
+  eta ${PUBBLICO.eta.join(", ")} ("giovani" = 18-24 e 25-34; "mamme" = donna con figli_piccoli; "pensionati" = 65+);
+  genere ${PUBBLICO.genere.join(", ")}; area ${PUBBLICO.area.join(", ")} (Milano, Torino, Genova, Lombardia, Piemonte, Liguria = nord_ovest;
+  Venezia, Bologna, Verona, Veneto, Emilia-Romagna, Trentino, Friuli = nord_est; Roma, Firenze, Toscana, Lazio, Marche, Umbria = centro;
+  Napoli, Bari, Campania, Puglia, Calabria, Abruzzo, Molise, Basilicata = sud; Sicilia, Sardegna = isole);
+  comune ${PUBBLICO.comune.join(", ")} solo se il testo nomina grandi citta, citta medie o piccoli comuni (una citta nominata indica solo l'area); reddito ${PUBBLICO.reddito.join(", ")}; famiglia ${PUBBLICO.famiglia.join(", ")}.
+- inizio: la data di partenza della campagna in formato AAAA-MM-GG se il testo la dice o la lascia capire
+  ("da lunedi", "a dicembre" = il primo giorno del mese, "per Natale" = 1 dicembre, "per il Black Friday" = 7 giorni prima del Black Friday); stringa vuota se non la dice.
+- trend: il momento del prodotto o della categoria: ${TREND.join(", ")}.
+- extra: i vantaggi dell'offerta nominati, tra:
+${elenco(Object.keys(EXTRA), EXTRA)}
+
+messaggio: giudica il testo dell'annuncio come lo vedrebbe una persona sul canale, con un punteggio 0, 1 o 2 per ciascun criterio
+(0 = manca, 1 = c'e ma debole, 2 = c'e ed e forte). Giudica solo cio che e scritto: se il testo descrive l'annuncio invece di citarlo, giudica l'annuncio descritto.
+${elenco(Object.keys(CRITERI), CRITERI)}
+
+suggerimenti: al massimo 3 modifiche concrete al testo che alzerebbero i criteri piu bassi, ciascuna al massimo 14 parole, in italiano corretto con gli accenti, all'imperativo.`;
 }
 
 function schema(formati, leve) {
@@ -152,13 +197,29 @@ function schema(formati, leve) {
           risultato: { type: "string", enum: ["acquisti", "download", "iscrizioni"] },
           gratis: { type: "boolean" },
           leve: { type: "array", items: { type: "string", enum: Object.keys(LEVE_CAMPAGNA) } },
+          pubblico: {
+            type: "object",
+            properties: Object.fromEntries(Object.entries(PUBBLICO).map(([k, v]) => [k, { type: "array", items: { type: "string", enum: v } }])),
+            required: Object.keys(PUBBLICO),
+            additionalProperties: false,
+          },
+          inizio: { type: "string" },
+          trend: { type: "string", enum: TREND },
+          extra: { type: "array", items: { type: "string", enum: Object.keys(EXTRA) } },
         },
         required: ["prodotto", "categoria", "canale", "formato_campagna", "budget_giorno", "giorni", "prezzo", "sconto_percento",
-          "marchio", "obiettivo", "risultato", "gratis", "leve"],
+          "marchio", "obiettivo", "risultato", "gratis", "leve", "pubblico", "inizio", "trend", "extra"],
         additionalProperties: false,
       },
+      messaggio: {
+        type: "object",
+        properties: Object.fromEntries(Object.keys(CRITERI).map((k) => [k, { type: "integer" }])),
+        required: Object.keys(CRITERI),
+        additionalProperties: false,
+      },
+      suggerimenti: { type: "array", items: { type: "string" } },
     },
-    required: ["formato", "leva", "caratteristiche", "motivo", "campagna"],
+    required: ["formato", "leva", "caratteristiche", "motivo", "campagna", "messaggio", "suggerimenti"],
     additionalProperties: false,
   };
 }
@@ -181,7 +242,25 @@ function pulisci(c) {
     risultato: ["acquisti", "download", "iscrizioni"].includes(c.risultato) ? c.risultato : "acquisti",
     gratis: c.gratis === true,
     leve: Array.isArray(c.leve) ? [...new Set(c.leve.filter((l) => Object.hasOwn(LEVE_CAMPAGNA, l)))] : [],
+    pubblico: Object.fromEntries(Object.entries(PUBBLICO).map(([k, ammessi]) => {
+      const v = Array.isArray(c.pubblico?.[k]) ? [...new Set(c.pubblico[k].filter((x) => ammessi.includes(x)))] : [];
+      return [k, v.length === ammessi.length ? [] : v];   // tutti i valori = nessun filtro
+    })),
+    inizio: dataValida(c.inizio),
+    trend: TREND.includes(c.trend) ? c.trend : "non_indicato",
+    extra: Array.isArray(c.extra) ? [...new Set(c.extra.filter((e) => Object.hasOwn(EXTRA, e)))] : [],
   };
+}
+// data di partenza: solo nel formato giusto e tra oggi e un anno da oggi
+function dataValida(s) {
+  if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return "";
+  const d = new Date(s + "T12:00:00Z"), oggi = Date.now();
+  return !isNaN(d) && d.getTime() > oggi - 864e5 && d.getTime() < oggi + 365 * 864e5 ? s : "";
+}
+function messaggio(m) {
+  if (!m || typeof m !== "object") return null;
+  const punti = Object.fromEntries(Object.keys(CRITERI).map((k) => [k, Math.min(2, Math.max(0, Math.round(Number(m[k]) || 0)))]));
+  return { ...punti, forza: Object.values(punti).reduce((a, b) => a + b, 0) };   // 0-10
 }
 
 export default async function handler(req, res) {
@@ -218,8 +297,8 @@ export default async function handler(req, res) {
     const client = new Anthropic({ maxRetries: 1, timeout: 20_000 });
     const risposta = await client.messages.create({
       model: MODELLO,
-      max_tokens: 2048, // lascia spazio al ragionamento, che conta nel limite
-      system: istruzioni(formati, leve),
+      max_tokens: 3000, // lascia spazio al ragionamento, che conta nel limite
+      system: istruzioni(formati, leve, new Date().toISOString().slice(0, 10)),
       messages: [{ role: "user", content: `<descrizione>\n${testo}\n</descrizione>` }],
       output_config: { effort: "low", format: { type: "json_schema", schema: schema(formati, leve) } },
     });
@@ -236,6 +315,8 @@ export default async function handler(req, res) {
       caratteristiche: letto.caratteristiche,
       motivo: String(letto.motivo || "").slice(0, 240),
       campagna: pulisci(letto.campagna),
+      messaggio: messaggio(letto.messaggio),
+      suggerimenti: (Array.isArray(letto.suggerimenti) ? letto.suggerimenti : []).filter((x) => typeof x === "string").slice(0, 3).map((x) => x.slice(0, 140)),
       modello: MODELLO,
     });
   } catch (errore) {
