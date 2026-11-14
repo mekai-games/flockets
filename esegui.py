@@ -96,6 +96,24 @@ def main():
     print("\n== Pubblici ==")
     print(e["pubblici"][["adset_id", "pubblico_proposto", "ctr_vs_campagna", "cpm_vs_campagna", "frequenza_media", "grandezza_stimata"]].to_string(index=False))
 
+    if e.get("prova_a_freddo") is not None and len(e["prova_a_freddo"]):
+        print("\n== Prova a freddo (pubblici previsti senza usare lo storico, ultimi 28 giorni) ==")
+        s = e["prova_a_freddo_sintesi"]
+        print("errore CTR %.1f%% (valore tipico fisso: %.1f%%) | errore CPM %.1f%% (fisso: %.1f%%) | ordine dei pubblici: correlazione CTR %.2f, CPM %.2f"
+              % (s["errore_ctr_%"], s["errore_ctr_riferimento_%"], s["errore_cpm_%"], s["errore_cpm_riferimento_%"],
+                 s["correlazione_ctr_relativo"], s["correlazione_cpm_relativo"]))
+        e["prova_a_freddo"].round(4).to_csv(out / "prova_a_freddo.csv", index=False)
+    if e.get("persone_adset"):
+        righe = []
+        for k, v in e["persone_adset"].items():
+            for tag, livelli in v["segmenti"].items():
+                for x in livelli:
+                    righe.append({"adset_id": k, "tag": tag, **{c: x[c] for c in ("livello", "quota_impressioni", "quota_click", "quota_acquisti", "ctr", "resa")}})
+        pd.DataFrame(righe).round(4).to_csv(out / "persone_per_pubblico.csv", index=False)
+    flockets.persone.popolazione().round(4).to_csv(out / "persone.csv.gz", index=False)
+    flockets.persone.parametri().to_csv(out / "persone_parametri.csv", index=False)
+    print("\ndatabase delle persone: %d tipi in output/persone.csv.gz, parametri in output/persone_parametri.csv" % len(flockets.persone.popolazione()))
+
     if a.salva_base:
         (RADICE / "flockets" / "valori_base.json").write_text(json.dumps(fc.valori_base(), indent=1, ensure_ascii=False))
         print("\nvalori di base salvati in flockets/valori_base.json")

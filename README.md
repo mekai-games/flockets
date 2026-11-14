@@ -5,6 +5,10 @@
 Flockets immagina il pubblico di ogni ad set, prevede CTR e CPM di ogni annuncio giorno per giorno e aiuta a
 decidere dove mettere il budget. Prima di spendere un euro.
 
+Sotto le previsioni c'è una **popolazione virtuale**: tutti i 14.434 tipi di persona adulta in Italia, ognuno
+convertito in 41 numeri. Su questa popolazione Flockets simula anche una **campagna nuova, senza nessun dato**:
+chi la vede, chi clicca, chi visita il sito, chi compra, e quale pubblico, canale e formato rendono di più.
+
 Sito: **https://flockets.vercel.app**
 
 Progetto per The Big Hack 2026 (Napoli, 14-15 novembre), sfida Wevion «Clienti che non esistono».
@@ -22,7 +26,7 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 
 ### Il sito
 
-Il percorso è in quattro schermate.
+Il percorso è in cinque schermate.
 
 1. **Home**: nome, frase e la folla del pubblico simulato.
 2. **Come funziona**: il modello in otto passaggi, un esempio di calcolo, le colonne che servono, quanto ci
@@ -30,7 +34,10 @@ Il percorso è in quattro schermate.
 3. **Scelta dei dati**: i dati della sfida, un esempio inventato (una campagna per un gioco per telefono, nel
    formato dell'export di Meta) oppure il proprio CSV; in più, se si vuole, la descrizione di un annuncio nuovo.
    Poi «Analizza».
-4. **Risultati**: in alto i passi e il riquadro **Dati in uso** (quali dati, quale periodo, cosa mancava,
+4. **Campagna nuova**: nessun dato; si descrivono prodotto, annuncio, budget e pubblico, e Flockets la simula
+   su tutti i tipi di persona: risultati con la forchetta, chi risponde, i tipi di persona migliori, alcune persone
+   simulate con il loro motivo, e il consiglio su canale, formato, pubblico e leva.
+5. **Risultati**: in alto i passi e il riquadro **Dati in uso** (quali dati, quale periodo, cosa mancava,
    cosa vogliono dire CTR e CPM); a sinistra il pubblico simulato, a destra l'analisi passo per passo.
 
 | Passo | Cosa mostra |
@@ -171,17 +178,93 @@ giorni nascosti su tre date: CPM 28,4% contro 30,9% del riferimento, CTR 23,4% c
 Per rifare le prove: [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) e
 [`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) (quest'ultimo su qualsiasi CSV).
 
+### Le persone simulate
+
+Il modello di previsione dice *quanto*; la popolazione sintetica dice *chi*, e funziona anche senza dati.
+Codice: [`flockets/persone.py`](flockets/persone.py) e [`flockets/simulazione.py`](flockets/simulazione.py).
+
+**1. Tutti i tipi di persona.** Otto tag: età (6 fasce), genere (2), area (5), tipo di comune (3), istruzione (3),
+lavoro (4), reddito (3), famiglia (4). Sono 25.920 combinazioni; tolte quelle impossibili (uno studente di 70 anni,
+un pensionato di 30) restano **14.434 tipi di persona**, ognuno con il suo peso: quanti adulti in Italia gli
+somigliano, 50,1 milioni in tutto. Le quote sono approssimazioni ragionate degli ordini di grandezza ISTAT ed
+Eurostat, non tabelle ufficiali: stanno tutte in `persone.py` e si possono sostituire.
+
+**2. Dai tag ai numeri.** Ogni tipo diventa 41 parametri (elenco completo in
+[`output/persone_parametri.csv`](output/persone_parametri.csv), database in `output/persone.csv.gz`):
+
+| Gruppo | Parametri | Da quali tag |
+|---|---|---|
+| Canali | uso giornaliero di social, video brevi, ricerca, annunci prodotto, banner, video, email; saturazione pubblicitaria | età, istruzione, comune, genere |
+| Interessi | probabilità di interesse per 15 categorie (moda, beauty, animali, videogiochi, tecnologia, casa, cibo, sport, viaggi, salute, bambini, auto, finanza, corsi, intrattenimento) | età, genere, famiglia, reddito, istruzione, comune, lavoro |
+| Leve | sensibilità a sconto, urgenza, scarsità, prova sociale, novità e tendenze, parere di un esperto, valori | età, reddito, istruzione, genere, famiglia |
+| Formati | preferenza per immagine, carosello, video breve, video, testo | età |
+| Acquisto | acquisti online, navigazione da telefono, fiducia in un marchio nuovo, potere d'acquisto | età, istruzione, area, reddito, famiglia, lavoro |
+| Costo | quanto costa raggiungerla rispetto alla media (concorrenza tra inserzionisti) | età, reddito, genere, comune |
+
+La regola è sempre leggibile: un valore di base, e ogni tag lo sposta di una quantità fissa (somma sulla scala
+logistica per le probabilità, prodotto per i moltiplicatori).
+
+**3. La campagna, persona per persona.** Per ogni tipo di persona e ogni giorno: quante persone il canale può
+raggiungere dentro il pubblico scelto (ampio, interessi, sosia, retargeting, filtri per età, genere, area); come
+la piattaforma divide il budget (preferisce chi risponde meglio all'obiettivo e costa meno, con un tetto di
+frequenza; i pubblici stretti costano di più); probabilità di click (interesse, momento d'acquisto, formato, leve,
+creatività, marchio, tendenza, stanchezza); probabilità di arrivare sul sito; probabilità di comprare (intenzione,
+prezzo rispetto a quanto può spendere, acquisti online, sconto, fiducia nel marchio, telefono o computer).
+
+**4. Tarata su dati veri.** Le costanti di ogni canale e settore sono scelte perché una campagna normale dia i
+valori tipici di 79 marche vere ([`flockets/benchmark.json`](flockets/benchmark.json), ricavato con
+[`strumenti/benchmark_conjura.py`](strumenti/benchmark_conjura.py) dal dataset Conjura, CC BY 4.0): CTR e CPM per
+canale, acquisti ogni 100 visite e valore dell'ordine per settore, andamento nei mesi. Stanchezza delle creatività,
+giorno della settimana, effetto del budget e peso delle caratteristiche creative vengono dal modello di previsione.
+Due ipotesi dichiarate: sui social il dataset conta tutti i click, gli annunci quelli verso il sito (circa 0,55);
+l'email non è nel dataset, i suoi valori sono ipotesi.
+
+**5. Con lo storico, si allinea.** Dove ci sono dati, le persone di ogni pubblico vengono tarate finché click e costi
+tornano con le previsioni del modello strutturale. Le 699 previsioni non cambiano; le persone aggiungono chi
+clicca, chi compra e una stima degli acquisti (nel kit non ci sono acquisti: è una stima).
+
+**6. Il consiglio.** Con lo stesso budget prova 20-30 combinazioni di canale, formato, pubblico e leva e le ordina
+per acquisti, click o persone raggiunte, secondo l'obiettivo. Il retargeting non viene proposto a un marchio nuovo.
+
+**Prova a freddo.** Sui dati della sfida abbiamo previsto i 12 pubblici **senza usare lo storico**: solo categoria,
+tipo di pubblico, budget, creatività e date ([`output/prova_a_freddo.csv`](output/prova_a_freddo.csv)).
+
+| Ultimi 28 giorni | Simulazione delle persone | Valore tipico fisso |
+|---|---|---|
+| Errore sul CTR | 25,1% | 22,7% |
+| Errore sul CPM | 17,2% | 22,3% |
+| Ordine dei pubblici, correlazione CTR / CPM | 0,94 / 0,97 | non lo distingue |
+
+A freddo il livello del CTR non è migliore di un valore fisso; il costo sì, e soprattutto l'**ordine** dei pubblici
+(chi clicca di più, chi costa di più) è giusto. Onestà: la correzione sui click social e la regola sui pubblici
+stretti le abbiamo aggiunte dopo aver visto un primo risultato peggiore (CTR 144%, ordine del CPM 0,56), quindi
+la prova non è del tutto cieca. Sono regole generali, non numeri presi dal kit.
+
+Sul sito: pagina **Campagna nuova**, e nel passo Pubblici le persone dentro ogni ad set. Da riga di comando:
+
+```python
+from flockets import simulazione
+r = simulazione.simula({"descrizione_prodotto": "Siero viso alla vitamina C", "prezzo": 29, "sconto": 0.2,
+                        "marchio": "nuovo", "canale": "social", "budget_giorno": 100, "giorni": 14,
+                        "testo_annuncio": "Video: una ragazza parla in camera, -20% solo oggi"})
+r["totali"], r["segmenti"], r["persone"]
+simulazione.consiglia({...})   # le combinazioni migliori con lo stesso budget
+```
+
 ### Come è diviso il codice
 
 | File | Cosa fa |
 |---|---|
 | [`flockets/contratto.py`](flockets/contratto.py) | il contratto dei dati: riconosce le colonne, controlla, riempie ciò che manca |
 | [`flockets/motore.py`](flockets/motore.py) | il modello: stagione, CTR, CPM, quote di spesa, incertezza, stadio, prova sul passato |
+| [`flockets/persone.py`](flockets/persone.py) | tutti i tipi di persona, il loro peso e la conversione dei tag in 41 numeri |
+| [`flockets/simulazione.py`](flockets/simulazione.py) | campagna simulata persona per persona, consigli, integrazione con le previsioni, prova a freddo |
 | [`flockets/rapporto.py`](flockets/rapporto.py) | pubblici, scenario di budget, prova di generalizzazione, dati per il sito |
 | [`esegui.py`](esegui.py) | esegue tutto da riga di comando |
 | [`web/`](web/) | il sito: `js/scena.js` (omini), `js/grafici.js` (grafici), `js/motore.js` (il motore nel browser), `js/app.js` |
 | [`web/api/leggi.js`](web/api/leggi.js) | la funzione che legge la descrizione di un annuncio con Claude Haiku |
 | [`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) | prova il motore su uno storico qualsiasi: nasconde gli ultimi giorni e confronta |
+| [`strumenti/benchmark_conjura.py`](strumenti/benchmark_conjura.py) | ricava dal dataset Conjura i valori reali di partenza del simulatore |
 | [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) | la prova sulle 79 marche vere del dataset Conjura |
 | [`strumenti/esempio_gioco.py`](strumenti/esempio_gioco.py) | crea il file d'esempio del sito (campagna inventata per un gioco per telefono) |
 | [`strumenti/atlante.py`](strumenti/atlante.py) | unisce i fogli di animazione dei personaggi in una sola immagine |
@@ -349,7 +432,8 @@ Cosa questa prova non copre, e quindi dove la previsione è più incerta:
 ## Strumenti usati
 
 Dentro il prodotto: Claude Haiku 5.5 (API di Anthropic) legge la descrizione dell'annuncio sul sito; Pyodide fa
-girare il motore nel browser; numpy e pandas per i calcoli. Dati esterni per la prova: dataset Conjura (CC BY 4.0).
+girare il motore nel browser; numpy e pandas per i calcoli. Dati esterni: dataset Conjura (CC BY 4.0), usato per
+la prova su dati veri e per i valori di partenza del simulatore delle persone (`flockets/benchmark.json`).
 
 Gli strumenti usati per sviluppare sono da completare dal team prima della consegna (la sfida chiede di dichiararli).
 

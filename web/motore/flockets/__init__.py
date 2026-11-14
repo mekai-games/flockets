@@ -10,11 +10,12 @@ Tutto il resto e facoltativo: vedi `contratto.py`.
 import json
 from pathlib import Path
 
-from . import motore, rapporto
+from . import motore, persone, rapporto, simulazione
 from .contratto import DatiNonValidi, carica, costruisci, sottoinsieme
 from .motore import Forecaster
 
-__all__ = ["analizza", "analisi_json", "carica", "costruisci", "Forecaster", "DatiNonValidi", "valori_base"]
+__all__ = ["analizza", "analisi_json", "campagna_json", "carica", "costruisci", "Forecaster", "DatiNonValidi", "valori_base",
+           "persone", "simulazione"]
 _BASE = Path(__file__).with_name("valori_base.json")
 
 
@@ -58,9 +59,18 @@ def analizza(sorgente, orizzonte=14, simulazioni=2000, prove=True, cfg=None, ori
     S = rapporto.scenario_budget(fc, pred)
     V = rapporto.validazione(R, n_sim=simulazioni) if prove else None
     G = rapporto.prova_generalizzazione(R) if prove else None
-    sito = rapporto.dati_sito(R, fc, pred, P, S, V, G, origine=origine, file_previsioni=file_previsioni)
+    # persone simulate dentro ogni pubblico, tarate sulle previsioni; e la prova a freddo (senza usare lo storico)
+    try:
+        persone_adset = simulazione.integra(R, pred, P, R.get("assets"))
+        freddo, freddo_sintesi = simulazione.prova_a_freddo(R, P)
+    except Exception as err:   # la parte sulle persone non deve mai fermare le previsioni
+        R["note"].append("Simulazione delle persone non riuscita su questi dati: %s" % err)
+        persone_adset, freddo, freddo_sintesi = {}, None, {}
+    sito = rapporto.dati_sito(R, fc, pred, P, S, V, G, origine=origine, file_previsioni=file_previsioni,
+                              persone_adset=persone_adset, freddo=freddo_sintesi)
     return {"dati": R, "modello": fc, "previsioni": rapporto.tabella_previsioni(pred), "pubblici": P, "scenario": S,
-            "validazione": V, "generalizzazione": G, "sito": sito}
+            "validazione": V, "generalizzazione": G, "persone_adset": persone_adset, "prova_a_freddo": freddo,
+            "prova_a_freddo_sintesi": freddo_sintesi, "sito": sito}
 
 
 def analisi_json(tabelle, orizzonte=14, simulazioni=600, prove=False):
@@ -70,4 +80,10 @@ def analisi_json(tabelle, orizzonte=14, simulazioni=600, prove=False):
     except DatiNonValidi as err:
         return json.dumps({"errore": str(err)})
     e["sito"]["csv"] = e["previsioni"].to_csv(index=False)
-    return json.dumps(e["sito"], ensure_ascii=False, separators=(",", ":"))
+    return json.dumps(e["sito"], ensure_ascii=False, separators=(",", ":"), default=float)
+
+
+def campagna_json(spec_json, consigli=True):
+    """Per il sito: simula una campagna nuova (anche senza alcun dato) su tutta la popolazione sintetica."""
+    spec = json.loads(spec_json) if isinstance(spec_json, str) else spec_json
+    return simulazione.json_campagna(spec, consigli=consigli)

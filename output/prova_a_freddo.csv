@@ -1,0 +1,13 @@
+adset_id,campagna,pubblico,ctr_vero,ctr_simulato,cpm_vero,cpm_simulato,ctr_riferimento,cpm_riferimento,ctr_vero_rel,ctr_sim_rel,cpm_vero_rel,cpm_sim_rel
+NDL-AS1,beauty_skincare,ampio,0.8037,1.2422,8.7885,8.938,0.9369,8.5522,0.6532,0.7387,0.7963,0.7982
+NDL-AS2,beauty_skincare,interessi,1.0274,1.7692,9.5605,9.7353,0.9369,8.5522,0.8349,1.0521,0.8663,0.8694
+NDL-AS3,beauty_skincare,sosia,1.1699,1.1632,11.2024,11.6605,0.9369,8.5522,0.9507,0.6917,1.0151,1.0413
+NDL-AS4,beauty_skincare,retargeting,1.921,2.5521,14.5926,14.4571,0.9369,8.5522,1.5612,1.5176,1.3223,1.2911
+CDF-AS1,pet_ecommerce,ampio,0.9189,1.1665,6.2611,8.9568,0.9369,8.5522,0.7051,0.8467,0.7773,0.8587
+CDF-AS2,pet_ecommerce,interessi,1.0314,1.2152,7.0943,9.1904,0.9369,8.5522,0.7914,0.8821,0.8807,0.8811
+CDF-AS3,pet_ecommerce,interessi,0.9419,0.9717,7.2398,9.1902,0.9369,8.5522,0.7227,0.7053,0.8988,0.8811
+CDF-AS4,pet_ecommerce,retargeting,2.3206,2.1572,11.6241,14.3846,0.9369,8.5522,1.7807,1.5659,1.4431,1.3791
+FGR-AS1,abbigliamento,ampio,1.0593,1.1597,6.6908,8.957,0.9369,8.5522,0.7218,0.6725,0.7042,0.8065
+FGR-AS2,abbigliamento,interessi,1.0933,1.5592,8.013,9.6087,0.9369,8.5522,0.7449,0.9042,0.8434,0.8651
+FGR-AS3,abbigliamento,sosia,1.0981,1.4177,11.2546,11.356,0.9369,8.5522,0.7482,0.8222,1.1846,1.0225
+FGR-AS4,abbigliamento,retargeting,2.6196,2.7607,12.045,14.5042,0.9369,8.5522,1.785,1.601,1.2678,1.3059

@@ -138,6 +138,7 @@
     const p = location.hash.replace(/^#\/?/, '').split('/');
     if (p[0] === 'console') { play(false); mostra('console'); (D ? Promise.resolve() : dati()).then(() => rCapito(false)); return; }
     if (p[0] === 'come') { play(false); mostra('come'); return; }
+    if (p[0] === 'nuova') { play(false); mostra('nuova'); window.Nuova.apri(S.testoConsole); return; }
     if (p[0] !== 'sim') { play(false); mostra('benvenuto'); return; }
     (D ? Promise.resolve() : dati()).then(() => {
       mostra('sim');
@@ -339,6 +340,17 @@
       + scheda('→', 'Avanti', null, `<p>Il pubblico di ogni ad set non è scritto nei dati: lo ricavo dai numeri.</p>${avanti('pubblici', 'Vai ai pubblici')}`);
   }
 
+  /* ---- persone simulate dentro un pubblico (tarate sulle previsioni del modello) */
+  function dentro(k) {
+    const x = D.persone && D.persone[k];
+    if (!x) return '';
+    const piu = tag => { const r = x.segmenti[tag].slice().sort((a, b) => b.quota_click - a.quota_click)[0]; return `${esc(r.etichetta)} (${ni(r.quota_click * 100)}%)`; };
+    const donne = x.segmenti.genere.find(r => r.livello === 'donna');
+    const T = x.totali, F = x.forchetta;
+    return `<p class="dentro"><b>Chi clicca, tra le persone simulate:</b> ${ni(donne.quota_click * 100)}% donne · età più presente ${piu('eta')} · ${piu('area')} · ${piu('reddito')}.
+      <br><b>Acquisti stimati:</b> circa ${ni(T.acquisti)} in ${D.meta.giorni.length} giorni (tra ${ni(F.acquisti[0])} e ${ni(F.acquisti[1])}), ${ni(T.cpa)} € l’uno. <span class="tenue">Nel kit non ci sono acquisti: è una stima dalle persone.</span></p>`;
+  }
+
   /* ---- 02 pubblici */
   function rPubblici(el) {
     const c = camp(), gr = c.adset.map(k => D.adset[k].grandezza);
@@ -356,10 +368,17 @@
               <li><b>Quante volte lo vedono:</b> ${nf(a.frequenza)} al giorno, a persona</li>
               ${a.leva && a.leva !== 'nessuna differenza netta' && !ignoto(a.leva) ? `<li><b>Rende di più con:</b> ${leva(a.leva)}</li>` : ''}
             </ul>
-            <p>${CHI[a.tipo](a.vertical)}</p><p class="nota">${esc(accenti(a.motivazione.charAt(0).toUpperCase() + a.motivazione.slice(1)))}.</p></div>`;
+            <p>${CHI[a.tipo](a.vertical)}</p>${dentro(k)}<p class="nota">${esc(accenti(a.motivazione.charAt(0).toUpperCase() + a.motivazione.slice(1)))}.</p></div>`;
         }).join('')}</div>
         <p class="nota">La grandezza è un ordine di grandezza: viene da quanto sale la frequenza quando sale il budget. L’età non è nei dati: resta un’ipotesi.</p>`)
-      + scheda('02', 'Pubblici pronti', null, `<p>Ora gli annunci vanno davanti ai pubblici, un giorno alla volta, dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}.</p>${avanti('simulazione', 'Vai alle previsioni')}`);
+      + (D.persone && Object.keys(D.persone).length ? scheda('02', 'Alcune persone dentro questi pubblici', ['Simulate', 'neutro'], `
+        <div class="persone">${c.adset.filter(k => D.persone[k]).map(k => D.persone[k].persone.slice(0, 1).map(p => `<div class="persona ${p.esito === 'compra' ? 'compra' : p.esito === 'clicca' ? 'clicca' : 'passa'}">
+            <header><span class="avatar">${esc(p.nome[0])}</span><div><b>${esc(p.nome)}, ${p.eta} anni</b><small>${esc(p.regione)} · ${TIPI[D.adset[k].tipo]}</small></div></header>
+            <p class="chi">${esc(p.lavoro)} · ${esc(p.reddito)} · ${esc(p.famiglia)}</p>
+            <p class="cosa"><span class="bollino">${p.esito === 'compra' ? 'ha comprato' : p.esito === 'clicca' ? 'ha cliccato' : (p.genere === 'uomo' ? 'è passato oltre' : 'è passata oltre')}</span> visto ${p.visto} ${p.visto === 1 ? 'volta' : 'volte'}</p>
+            <ul>${p.perche.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')).join('')}</div>
+        <p class="nota">Ogni pubblico è fatto di persone virtuali (età, genere, area, reddito, famiglia…), tarate perché i loro click e costi tornino con le previsioni. Per una campagna senza dati: <a href="#/nuova">Campagna nuova</a>.</p>`) : '')
+      + scheda('03', 'Pubblici pronti', null, `<p>Ora gli annunci vanno davanti ai pubblici, un giorno alla volta, dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}.</p>${avanti('simulazione', 'Vai alle previsioni')}`);
   }
 
   /* ---- 03 simulazione */
@@ -699,6 +718,7 @@ CPM = livello del pubblico × stagione × giorno
     kit: 'Previsioni già calcolate dal motore: si aprono subito.',
     esempio: 'Il calcolo avviene nel tuo browser. La prima volta scarica il motore: circa mezzo minuto.',
     file: 'Il file resta sul tuo computer: il calcolo avviene nel browser. La prima volta scarica il motore: circa mezzo minuto.',
+    nuova: 'Nessun dato da caricare: si passa alla descrizione della campagna.',
   };
   function sorgente(v) {
     const r = $(`input[name="sorgente"][value="${v}"]`); if (r) r.checked = true;
@@ -763,6 +783,7 @@ CPM = livello del pubblico × stagione × giorno
     S.testoConsole = $('#richiesta').value.trim();
     const budget = +$('#br-budget').value || null, lancio = $('#br-lancio').value;
     if (scelta === 'file' && !S.file) { out.innerHTML = '<p class="errore mono">Scegli prima un file CSV.</p>'; return; }
+    if (scelta === 'nuova') { location.hash = '#/nuova'; return; }
     // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
     const b0 = S.brief;
     const lettura = b0 && b0.attesa && IA.attiva !== false

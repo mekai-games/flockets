@@ -1,0 +1,42 @@
+parametro,significato,valori,dipende_da
+peso,quante persone adulte in Italia somigliano a questo tipo,persone,tutti i tag
+uso_social,"probabilità di usare in un giorno: Social (Facebook, Instagram)",0-1,"età, istruzione, comune, genere"
+uso_video_brevi,"probabilità di usare in un giorno: Video brevi (TikTok, Reels, Shorts)",0-1,"età, istruzione, comune, genere"
+uso_ricerca,probabilità di usare in un giorno: Ricerca (Google),0-1,"età, istruzione, comune, genere"
+uso_shopping,probabilità di usare in un giorno: Annunci prodotto (Google Shopping),0-1,"età, istruzione, comune, genere, acquisti online"
+uso_display,probabilità di usare in un giorno: Banner su siti e app,0-1,"età, istruzione, comune, genere"
+uso_video,probabilità di usare in un giorno: Video (YouTube),0-1,"età, istruzione, comune, genere"
+uso_email,probabilità di usare in un giorno: Email e newsletter,0-1,"età, istruzione, comune, genere"
+saturazione,"quanti annunci vede al giorno, rispetto al massimo",0-1,età
+int_moda,probabilità di essere interessato a moda e abbigliamento,0-1,"età, genere, reddito, comune"
+int_beauty,probabilità di essere interessato a bellezza e cura della pelle,0-1,"età, genere, reddito"
+int_animali,probabilità di essere interessato a animali domestici,0-1,"età, famiglia, comune"
+int_videogiochi,probabilità di essere interessato a videogiochi,0-1,"età, genere, famiglia, lavoro"
+int_tecnologia,probabilità di essere interessato a tecnologia ed elettronica,0-1,"età, genere, reddito, istruzione"
+int_casa_arredo,probabilità di essere interessato a casa e arredo,0-1,"età, genere, famiglia, reddito"
+int_cibo_bevande,probabilità di essere interessato a cibo e bevande,0-1,"età, genere, famiglia"
+int_sport_fitness,probabilità di essere interessato a sport e fitness,0-1,"età, genere, istruzione"
+int_viaggi,probabilità di essere interessato a viaggi,0-1,"età, famiglia, reddito, istruzione"
+int_salute_benessere,probabilità di essere interessato a salute e benessere,0-1,"età, genere"
+int_bambini_famiglia,probabilità di essere interessato a bambini e famiglia,0-1,"età, famiglia"
+int_auto_moto,probabilità di essere interessato a auto e moto,0-1,"età, genere, comune"
+int_finanza,probabilità di essere interessato a finanza e assicurazioni,0-1,"età, genere, reddito, istruzione"
+int_formazione_lavoro,probabilità di essere interessato a corsi e lavoro,0-1,"età, istruzione, lavoro"
+int_intrattenimento,probabilità di essere interessato a cultura e intrattenimento,0-1,"età, istruzione, comune"
+sens_sconto,quanto reagisce a: sconto o prezzo basso,0-1,"età, reddito, istruzione, genere, famiglia"
+sens_urgenza,"quanto reagisce a: urgenza (solo oggi, scade)",0-1,"età, reddito, istruzione, genere, famiglia"
+sens_scarsita,quanto reagisce a: scarsità (ultimi pezzi),0-1,"età, reddito, istruzione, genere, famiglia"
+sens_prova_sociale,"quanto reagisce a: prova sociale (recensioni, «lo usano tutti»)",0-1,"età, reddito, istruzione, genere, famiglia"
+sens_novita,quanto reagisce a: novità e tendenza,0-1,"età, reddito, istruzione, genere, famiglia"
+sens_esperto,quanto reagisce a: parere di un esperto,0-1,"età, reddito, istruzione, genere, famiglia"
+sens_valori,"quanto reagisce a: valori (sostenibile, made in Italy)",0-1,"età, reddito, istruzione, genere, famiglia"
+pref_immagine,preferenza per il formato immagine,spostamento,età
+pref_carosello,preferenza per il formato carosello,spostamento,età
+pref_video_breve,preferenza per il formato video breve,spostamento,età
+pref_video,preferenza per il formato video,spostamento,età
+pref_testo,preferenza per il formato testo,spostamento,età
+acquisto_online,probabilità di comprare online almeno una volta al mese,0-1,"età, istruzione, area, reddito"
+mobile,quota di navigazione da telefono,0-1,età
+fiducia_nuovi_marchi,disponibilità a comprare da un marchio che non conosce,0-1,"età, istruzione"
+potere_acquisto,quanto può spendere rispetto alla media,moltiplicatore,"reddito, famiglia, lavoro"
+costo_relativo,quanto costa raggiungerla rispetto alla media (concorrenza tra inserzionisti),moltiplicatore,"età, reddito, genere, comune"

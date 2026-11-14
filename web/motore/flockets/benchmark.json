@@ -1,0 +1,409 @@
+{
+ "fonte": "Conjura, Multi-Region Marketing Mix Modeling (MMM) Dataset for Several eCommerce Brands, figshare 25314841, licenza CC BY 4.0. Elaborazione: strumenti/benchmark_conjura.py",
+ "marche": 93,
+ "dal": "2019-07-21",
+ "al": "2024-06-02",
+ "canali": {
+  "social": {
+   "marche": 68,
+   "ctr": [
+    1.0667,
+    1.7034,
+    2.8466
+   ],
+   "cpm_eur": [
+    4.1272,
+    8.5522,
+    23.2744
+   ],
+   "sd_log_ctr": 0.447,
+   "sd_log_cpm": 0.69,
+   "sd_log_ctr_settore": 0.423,
+   "sd_log_cpm_paese": 0.439
+  },
+  "video_brevi": {
+   "marche": 5,
+   "ctr": [
+    0.7171,
+    0.8951,
+    1.1178
+   ],
+   "cpm_eur": [
+    6.8955,
+    12.1654,
+    17.8887
+   ],
+   "sd_log_ctr": 0.25,
+   "sd_log_cpm": 0.476,
+   "sd_log_ctr_settore": 0.25,
+   "sd_log_cpm_paese": 0.476
+  },
+  "ricerca": {
+   "marche": 72,
+   "ctr": [
+    2.2824,
+    5.0517,
+    12.7273
+   ],
+   "cpm_eur": [
+    13.0224,
+    37.818,
+    108.3871
+   ],
+   "sd_log_ctr": 0.709,
+   "sd_log_cpm": 0.844,
+   "sd_log_ctr_settore": 0.715,
+   "sd_log_cpm_paese": 0.714
+  },
+  "shopping": {
+   "marche": 67,
+   "ctr": [
+    0.465,
+    0.7855,
+    1.2722
+   ],
+   "cpm_eur": [
+    2.5357,
+    5.3854,
+    8.7181
+   ],
+   "sd_log_ctr": 0.414,
+   "sd_log_cpm": 0.57,
+   "sd_log_ctr_settore": 0.364,
+   "sd_log_cpm_paese": 0.415
+  },
+  "display": {
+   "marche": 35,
+   "ctr": [
+    0.2579,
+    0.4795,
+    1.011
+   ],
+   "cpm_eur": [
+    0.6169,
+    2.1414,
+    4.1528
+   ],
+   "sd_log_ctr": 0.665,
+   "sd_log_cpm": 0.697,
+   "sd_log_ctr_settore": 0.63,
+   "sd_log_cpm_paese": 0.618
+  },
+  "video": {
+   "marche": 19,
+   "ctr": [
+    0.1345,
+    0.4515,
+    0.9237
+   ],
+   "cpm_eur": [
+    3.7371,
+    5.4884,
+    11.4312
+   ],
+   "sd_log_ctr": 0.657,
+   "sd_log_cpm": 0.568,
+   "sd_log_ctr_settore": 0.654,
+   "sd_log_cpm_paese": 0.643
+  }
+ },
+ "settori": {
+  "Apparel": {
+   "marche": 19,
+   "acquisti_su_100_visite": [
+    0.8941,
+    1.9898,
+    3.4847
+   ],
+   "valore_ordine_eur": [
+    64.3923,
+    120.0742,
+    321.7658
+   ],
+   "categorie": [
+    "moda"
+   ]
+  },
+  "Arts & Entertainment": {
+   "marche": 1,
+   "acquisti_su_100_visite": [
+    1.6341,
+    1.6341,
+    1.6341
+   ],
+   "valore_ordine_eur": [
+    49.5441,
+    49.5441,
+    49.5441
+   ],
+   "categorie": [
+    "intrattenimento"
+   ]
+  },
+  "Autos & Vehicles": {
+   "marche": 1,
+   "acquisti_su_100_visite": [
+    3.67,
+    3.67,
+    3.67
+   ],
+   "valore_ordine_eur": [
+    159.2184,
+    159.2184,
+    159.2184
+   ],
+   "categorie": [
+    "auto_moto"
+   ]
+  },
+  "Beauty & Fitness": {
+   "marche": 13,
+   "acquisti_su_100_visite": [
+    1.0873,
+    3.0005,
+    5.1112
+   ],
+   "valore_ordine_eur": [
+    36.0799,
+    76.9231,
+    227.7007
+   ],
+   "categorie": [
+    "beauty"
+   ]
+  },
+  "Business & Industrial": {
+   "marche": 4,
+   "acquisti_su_100_visite": [
+    1.0014,
+    2.3153,
+    4.2445
+   ],
+   "valore_ordine_eur": [
+    220.1288,
+    282.9268,
+    442.978
+   ],
+   "categorie": [
+    "formazione_lavoro"
+   ]
+  },
+  "Consumer Electronics": {
+   "marche": 2,
+   "acquisti_su_100_visite": [
+    7.4801,
+    8.6806,
+    9.8811
+   ],
+   "valore_ordine_eur": [
+    46.1294,
+    46.1294,
+    46.1294
+   ],
+   "categorie": [
+    "tecnologia"
+   ]
+  },
+  "Food & Drink": {
+   "marche": 8,
+   "acquisti_su_100_visite": [
+    1.2243,
+    2.9721,
+    3.5559
+   ],
+   "valore_ordine_eur": [
+    46.2782,
+    63.6977,
+    144.3736
+   ],
+   "categorie": [
+    "cibo_bevande"
+   ]
+  },
+  "Health": {
+   "marche": 6,
+   "acquisti_su_100_visite": [
+    1.9369,
+    3.1407,
+    7.6685
+   ],
+   "valore_ordine_eur": [
+    38.5194,
+    48.1247,
+    81.7163
+   ],
+   "categorie": [
+    "salute_benessere"
+   ]
+  },
+  "Home & Garden": {
+   "marche": 16,
+   "acquisti_su_100_visite": [
+    0.5351,
+    1.9893,
+    4.0836
+   ],
+   "valore_ordine_eur": [
+    73.6817,
+    151.9243,
+    479.3721
+   ],
+   "categorie": [
+    "casa_arredo"
+   ]
+  },
+  "Other": {
+   "marche": 2,
+   "acquisti_su_100_visite": [
+    0.9547,
+    1.2211,
+    1.4874
+   ],
+   "valore_ordine_eur": [
+    176.4918,
+    475.0663,
+    773.6408
+   ],
+   "categorie": []
+  },
+  "Pets & Animals": {
+   "marche": 2,
+   "acquisti_su_100_visite": [
+    2.0067,
+    2.5168,
+    3.0269
+   ],
+   "valore_ordine_eur": [
+    68.4739,
+    80.4649,
+    92.4559
+   ],
+   "categorie": [
+    "animali"
+   ]
+  },
+  "Safety & Survival": {
+   "marche": 1,
+   "acquisti_su_100_visite": [
+    0.1958,
+    0.1958,
+    0.1958
+   ],
+   "valore_ordine_eur": [
+    297.4181,
+    297.4181,
+    297.4181
+   ],
+   "categorie": []
+  },
+  "Sports": {
+   "marche": 5,
+   "acquisti_su_100_visite": [
+    2.2229,
+    3.9073,
+    5.2849
+   ],
+   "valore_ordine_eur": [
+    63.6467,
+    69.2685,
+    98.3805
+   ],
+   "categorie": [
+    "sport_fitness"
+   ]
+  },
+  "Toys & Hobbies": {
+   "marche": 1,
+   "acquisti_su_100_visite": [
+    4.394,
+    4.394,
+    4.394
+   ],
+   "valore_ordine_eur": [
+    36.3193,
+    36.3193,
+    36.3193
+   ],
+   "categorie": [
+    "videogiochi",
+    "bambini_famiglia"
+   ]
+  },
+  "Travel": {
+   "marche": 1,
+   "acquisti_su_100_visite": [
+    1.2643,
+    1.2643,
+    1.2643
+   ],
+   "valore_ordine_eur": [
+    1057.6381,
+    1057.6381,
+    1057.6381
+   ],
+   "categorie": [
+    "viaggi"
+   ]
+  },
+  "_tutti": {
+   "marche": 82,
+   "acquisti_su_100_visite": [
+    0.848,
+    2.6381,
+    4.6737
+   ],
+   "valore_ordine_eur": [
+    45.1562,
+    101.8482,
+    406.5196
+   ],
+   "sd_log_cvr": 0.793,
+   "sd_log_cvr_settore": 0.704
+  }
+ },
+ "mesi": {
+  "cpm": [
+   -0.1688,
+   -0.1,
+   -0.0399,
+   -0.0254,
+   -0.0049,
+   0.0389,
+   -0.0462,
+   -0.0469,
+   -0.0282,
+   0.0818,
+   0.2895,
+   0.1206
+  ],
+  "ctr": [
+   -0.0089,
+   0.0282,
+   0.0114,
+   0.0275,
+   -0.015,
+   0.0391,
+   -0.0026,
+   0.0099,
+   -0.0563,
+   -0.0106,
+   0.0998,
+   -0.0427
+  ],
+  "cvr": [
+   -0.0991,
+   -0.0451,
+   -0.0109,
+   -0.0465,
+   0.0347,
+   0.0126,
+   0.0279,
+   -0.0233,
+   -0.0215,
+   -0.0668,
+   0.2093,
+   0.0698
+  ],
+  "nota": "logaritmo dello scostamento dalla media dell'anno, gennaio..dicembre, mediana tra marche (Meta per CPM e CTR)"
+ }
+}

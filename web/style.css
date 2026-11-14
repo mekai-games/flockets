@@ -268,3 +268,59 @@ details.colonne table { font-size: 12.5px; }
   .in-uso-dati { gap: 2px 10px; font-size: 12.5px; } .nav-link { gap: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* campagna nuova */
+.nuova { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 5vw; max-width: 1340px; margin: 0 auto; padding: 16px 44px 70px; align-items: start; }
+.nuova-form h2 { font-size: 30px; font-weight: 700; margin-bottom: 12px; letter-spacing: -.025em; }
+.nuova-form fieldset { border: 1px solid #D4D4D0; padding: 18px 20px 6px; margin: 18px 0 0; }
+.nuova-form legend { font-size: 12.5px; color: #5E5E63; padding: 0 6px; }
+.nuova-form .campo { display: grid; gap: 5px; font: 11px var(--mono); color: #9A9A9F; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 10px; }
+.nuova-form .campo textarea, .nuova-form .campo select { text-transform: none; letter-spacing: 0; font: 14px/1.5 var(--testo); color: var(--inchiostro); }
+.nuova-form input[type=date] { width: 100%; font: 14px var(--testo); color: var(--inchiostro); background: var(--fondo); border: 1px solid var(--riga); padding: 7px 10px; text-transform: none; }
+.campi.tre { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.nuova-form .avvia { margin-top: 10px; } .nuova-form .avviso-barra { margin: 0; }
+.filtri-titolo { margin: 4px 0 8px !important; font-size: 11px !important; }
+.filtri { display: grid; gap: 8px; margin-bottom: 12px; }
+.filtro { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; }
+.filtro > span { width: 54px; font-size: 11px; color: #9A9A9F; text-transform: uppercase; letter-spacing: .04em; }
+.filtro button { font: 500 12.5px var(--testo); color: var(--tenue); background: var(--carta); border: 1px solid var(--riga); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+.filtro button.si { background: var(--inchiostro); border-color: var(--inchiostro); color: #fff; } .filtro small { color: #B5B5B8; font-size: 11.5px; }
+.nuova-esito { display: grid; gap: 16px; min-width: 0; }
+.nuova-esito .vuoto { border: 1px solid var(--riga); padding: 22px 24px; background: var(--fondo); }
+#nc-folla, #nc-folla2 { margin-bottom: 8px; }
+.esito-folla { border: 1px solid var(--riga); border-radius: 10px; background-color: var(--fondo); background-image: radial-gradient(#D9D9D4 1px, transparent 1px); background-size: 22px 22px; padding: 6px 10px 0; }
+.nuova-esito .tessere dd { font-size: 19px; }
+.consigli, .migliori { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 0; counter-reset: c; }
+.consigli li, .migliori li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--riga); }
+.migliori li { grid-template-columns: minmax(0, 1fr) auto; }
+.consigli b, .migliori b { font-size: 13.5px; font-weight: 600; display: block; } .consigli small, .migliori small { font-size: 12px; color: var(--tenue); display: block; margin-top: 2px; }
+.consigli .pulsante { padding: 5px 12px; font-size: 13px; }
+.per { font: 600 15px var(--mono); color: var(--tenue); letter-spacing: -.03em; } .per.su { color: var(--verde); }
+.segmenti { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 22px; margin-top: 8px; }
+.seg b.mono { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: #9A9A9F; display: block; margin-bottom: 4px; }
+.seg-riga { display: grid; grid-template-columns: 98px minmax(0, 1fr) 42px; gap: 8px; align-items: center; font-size: 12px; padding: 2px 0; }
+.seg-riga span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #3F3F45; }
+.seg-b { position: relative; height: 12px; background: #F1F1EF; border-radius: 3px; overflow: hidden; }
+.seg-b i { position: absolute; left: 0; height: 6px; border-radius: 3px; } .seg-b i.vis { top: 0; background: #C9C9C5; } .seg-b i.ris { bottom: 0; background: var(--arancio); }
+.seg-riga em { font: 600 11.5px var(--mono); font-style: normal; text-align: right; color: var(--tenue); } .seg-riga em.su { color: var(--verde); } .seg-riga em.giu { color: #C2410C; }
+.persone { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 8px; }
+.persona { border: 1px solid var(--riga); border-radius: 10px; padding: 12px 14px; background: var(--carta); font-size: 13px; }
+.persona header { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+.persona header b { font: 700 14.5px var(--titoli); display: block; } .persona header small { color: var(--tenue); font-size: 12px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 14px var(--titoli); background: #F1F1EF; color: var(--tenue); flex: none; }
+.persona.compra .avatar { background: var(--verde-f); color: var(--verde); } .persona.clicca .avatar { background: var(--arancio-f); color: #C2410C; }
+.persona .chi { color: var(--tenue); font-size: 12.5px !important; margin: 0 0 6px; }
+.persona .cosa { font-size: 12px !important; color: var(--tenue); margin: 0 0 6px; }
+.bollino { display: inline-block; font: 600 10.5px var(--mono); text-transform: uppercase; letter-spacing: .03em; padding: 2px 7px; border-radius: 4px; background: #F1F1EF; color: var(--tenue); margin-right: 4px; }
+.persona.compra .bollino { background: var(--verde-f); color: var(--verde); } .persona.clicca .bollino { background: var(--arancio-f); color: #C2410C; }
+.persona ul { margin: 0; padding-left: 16px; font-size: 12.5px; } .persona li { margin-bottom: 2px; }
+.dentro { font-size: 13px !important; background: var(--fondo); border-radius: 6px; padding: 9px 11px; line-height: 1.5; }
+@media (max-width: 900px) {
+  .nuova { grid-template-columns: minmax(0, 1fr); padding: 12px 20px 50px; gap: 28px; }
+  .segmenti { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .campi.tre { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .nuova-form fieldset { padding: 14px 14px 4px; }
+  .consigli li { grid-template-columns: minmax(0, 1fr) auto; } .consigli .pulsante { grid-column: 1 / -1; justify-self: start; }
+}
+@media (max-width: 560px) { #v-nuova .nav-link a:first-child { display: none; } #v-nuova .nav.chiara { padding: 14px 18px; } }

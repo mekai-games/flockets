@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body data-vista="benvenuto">
 
@@ -23,7 +23,7 @@
 <section class="vista scura" id="v-benvenuto">
   <header class="nav">
     <a class="logo" href="#/" aria-label="Flockets"><svg width="26" height="26"><use href="#marchio"/></svg>Flockets</a>
-    <nav class="nav-centro"><a href="#/come">Come funziona</a><a href="#/console">Demo</a><a href="#/sim/consegne">Consegne</a></nav>
+    <nav class="nav-centro"><a href="#/come">Come funziona</a><a href="#/console">Demo</a><a href="#/nuova">Campagna nuova</a><a href="#/sim/consegne">Consegne</a></nav>
     <a class="pulsante bianco" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub</a>
   </header>
   <div class="eroe">
@@ -93,6 +93,19 @@
     </tbody></table></div>
     <p class="nota">Fuori dalla sfida non sa nulla della stagione di quel settore (saldi, uscite, festività): se non gli dai un andamento di mercato la considera piatta e allarga la forchetta.</p>
 
+    <h3>Le persone simulate</h3>
+    <p>Sotto le previsioni c’è una popolazione virtuale: tutti i tipi di persona adulta in Italia. Serve a due cose: dire <b>chi</b> c’è dietro i numeri di ogni pubblico, e prevedere una campagna <b>nuova, senza nessun dato</b>.</p>
+    <ol class="otto">
+      <li><span>A</span><div><b>8 tag per persona</b><p>Età (6 fasce), genere, area (5), tipo di comune (3), istruzione (3), lavoro (4), reddito (3), famiglia (4): 25.920 combinazioni. Tolte quelle impossibili, restano 14.434 tipi di persona, ognuno con il suo peso: quante persone in Italia gli somigliano, 50,1 milioni in tutto.</p></div></li>
+      <li><span>B</span><div><b>Dai tag ai numeri</b><p>Ogni tipo diventa 41 numeri: quanto usa ognuno dei 7 canali, quanto è interessato a ognuna delle 15 categorie di prodotto, quanto reagisce a 7 leve (sconto, urgenza, scarsità, recensioni, novità, esperto, valori), quale formato preferisce, quanto compra online, quanto naviga dal telefono, quanto si fida di un marchio nuovo, quanto può spendere, quanto costa raggiungerlo. La regola è leggibile: un valore di base, e ogni tag lo sposta di una quantità fissa.</p></div></li>
+      <li><span>C</span><div><b>La campagna, persona per persona</b><p>Ogni giorno il budget viene diviso tra le persone raggiungibili: la piattaforma preferisce chi risponde meglio all’obiettivo e costa meno, con un tetto di frequenza. Per ognuna: probabilità di click, di arrivare sul sito, di comprare.</p></div></li>
+      <li><span>D</span><div><b>Tarata su dati veri</b><p>Le costanti di ogni canale e settore sono scelte perché una campagna normale dia i valori tipici di 79 marche vere (dataset Conjura): CTR e CPM per canale, acquisti ogni 100 visite e valore dell’ordine per settore, andamento nei mesi. Stanchezza delle creatività, effetto del budget e peso delle caratteristiche creative vengono dal modello di previsione.</p></div></li>
+      <li><span>E</span><div><b>Con lo storico, si allinea</b><p>Quando ci sono dati, le persone di ogni pubblico vengono tarate finché click e costi tornano con le previsioni del modello. Le previsioni restano quelle; le persone aggiungono chi clicca e chi compra.</p></div></li>
+    </ol>
+    <p><b>Prova a freddo.</b> Sui dati della sfida abbiamo previsto i 12 pubblici senza usare lo storico: solo categoria, tipo di pubblico, budget, creatività e date. Errore sul CPM 17% (un valore tipico fisso sbaglia del 22%), sul CTR 25% (un valore fisso del 23%). L’ordine dei pubblici è giusto: correlazione 0,94 sul CTR e 0,97 sul CPM, che un valore fisso non sa dare.</p>
+    <p class="nota">Le quote della popolazione sono approssimazioni ragionate dei dati ISTAT ed Eurostat, non tabelle ufficiali; le sensibilità alle leve sono ipotesi dichiarate. Stanno tutte in un file (flockets/persone.py) e si possono sostituire. Il database completo è in output/persone.csv.gz.</p>
+    <p><a class="pulsante bordo" href="#/nuova">Prova una campagna nuova</a></p>
+
     <h3>Quanto ci fidiamo</h3>
     <ul class="punti">
       <li><b>Prova sul passato.</b> Sui dati della sfida abbiamo nascosto al modello due settimane già avvenute, sette volte. Errore medio sul CPM 6,1% (contro 8,1% di «come la settimana scorsa»; il minimo possibile è 5,8%), sul CTR 13,7% (contro 18,0%; minimo 11,0%).</li>
@@ -132,6 +145,8 @@
             <span><b>Esempio: un gioco per telefono</b><small>Campagna inventata, nel formato dell’export di Meta: 3 pubblici, 5 annunci, 6 settimane. Mostra Flockets fuori dalla sfida.</small></span></label>
           <label class="sorgente"><input type="radio" name="sorgente" value="file">
             <span><b>Il tuo storico</b><small>Un CSV con una riga per annuncio e giorno. Resta sul tuo computer: il calcolo avviene nel browser.</small></span></label>
+          <label class="sorgente"><input type="radio" name="sorgente" value="nuova">
+            <span><b>Nessun dato: una campagna nuova</b><small>Descrivi prodotto e annuncio: Flockets la simula su tutti i tipi di persona e consiglia pubblico, canale e formato.</small></span></label>
         </div>
         <div class="carica" id="carica" hidden>
           <label class="pulsante bordo" for="file-ingresso">Scegli il file</label>
@@ -159,7 +174,72 @@
   </div>
 </section>
 
-<!-- 4. RISULTATI -->
+<!-- 4. CAMPAGNA NUOVA -->
+<section class="vista" id="v-nuova" hidden>
+  <header class="nav chiara">
+    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
+    <nav class="nav-link"><a class="mono-link" href="#/console">Analizza uno storico</a><a class="mono-link" href="#/come">Come funziona</a></nav>
+  </header>
+  <div class="nuova">
+    <form class="nuova-form" id="nc-form" autocomplete="off">
+      <p class="mono etichetta-m">■ Campagna nuova, senza dati</p>
+      <h2>Simula una campagna su 50 milioni di persone virtuali</h2>
+      <p class="tenue">Descrivi prodotto e annuncio. Flockets fa vedere la campagna a ogni tipo di persona adulta in Italia e stima chi la vede, chi clicca, chi visita il sito e chi compra.</p>
+
+      <fieldset><legend class="mono">01 / Il prodotto</legend>
+        <label class="campo">Cosa vendi <textarea id="nc-prodotto" rows="2" placeholder="Siero viso alla vitamina C, 30 ml"></textarea></label>
+        <div class="campi tre">
+          <label>Categoria <select id="nc-categoria"></select></label>
+          <label>Prezzo, € <input type="number" id="nc-prezzo" min="1" step="1" inputmode="decimal" placeholder="tipico"></label>
+          <label>Sconto, % <input type="number" id="nc-sconto" min="0" max="90" step="5" inputmode="numeric" value="0"></label>
+        </div>
+        <div class="campi due">
+          <label>Il marchio è <select id="nc-marchio"><option value="nuovo">nuovo, quasi nessuno lo conosce</option><option value="conosciuto" selected>conosciuto da una parte del pubblico</option><option value="famoso">famoso</option></select></label>
+          <label>Momento della categoria <select id="nc-trend"><option value="0.8">in calo</option><option value="1" selected>normale</option><option value="1.3">in crescita</option><option value="1.6">di moda adesso</option></select></label>
+        </div>
+      </fieldset>
+
+      <fieldset><legend class="mono">02 / La campagna</legend>
+        <div class="campi tre">
+          <label>Obiettivo <select id="nc-obiettivo"><option value="vendite">vendite</option><option value="traffico">visite al sito</option><option value="notorieta">farsi conoscere</option></select></label>
+          <label>Canale <select id="nc-canale"></select></label>
+          <label>Formato <select id="nc-formato"></select></label>
+        </div>
+        <label class="campo">L’annuncio, in parole <textarea id="nc-annuncio" rows="2" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -20% SOLO OGGI"></textarea></label>
+        <p class="nota" id="nc-letto"></p>
+        <div class="campi tre">
+          <label>Budget al giorno, € <input type="number" id="nc-budget" min="5" step="5" inputmode="numeric" value="100"></label>
+          <label>Giorni <input type="number" id="nc-giorni" min="1" max="90" step="1" inputmode="numeric" value="14"></label>
+          <label>Inizio <input type="date" id="nc-inizio"></label>
+        </div>
+      </fieldset>
+
+      <fieldset><legend class="mono">03 / Il pubblico</legend>
+        <label class="campo">Tipo di pubblico <select id="nc-pubblico"><option value="ampio">ampio: decide la piattaforma</option><option value="interessi">interessi: chi segue la categoria</option><option value="sosia">sosia: simili a chi compra</option><option value="retargeting">retargeting: chi ha già visitato il sito</option></select></label>
+        <p class="mono etichetta-m filtri-titolo">Restringi (facoltativo): tocca per escludere o includere</p>
+        <div class="filtri" id="nc-filtri"></div>
+      </fieldset>
+
+      <button class="avvia" id="nc-avvia" type="submit"><span>Simula sulle persone</span><span aria-hidden="true">→</span></button>
+      <p class="avviso-barra mono" id="nc-avviso">Il calcolo avviene nel tuo browser. La prima volta scarica il motore: circa mezzo minuto.</p>
+    </form>
+
+    <section class="nuova-esito" id="nc-esito" aria-live="polite">
+      <div class="vuoto">
+        <canvas id="nc-folla" aria-hidden="true"></canvas>
+        <p class="mono etichetta-m">■ Come funziona</p>
+        <ol class="passi-lista">
+          <li><span>01</span><div><b>Tutti i tipi di persona</b><p>14.434 combinazioni di età, genere, area, comune, istruzione, lavoro, reddito e famiglia, ognuna con il suo peso nella popolazione italiana.</p></div></li>
+          <li><span>02</span><div><b>Da tag a numeri</b><p>Ogni tipo diventa 41 numeri: quanto usa ogni canale, quanto è interessato a ogni categoria, quanto reagisce a sconto e urgenza, quanto può spendere, quanto costa raggiungerlo.</p></div></li>
+          <li><span>03</span><div><b>La campagna, persona per persona</b><p>Chi la vede, chi clicca, chi arriva sul sito, chi compra, giorno per giorno. I livelli di partenza vengono da 79 marche vere.</p></div></li>
+          <li><span>04</span><div><b>Il consiglio</b><p>Prova canali, formati, pubblici e leve diverse con lo stesso budget e dice cosa rende di più, e perché.</p></div></li>
+        </ol>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- 5. RISULTATI -->
 <section class="vista" id="v-sim" hidden>
   <header class="barra">
     <a class="indietro" href="#/console" aria-label="Cambia i dati">←</a>
@@ -188,9 +268,10 @@
   </div>
 </section>
 
-<script src="js/scena.js?v=17"></script>
-<script src="js/motore.js?v=17"></script>
-<script src="js/grafici.js?v=17"></script>
-<script src="js/app.js?v=17"></script>
+<script src="js/scena.js?v=18"></script>
+<script src="js/motore.js?v=18"></script>
+<script src="js/grafici.js?v=18"></script>
+<script src="js/nuova.js?v=18"></script>
+<script src="js/app.js?v=18"></script>
 </body>
 </html>

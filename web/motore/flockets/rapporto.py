@@ -199,7 +199,7 @@ def _nome_campagna(R, vertical):
     return nome, "", vertical
 
 
-def dati_sito(R, fc, pred, P, S, V=None, G=None, origine="caricato", file_previsioni="previsioni.csv"):
+def dati_sito(R, fc, pred, P, S, V=None, G=None, origine="caricato", file_previsioni="previsioni.csv", persone_adset=None, freddo=None):
     """Tutto cio che il sito mostra, in un solo dizionario pronto per diventare JSON."""
     panel, hist = fc.last_panel, fc.train
     pred = pred.copy()
@@ -310,6 +310,7 @@ def dati_sito(R, fc, pred, P, S, V=None, G=None, origine="caricato", file_previs
         "campagne": campagne, "adset": adsets, "ads": ads, "ads_storico": sorted(R["hist"].ad_id.unique().tolist()),
         "pred_cols": pred_cols, "pred": pr, "hist_cols": ["d", "ad", "ctr", "cpm", "imp", "clk", "spesa", "anom"], "hist": hs,
         "anomalie": anomalie, "validazione": val, "generalizzazione": gen, "stagione": stag, "par": par,
+        "persone": _arrotonda(persone_adset or {}), "prova_a_freddo": _arrotonda(freddo or {}),
     }
 
 
@@ -348,6 +349,22 @@ def fonti(R):
             continue   # e solo una riserva: se non c'e non serve dirlo
         out.append({"dato": nome, "file": file, "dove": dove, "serve": serve, "presente": presente, "senza": senza})
     return out
+
+
+def _arrotonda(x):
+    """Numeri con poche cifre: il file del sito resta leggero."""
+    if isinstance(x, dict):
+        return {k: _arrotonda(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [_arrotonda(v) for v in x]
+    if isinstance(x, (float, np.floating)):
+        v = float(x)
+        return round(v, 4 if abs(v) < 10 else 1) if np.isfinite(v) else None
+    if isinstance(x, np.integer):
+        return int(x)
+    if isinstance(x, np.bool_):
+        return bool(x)
+    return x
 
 
 COLONNE_CSV = ["data", "ad_id", "adset_id", "asset_id", "leva", "formato", "budget_giornaliero_adset",
