@@ -66,13 +66,28 @@ window.Analisi = (function () {
     else if (/famos|notissim|\bleader\b/.test(s)) spec.marchio = 'famoso';
     if (/notoriet|farsi conoscere|awareness|visibilit/.test(s)) spec.obiettivo = 'notorieta';
     else if (/\bvisite\b|traffico|portare (?:gente|persone) sul sito/.test(s)) spec.obiettivo = 'traffico';
-    if (brief && brief.fonte === 'ia') {   // quello che ha capito Claude: caratteristiche della creatività e leva
-      spec.creativita = brief.f || {};
-      if (brief.leva && LEVE[brief.leva]) spec.leve = [brief.leva];
-    }
-    const unita = /scaric|download|install|\bapp\b|gioco (?:per|sul|da) (?:telefono|cellulare|smartphone)|mobile game/.test(s) ? 'download'
+    let unita = /scaric|download|install|\bapp\b|gioco (?:per|sul|da) (?:telefono|cellulare|smartphone)|mobile game/.test(s) ? 'download'
       : /iscri|registra/.test(s) ? 'iscrizioni' : 'acquisti';
-    return { spec, unita, gratis: /gratis|gratuit|\bfree\b/.test(s) };
+    let gratis = /gratis|gratuit|\bfree\b/.test(s), ia = false;
+    // quello che ha capito Claude Haiku (funzione /api/leggi) vale più delle regole a parole chiave; 0 o non_indicato = non detto
+    const ia2 = brief && brief.fonte === 'ia' ? brief.campagna : null;
+    if (brief && brief.fonte === 'ia' && brief.f) spec.creativita = brief.f;
+    if (ia2) {
+      ia = true;
+      if (ia2.canale !== 'non_indicato') spec.canale = ia2.canale;
+      if (ia2.categoria && ia2.categoria !== 'generica') spec.categoria = ia2.categoria;
+      if (ia2.formato_campagna !== 'non_indicato') spec.formato = ia2.formato_campagna;
+      if (ia2.budget_giorno > 0) spec.budget_giorno = ia2.budget_giorno;
+      if (ia2.giorni > 0) spec.giorni = ia2.giorni;
+      if (ia2.prezzo > 0) spec.prezzo = ia2.prezzo;
+      if (ia2.sconto_percento > 0) spec.sconto = ia2.sconto_percento / 100;
+      if (ia2.marchio !== 'non_indicato') spec.marchio = ia2.marchio;
+      spec.obiettivo = ia2.obiettivo;
+      if (ia2.leve && ia2.leve.length) spec.leve = ia2.leve;
+      if (ia2.prodotto) spec.descrizione_prodotto = ia2.prodotto + '. ' + testo;
+      unita = ia2.risultato; gratis = ia2.gratis;
+    }
+    return { spec, unita, gratis, ia, prodotto: ia2 && ia2.prodotto ? ia2.prodotto : '' };
   }
 
   /* ------------------------------------------------------------------ modelli */
@@ -352,7 +367,7 @@ window.Analisi = (function () {
       contesto.gratis ? 'gratis' : C.prezzo ? `prezzo ${eur(C.prezzo)}${C.sconto ? ` −${ni(C.sconto * 100)}%` : ''}` : '',
       ...C.leve.map(l => LEVE[l]), C.marchio === 'nuovo' ? 'marchio nuovo' : C.marchio === 'famoso' ? 'marchio famoso' : '',
     ].filter(Boolean);
-    return `<div class="a-capito"><span class="a-capito-t">Ho capito</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
+    return `<div class="a-capito"><span class="a-capito-t">${contesto.ia ? 'Claude ha capito' : 'Ho capito'}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
       ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}`;
   }
   function rAnalisi() {

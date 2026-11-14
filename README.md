@@ -84,9 +84,12 @@ Il file d'esempio del gioco si rigenera con `python3 strumenti/esempio_gioco.py`
 con una regola semplice e un seme fisso.
 
 **Come il sito capisce il testo.** La descrizione dell'annuncio viene letta due volte. Subito, nel browser, con
-regole a parole chiave. Poco dopo da Claude Haiku, tramite la funzione [`web/api/leggi.js`](web/api/leggi.js):
-restituisce formato, leva e caratteristiche creative in forma strutturata, cioè gli stessi campi che il modello
-usa per stimare una creatività mai vista, più una frase che dice da quali parole le ha dedotte. La zona
+regole a parole chiave. Poco dopo da Claude Haiku 5.5, tramite la funzione [`web/api/leggi.js`](web/api/leggi.js),
+con uscita strutturata (JSON con schema fisso): formato, leva e caratteristiche creative, cioè gli stessi campi che
+il modello usa per stimare una creatività mai vista, più la campagna (prodotto, categoria, canale, budget al giorno,
+durata, prezzo, sconto, marchio nuovo o noto, obiettivo, tipo di risultato, gratis o no, leve dell'offerta) che il
+simulatore usa quando l'annuncio arriva senza file. Quello che Claude legge vale più delle regole; un valore non
+detto resta alle regole o a un valore prudente. Nell'analisi la riga «Claude ha capito» mostra cosa ha letto. La zona
 «Ho capito» mostra il risultato e lascia correggere ogni voce a mano. La chiave dell'API sta solo nella
 variabile d'ambiente `ANTHROPIC_API_KEY` del progetto Vercel, mai nel codice; senza chiave il sito continua
 con le regole.

@@ -542,10 +542,12 @@
         body: JSON.stringify({ testo: testo.slice(0, 800), formati: D.par.formati, leve: D.par.leve }) })
         .then(r => (r.ok ? r.json() : null))
         .then(j => {
-          if (!j || !D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return null;
+          if (!j) return null;
+          // la campagna (canale, budget, durata…) serve anche senza file; formato e leva solo se il modello li conosce
+          if (!D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return Object.assign(leggiTesto(testo), { campagna: j.campagna || null, motivo: j.motivo || '', fonte: 'ia' });
           const f = {};
           Object.keys(D.par.feat_regole).forEach(k => { f[k] = j.caratteristiche && j.caratteristiche[k] ? 1 : 0; });
-          return { f, formato: j.formato, leva: j.leva, motivo: j.motivo || '', fonte: 'ia' };
+          return { f, formato: j.formato, leva: j.leva, motivo: j.motivo || '', campagna: j.campagna || null, fonte: 'ia' };
         });
     }).catch(() => null);
     IA.ultimo = { testo, p };
@@ -866,10 +868,10 @@ CPM = livello del pubblico × stagione × giorno
     }
     if (document.body.dataset.vista === 'console') reazione(6, '');
     const r = (origine || b).getBoundingClientRect(), da = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
+    // se la lettura di Claude è ancora in corso la si aspetta, al massimo cinque secondi (intanto parte la transizione)
     const b0 = S.brief;
     const lettura = b0 && b0.attesa && IA.attiva !== false
-      ? (clearTimeout(IA.t), Promise.race([chiediIA(S.testoConsole), new Promise(r => setTimeout(() => r(null), 3000))])
+      ? (clearTimeout(IA.t), Promise.race([chiediIA(S.testoConsole), new Promise(r => setTimeout(() => r(null), 5000))])
         .then(b => { if (S.brief === b0) { if (b && !b0.manuale) S.brief = b; else b0.attesa = false; } }))
       : Promise.resolve();
     b.disabled = true;
@@ -880,7 +882,7 @@ CPM = livello del pubblico × stagione × giorno
       let L = null;
       const lavoro = lettura.then(() => { L = window.Analisi.leggiPrompt(S.testoConsole, S.brief); return MotoreFlockets.campagna(L.spec, () => {}); });
       window.Analisi.transizione(lavoro, da)
-        .then(d => window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis }))
+        .then(d => window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis, ia: L.ia }))
         .catch(errore).finally(libera);
       return;
     }
