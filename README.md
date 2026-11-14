@@ -1,6 +1,6 @@
 # Flockets
 
-**Prova la tua campagna su clienti che non esistono.**
+**Prevedi le campagne di marketing prima di lanciarle: CTR, CPM e budget, simulati su un pubblico virtuale.**
 
 Flockets immagina il pubblico di ogni ad set, prevede CTR e CPM di ogni annuncio giorno per giorno e aiuta a
 decidere dove mettere il budget. Prima di spendere un euro.
