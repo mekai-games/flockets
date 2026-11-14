@@ -136,7 +136,7 @@
   }
   function instrada() {
     const p = location.hash.replace(/^#\/?/, '').split('/');
-    if (p[0] === 'console') { play(false); mostra('console'); (D ? Promise.resolve() : dati()).then(() => rCapito(false)); return; }
+    if (p[0] === 'console') { play(false); mostra('console'); follaAvvio(); (D ? Promise.resolve() : dati()).then(() => rCapito(false)); return; }
     if (p[0] === 'come') { play(false); mostra('come'); return; }
     if (p[0] === 'nuova') { play(false); mostra('nuova'); window.Nuova.apri(S.testoConsole); return; }
     if (p[0] !== 'sim') { play(false); mostra('benvenuto'); return; }
@@ -731,6 +731,22 @@ CPM = livello del pubblico × stagione × giorno
     $('#richiesta').placeholder = v === 'nuova' ? SEGNAPOSTO.nuova : SEGNAPOSTO.altro;
     $('#avviso').textContent = v === 'file' && !S.file ? 'Allega il file qui sotto.' : v === 'file' && S.fileKit ? AVVISI.kit : AVVISI[v];
   }
+  // omini in fondo alla pagina di partenza: camminano piano, reagiscono solo quando succede qualcosa
+  let avvio = null, ultimaReazione = 0;
+  function follaAvvio() {
+    if (avvio || !window.Flock) return;
+    Flock.carica().then(() => {
+      if (avvio) return;
+      const c = $('#folla-avvio'), stretto = window.innerWidth < 600;
+      avvio = new Flock.Scena(c, { scala: stretto ? 2 : 3, altezza: stretto ? 92 : 128, suolo: 6, linea: false, testo: '' });
+      avvio.popola(Math.max(5, Math.min(16, Math.round(c.clientWidth / (stretto ? 64 : 92)))), { profondita: 10 });
+    });
+  }
+  function reazione(quanti, testo) {
+    if (!avvio) return;
+    avvio.testo = testo || '';
+    for (let i = 0; i < quanti; i++) setTimeout(() => avvio.esulta(), i * 140);
+  }
   function togliFile() {
     S.file = null; S.fileKit = true; $('#file-ingresso').value = '';
     sorgente('kit');
@@ -747,6 +763,7 @@ CPM = livello del pubblico × stagione × giorno
       S.fileKit = !!st && st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000 && kit();
       $('#file-nome').textContent = letti.length === 1 ? letti[0].nome : letti.length + ' file';
       sorgente('file');
+      reazione(3, 'csv');
       out.innerHTML = `<ul class="controlli mono">
           ${st ? `<li class="si">${ni(st.n)} righe · ${st.ads} annunci · dal ${gm(st.min)} al ${gm(st.max)}</li>` : '<li class="si">Colonne con nomi diversi da quelli del motore: le riconosco al calcolo</li>'}
           ${st ? st.note.map(x => `<li class="attento">${esc(x)}</li>`).join('') : ''}
@@ -793,6 +810,7 @@ CPM = livello del pubblico × stagione × giorno
     S.testoConsole = $('#richiesta').value.trim();
     const budget = $('#br-budget') ? +$('#br-budget').value || null : null, lancio = $('#br-lancio') ? $('#br-lancio').value : null;
     if (scelta === 'file' && !S.file) { $('#file-ingresso').click(); return; }
+    if (document.body.dataset.vista === 'console') reazione(6, 'via!');
     if (scelta === 'nuova') { location.hash = '#/nuova'; return; }
     // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
     const b0 = S.brief;
@@ -840,6 +858,7 @@ CPM = livello del pubblico × stagione × giorno
     $('#togli-file').addEventListener('click', togliFile);
     // invio = analizza, maiuscolo + invio = a capo (come nelle chat)
     $('#richiesta').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); avvia(); } });
+    $('#richiesta').addEventListener('input', () => { const t = Date.now(); if (t - ultimaReazione > 1600) { ultimaReazione = t; reazione(1); } });
     $('#richiesta').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 180) + 'px'; });
     const info = $('#info-file'), box = $('#info-box');
     const apriInfo = on => { box.hidden = !on; info.setAttribute('aria-expanded', on); };

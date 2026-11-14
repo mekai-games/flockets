@@ -359,3 +359,10 @@ table.semplice th, table.semplice td, table.fonti th, table.fonti td { text-alig
 .composer .capito:not(.tutti) .chips span:not(.si) { display: none; }
 .composer .capito .chips em.nessuna { font-style: normal; color: #9A9A9F; }
 .composer .capito .testo-link { font: inherit; font-size: 11px; color: var(--blu); text-decoration: none; }
+
+/* omini della pagina di partenza: in fondo, sfumati, mai sopra al prompt */
+#v-console { position: relative; }
+#v-console > .nav, .avvio { position: relative; z-index: 1; }
+#folla-avvio { position: absolute; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 55%); mask-image: linear-gradient(to bottom, transparent, #000 55%); opacity: .85; }
+@media (max-height: 600px) { #folla-avvio { display: none; } }
