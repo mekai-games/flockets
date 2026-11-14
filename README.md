@@ -34,12 +34,24 @@ Il percorso è in cinque schermate.
 3. **Partenza**: una frase, un riquadro in stile chat dove descrivere l'annuncio e sotto la zona per allegare il
    CSV, con il tasto ⓘ che spiega che file serve. Con un file si analizza il file, senza i dati della sfida; due link
    aprono l'esempio inventato di un gioco per telefono e la campagna nuova senza dati. Invio per analizzare. Tutto
-   dentro lo schermo, senza scorrere; in basso un prato in pixel art sale fino a poco sotto il prompt; gli omini ci camminano sparsi a distanze diverse (più piccoli e lenti quelli lontani), escono dai bordi e ne arrivano di nuovi.
-4. **Campagna nuova**: nessun dato; si descrivono prodotto, annuncio, budget e pubblico, e Flockets la simula
-   su tutti i tipi di persona: risultati con la forchetta, chi risponde, i tipi di persona migliori, alcune persone
-   simulate con il loro motivo, e il consiglio su canale, formato, pubblico e leva.
-5. **Risultati**: in alto i passi e il riquadro **Dati in uso** (quali dati, quale periodo, cosa mancava,
-   cosa vogliono dire CTR e CPM); a sinistra il pubblico simulato, a destra l'analisi passo per passo.
+   dentro lo schermo, senza scorrere; in basso un prato in pixel art sale fino a poco sotto il prompt; gli omini ci
+   camminano sparsi a distanze diverse (più piccoli e lenti quelli lontani), escono dai bordi e ne arrivano di nuovi.
+4. **Campagna nuova**: nessun dato; si descrivono prodotto, annuncio, budget, canale e obiettivo. Il pubblico non
+   si sceglie: Flockets prova la stessa campagna, con lo stesso budget, su ogni tipo di pubblico (ampio, interessi,
+   sosia dei clienti e, se il marchio è già noto, chi ha visitato il sito) e il migliore è un risultato dell'analisi.
+5. **Analisi**: mentre il motore calcola, una transizione a schermo intero mostra gli omini che reagiscono
+   all'annuncio. Poi due viste, con un interruttore in alto e un filtro per campagna («Tutto il progetto» o una
+   marca):
+   - **Persone**: solo omini su un prato. Ognuno è una persona simulata di uno dei pubblici; il segnalino sopra
+     la testa dice se ha comprato (verde) o cliccato (arancio). Toccandolo si apre una scheda sopra la sua testa:
+     chi è, dove vive, cosa ha fatto, probabilità di click e di acquisto, quanto rende ogni euro speso su di lei,
+     perché, e quante persone come lei ci sono in Italia. I bottoni in basso evidenziano un tipo di pubblico.
+   - **Analisi**: una frase con il risultato, i numeri principali (spesa, visualizzazioni, click, acquisti e
+     ricavi con la forchetta, ritorno per euro), il pubblico migliore, cosa fare adesso, i grafici giorno per
+     giorno, tutti i pubblici dal migliore al meno conveniente (ognuno si apre e dice chi c'è dentro), i gruppi
+     di persone che rispondono di più e, se si è descritto un annuncio, come reagirebbe ogni campagna.
+
+Le schermate tecniche di prima restano, sotto «Dettagli tecnici e consegne» in fondo all'analisi:
 
 | Passo | Cosa mostra |
 |---|---|
@@ -224,8 +236,13 @@ l'email non è nel dataset, i suoi valori sono ipotesi.
 tornano con le previsioni del modello strutturale. Le 699 previsioni non cambiano; le persone aggiungono chi
 clicca, chi compra e una stima degli acquisti (nel kit non ci sono acquisti: è una stima).
 
-**6. Il consiglio.** Con lo stesso budget prova 20-30 combinazioni di canale, formato, pubblico e leva e le ordina
-per acquisti, click o persone raggiunte, secondo l'obiettivo. Il retargeting non viene proposto a un marchio nuovo.
+**6. Il pubblico migliore è un risultato.** In una campagna nuova il pubblico non si sceglie prima: la stessa campagna,
+con lo stesso budget, viene simulata su ogni tipo di pubblico che il canale permette (`analizza_campagna`), e il
+migliore è quello con più acquisti, click o persone raggiunte, secondo l'obiettivo. Per ognuno restano numeri,
+giorni, gruppi che rispondono e alcune persone. Il retargeting non viene proposto a un marchio nuovo.
+
+**7. Il consiglio.** Con lo stesso budget prova 20-30 combinazioni di canale, formato, pubblico e leva e le ordina
+nello stesso modo.
 
 **Prova a freddo.** Sui dati della sfida abbiamo previsto i 12 pubblici **senza usare lo storico**: solo categoria,
 tipo di pubblico, budget, creatività e date ([`output/prova_a_freddo.csv`](output/prova_a_freddo.csv)).
@@ -241,7 +258,7 @@ A freddo il livello del CTR non è migliore di un valore fisso; il costo sì, e 
 stretti le abbiamo aggiunte dopo aver visto un primo risultato peggiore (CTR 144%, ordine del CPM 0,56), quindi
 la prova non è del tutto cieca. Sono regole generali, non numeri presi dal kit.
 
-Sul sito: pagina **Campagna nuova**, e nel passo Pubblici le persone dentro ogni ad set. Da riga di comando:
+Sul sito: pagina **Campagna nuova** e vista **Persone** dell'analisi. Da riga di comando:
 
 ```python
 from flockets import simulazione
@@ -249,7 +266,8 @@ r = simulazione.simula({"descrizione_prodotto": "Siero viso alla vitamina C", "p
                         "marchio": "nuovo", "canale": "social", "budget_giorno": 100, "giorni": 14,
                         "testo_annuncio": "Video: una ragazza parla in camera, -20% solo oggi"})
 r["totali"], r["segmenti"], r["persone"]
-simulazione.consiglia({...})   # le combinazioni migliori con lo stesso budget
+simulazione.analizza_campagna({...})   # la stessa campagna su ogni tipo di pubblico, e il migliore
+simulazione.consiglia({...})           # le combinazioni migliori con lo stesso budget
 ```
 
 ### Come è diviso il codice

@@ -12,7 +12,7 @@
     paura: { r: 6, ms: [70, 70, 70, 70] },
     sonno: { r: 7, ms: [650, 750] },
   };
-  let atlante = null, sagome = null, meta = null, pronto = null;
+  let atlante = null, sagome = null, meta = null, pronto = null, cima = [];
   const fermaTutto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function carica() {
@@ -25,7 +25,17 @@
       // sagome bianche dei personaggi: servono per il contorno chiaro sugli sfondi scuri
       sagome = document.createElement('canvas'); sagome.width = im.width; sagome.height = im.height;
       const c = sagome.getContext('2d');
-      c.drawImage(im, 0, 0); c.globalCompositeOperation = 'source-in'; c.fillStyle = '#fff'; c.fillRect(0, 0, im.width, im.height);
+      c.drawImage(im, 0, 0);
+      // dove comincia la testa di ogni personaggio (prima riga piena del primo fotogramma): il segnalino ci va sopra
+      try {
+        const px = c.getImageData(0, 0, im.width, im.height).data;
+        cima = m.nomi.map((n, id) => {
+          const sx = (id % m.colonne) * m.foglio[0], sy = Math.floor(id / m.colonne) * m.foglio[1];
+          for (let y = 0; y < F; y++) for (let x = 0; x < F; x++) if (px[((sy + y) * im.width + sx + x) * 4 + 3] > 40) return y;
+          return 19;
+        });
+      } catch (e) { cima = []; }
+      c.globalCompositeOperation = 'source-in'; c.fillStyle = '#fff'; c.fillRect(0, 0, im.width, im.height);
       return m;
     });
     return pronto;
@@ -49,6 +59,7 @@
       const a = ANIM[this.anim];
       this.t += dt * 1000;
       while (this.t >= a.ms[this.f]) { this.t -= a.ms[this.f]; this.f = (this.f + 1) % a.ms.length; }
+      if (this.bloccato) return;
       if (this.fisso) {
         this.timer -= dt;
         if (this.timer <= 0) {
@@ -101,6 +112,14 @@
       }
       ctx.drawImage(atlante, sx, sy, F, F, x0, y, F * S, F * S);
       if (giro) ctx.restore();
+      if (this.segno) {   // segnalino sopra la testa (la testa sta a 19 pixel dal bordo alto del fotogramma)
+        // quadratino colorato con bordo bianco e punta verso la testa: si stacca dal prato (nero se la persona è aperta)
+        const p = Math.max(3, Math.round(S * 2)), u = Math.max(1, Math.round(S * 0.6)), ty = Math.round(y + ((cima[this.id] || 19) - 6) * S);
+        ctx.fillStyle = this.scelto ? '#111113' : '#FFFFFF';
+        ctx.fillRect(x - p - u, ty - p - u, 2 * p + 2 * u, 2 * p + 2 * u);
+        ctx.fillRect(x - u, ty + p + u, 2 * u, 2 * u);
+        ctx.fillStyle = this.segno; ctx.fillRect(x - p, ty - p, 2 * p, 2 * p);
+      }
       ctx.globalAlpha = 1;
     }
   }
@@ -154,6 +173,16 @@
       });
       return this;
     }
+    // l'omino sotto un punto della scena (il personaggio occupa 24 x 28 pixel del fotogramma, centrato in basso)
+    trova(px, py) {
+      const suolo = this.h - this.suoloGiu;
+      for (let i = this.omini.length - 1; i >= 0; i--) {
+        const o = this.omini[i], S = o.s || this.S, piedi = suolo + o.dy;
+        if (o.a > 0.5 && Math.abs(px - o.x) <= 12 * S && py >= piedi - 28 * S && py <= piedi + 2 * S) return o;
+      }
+      return null;
+    }
+    testa(o) { const S = o.s || this.S; return { x: o.x, y: this.h - this.suoloGiu + o.dy - 46 * S + ((cima[o.id] || 19) - 7) * S }; }
     // un omino uscito dallo schermo viene sostituito da un personaggio che non è già in scena, che entra camminando
     ricambia(o, m) {
       const tot = meta ? meta.nomi.length : 100, usati = new Set(this.omini.map(x => x.id));
@@ -272,5 +301,33 @@
     ctx.drawImage(off, 0, 0, lw * P * dpr, lh * P * dpr);
   }
 
-  window.Flock = { carica, Scena, Omino, ANIM, prato };
+  /* Campo: prato e folla sparsa in profondità. o.ids = personaggi da usare (uno per persona);
+     o.ricambio = chi esce dal bordo viene sostituito da un personaggio nuovo. Restituisce la scena. */
+  function campo(cPrato, cFolla, o = {}) {
+    const stretto = window.innerWidth < 600, alto = Math.round(o.altezza || 200);
+    if (cPrato) prato(cPrato, o.altezzaPrato || alto, { pixel: stretto ? 2 : 3 });
+    const sc = new Scena(cFolla, { scala: stretto ? 2 : 3, altezza: alto, suolo: o.suolo || (stretto ? 12 : 16), linea: false,
+      testo: o.testo == null ? '' : o.testo, avvolgi: true, ricambio: !!o.ricambio });
+    const [piccola, grande] = o.scale || (stretto ? [1, 2] : [2, 3]), fondo = Math.round(alto * (o.fondo || 0.58));
+    sc.profondita = om => {
+      const t = Math.pow(Math.random(), 0.85);   // 0 davanti, 1 in fondo
+      om.dy = -Math.round(t * fondo);
+      om.s = t > 0.62 || (t > 0.42 && Math.random() < (t - 0.42) / 0.2) ? piccola : grande;
+      om.vel = (14 + Math.random() * 20) * (1 - 0.45 * t);
+    };
+    const tot = meta ? meta.nomi.length : 100, usati = new Set(), w = cFolla.clientWidth || 800;
+    const nuovo = () => { let id; do { id = Math.floor(Math.random() * tot); } while (usati.has(id) && usati.size < tot); usati.add(id); return id; };
+    const n = o.ids ? o.ids.length : (o.n || Math.max(6, Math.min(26, Math.round(w / (stretto ? 34 : 62)))));
+    sc.omini = [];
+    for (let k = 0; k < n; k++) {
+      const om = new Omino(o.ids ? o.ids[k] : nuovo(), Math.random() * (w + 80) - 40, {});
+      sc.profondita(om);
+      sc.omini.push(om);
+    }
+    sc.omini.sort((p, q) => p.dy - q.dy);
+    return sc;
+  }
+  function nomiPersonaggi() { return meta ? meta.nomi : []; }
+
+  window.Flock = { carica, Scena, Omino, ANIM, prato, campo, nomiPersonaggi };
 })();

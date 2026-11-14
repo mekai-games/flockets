@@ -373,7 +373,7 @@ def _taratura(P, canale, cat):
 
 
 # ------------------------------------------------------------------------------------ simulazione
-def simula(campagna, n_sim=400, seed=7, dettaglio=True, scarto_ctr=0.0, scarto_cpm=0.0, sd=None):
+def simula(campagna, n_sim=400, seed=7, dettaglio=True, scarto_ctr=0.0, scarto_cpm=0.0, sd=None, n_persone=8):
     """Simula la campagna giorno per giorno su tutti i tipi di persona. Restituisce KPI, forchetta, segmenti, persone."""
     c = normalizza(campagna)
     P = pe.popolazione()
@@ -456,7 +456,7 @@ def simula(campagna, n_sim=400, seed=7, dettaglio=True, scarto_ctr=0.0, scarto_c
     if dettaglio:
         out["segmenti"] = _segmenti(P, T, copertura)
         out["migliori"] = _migliori(P, T, c)
-        out["persone"] = _storie(P, T, c, cat, inizio, tar, seed)
+        out["persone"] = _storie(P, T, c, cat, inizio, tar, seed, n=n_persone)
     out["_T"] = T
     return out
 
@@ -554,6 +554,8 @@ def _al_maschile(frase):
 
 
 def _storie(P, T, c, cat, inizio, tar, seed, n=8):
+    quote = {"compra": max(1, round(n * 0.35)), "clicca": max(1, round(n * 0.35))}
+    quote["passa"] = max(1, n - quote["compra"] - quote["clicca"])
     """Persone singole estratte tra quelle simulate: alcune comprano, alcune cliccano e basta, altre passano oltre.
     Ognuna con il motivo, cioè i tre pezzi che pesano di più sulla sua probabilità di click o di acquisto."""
     rng = np.random.default_rng(seed + 11)
@@ -561,7 +563,9 @@ def _storie(P, T, c, cat, inizio, tar, seed, n=8):
         return []
     g = inizio + timedelta(days=min(3, c["giorni"] - 1))
     click, compra = _contributi(P, c, cat, g, tar)
-    gruppi = [("compra", T["acq"], 3), ("clicca", np.maximum(T["click"] - T["acq"], 0), 3), ("passa", np.maximum(T["imp"] - T["click"], 0), 2)]
+    gruppi = [("compra", T["acq"], quote["compra"]), ("clicca", np.maximum(T["click"] - T["acq"], 0), quote["clicca"]),
+              ("passa", np.maximum(T["imp"] - T["click"], 0), quote["passa"])]
+    media = T["acq"].sum() / max(T["spesa"].sum(), 1e-12)
     usati, out, nomi_usati = set(), [], set()
     for esito, peso, quanti in gruppi:
         peso = np.where(np.isin(np.arange(len(P)), list(usati)), 0, peso)
@@ -591,7 +595,8 @@ def _storie(P, T, c, cat, inizio, tar, seed, n=8):
                         "comune": pe.ETICHETTE[r.comune], "lavoro": pe.ETICHETTE[r.lavoro], "reddito": pe.ETICHETTE[r.reddito],
                         "famiglia": pe.ETICHETTE[r.famiglia], "istruzione": pe.ETICHETTE[r.istruzione], "visto": volte,
                         "prob_click": pc, "prob_acquisto": pa, "esito": esito, "clicca": esito != "passa", "compra": esito == "compra",
-                        "perche": perche, "tipo": pe.descrivi(r)})
+                        "perche": perche, "tipo": pe.descrivi(r), "persone_simili": float(r.peso),
+                        "resa": float((T["acq"][i] / max(T["spesa"][i], 1e-12)) / media) if media > 0 else 0.0})
     return out
 
 
@@ -691,9 +696,10 @@ def integra(R, pred, pubblici_df, assets=None, n_sim=200):
         tarata = simula(camp, n_sim=n_sim, scarto_ctr=s_ctr, scarto_cpm=s_cpm, seed=7 + 13 * n_,
                         sd={"ctr": 0.15, "cpm": 0.10, "cvr": BENCH["settori"]["_tutti"].get("sd_log_cvr_settore", 0.7)})
         tarata.pop("_T", None)
-        out[k] = {"categoria": cat, "pubblico": camp["pubblico"]["tipo"], "a_freddo": {"ctr": freddo["totali"]["ctr"], "cpm": freddo["totali"]["cpm"]},
+        out[k] = {"giorni": [{"data": g["data"], "acquisti": g["acquisti"], "ricavi": g["ricavi"]} for g in tarata["giorni"]],
+                  "categoria": cat, "pubblico": camp["pubblico"]["tipo"], "a_freddo": {"ctr": freddo["totali"]["ctr"], "cpm": freddo["totali"]["cpm"]},
                   "previsto": {"ctr": ctr_pred, "cpm": cpm_pred}, "totali": tarata["totali"], "forchetta": tarata["forchetta"],
-                  "segmenti": tarata["segmenti"], "migliori": tarata["migliori"][:5], "persone": tarata["persone"][:6]}
+                  "segmenti": tarata["segmenti"], "migliori": tarata["migliori"][:5], "persone": tarata["persone"][:8]}
     return out
 
 
@@ -748,13 +754,43 @@ def prova_a_freddo(R, pubblici_df, giorni=28):
     return T, sintesi
 
 
+DESCRIZIONI = {"ampio": "Tutti, senza filtri: decide la piattaforma a chi mostrarlo.",
+               "interessi": "Chi segue la categoria del prodotto.",
+               "sosia": "Persone simili a chi compra di solito questo tipo di prodotto.",
+               "retargeting": "Chi ha già visitato il sito negli ultimi 30 giorni."}
+
+
+def analizza_campagna(spec, consigli=True, n_persone=6):
+    """Campagna nuova: la stessa campagna simulata su ogni tipo di pubblico, con lo stesso budget.
+    Il pubblico migliore e una conseguenza dell'analisi (piu acquisti, click o persone raggiunte, secondo l'obiettivo)."""
+    c0 = normalizza({k: v for k, v in (spec or {}).items() if k != "pubblico"})
+    tipi = ["ampio", "interessi", "sosia"] + ([] if c0["marchio"] == "nuovo" else ["retargeting"])
+    if c0["canale"] in ("ricerca", "shopping"):
+        tipi = ["ampio"] + ([] if c0["marchio"] == "nuovo" else ["retargeting"])
+    if c0["canale"] == "email":
+        tipi = ["retargeting"]
+    base = {k: v for k, v in c0.items() if not k.startswith("_")}
+    pubblici = []
+    for i, tipo in enumerate(tipi):
+        r = simula({**base, "pubblico": {"tipo": tipo}}, seed=7 + 11 * i, n_persone=n_persone)
+        r.pop("_T", None)
+        pubblici.append({"tipo": tipo, "nome": PUBBLICI[tipo].split(":")[0], "descrizione": DESCRIZIONI[tipo],
+                         "totali": r["totali"], "forchetta": r["forchetta"], "giorni": r["giorni"], "segmenti": r["segmenti"],
+                         "migliori": r["migliori"][:5], "persone": r["persone"], "pubblico": r["pubblico"],
+                         "risultato": _risultato(r["totali"], c0["obiettivo"])})
+    migliore = max(pubblici, key=lambda x: x["risultato"])
+    out = {"campagna": base, "ipotesi": c0["_ipotesi"] + ([] if "retargeting" in tipi else
+                                                          ["Il pubblico di chi ha già visitato il sito non c'è: il marchio è nuovo"]),
+           "valori_reali": simula({**base, "pubblico": {"tipo": migliore["tipo"]}}, dettaglio=False)["valori_reali"],
+           "pubblici": pubblici, "migliore": migliore["tipo"]}
+    if consigli:
+        out["consigli"] = consiglia(base)
+    return out
+
+
 def json_campagna(spec, consigli=True):
     """Per il sito: riceve la campagna (dizionario), restituisce simulazione e consigli in JSON."""
     try:
-        r = simula(spec)
-        r.pop("_T", None)
-        if consigli:
-            r["consigli"] = consiglia(spec)
-        return json.dumps(r, ensure_ascii=False, default=float)
+        return json.dumps(analizza_campagna(spec, consigli=consigli), ensure_ascii=False, default=float)
     except ValueError as err:
         return json.dumps({"errore": str(err)})

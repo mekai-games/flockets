@@ -85,6 +85,11 @@
     prepara();
   }
   const kit = () => D.meta.origine === 'kit';
+  // ponte per analisi.js: i dati correnti e qualche funzione del sito
+  window.Flk = {
+    get D() { return D; }, get S() { return S; }, kit: () => !!D && kit(), dati: () => dati(),
+    stima: (c, L) => stima(c, L), scarico: () => scarico(),
+  };
   function prepara() {
     const ogg = (cols, r) => Object.fromEntries(cols.map((k, i) => [k, r[i]]));
     D.P = D.pred.map(r => ogg(D.pred_cols, r));
@@ -138,6 +143,11 @@
     const p = location.hash.replace(/^#\/?/, '').split('/');
     if (p[0] === 'console') { play(false); mostra('console'); follaAvvio(); (D ? Promise.resolve() : dati()).then(() => rCapito(false)); return; }
     if (p[0] === 'come') { play(false); mostra('come'); return; }
+    if (p[0] === 'analisi') {
+      play(false);
+      (D || window.Analisi.haDati() ? Promise.resolve() : dati()).then(() => { mostra('analisi'); window.Analisi.mostra(p[1] === 'numeri' ? 'analisi' : 'persone'); });
+      return;
+    }
     if (p[0] === 'nuova') { play(false); mostra('nuova'); window.Nuova.apri(S.testoConsole); return; }
     if (p[0] !== 'sim') { play(false); mostra('benvenuto'); return; }
     (D ? Promise.resolve() : dati()).then(() => {
@@ -862,26 +872,22 @@ CPM = livello del pubblico × stagione × giorno
       S.visti = {};
       S.lab = S.testoConsole ? Object.assign({ testo: S.testoConsole, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
         brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(S.testoConsole)) : null;
-      if (location.hash === '#/sim/dati') instrada(); else location.hash = '#/sim/dati';
+      window.Analisi.apri('storico');
     };
     const sfida = scelta === 'kit' || (scelta === 'file' && S.fileKit);
-    if (sfida) {
-      S.sorgente = 'kit'; S.etichetta = 'Dati della sfida Wevion (simulati)';
-      if (D && !kit()) { datiP = null; D = null; palco = null; }   // si torna ai dati della sfida
-      dati().then(() => lettura).then(parti);
-      return;
-    }
     b.disabled = true;
-    const stato = m => { $('#avviso').textContent = m; };
-    const file = scelta === 'esempio'
-      ? fetch('data/esempio_gioco.csv').then(r => r.text()).then(testo => [{ nome: 'esempio_gioco.csv', testo }])
-      : Promise.resolve(S.file);
-    file.then(f => MotoreFlockets.analizza(f, stato).then(d => {
-      S.sorgente = scelta;
-      S.etichetta = scelta === 'esempio' ? 'Esempio inventato: gioco per telefono' : 'Il tuo file: ' + (f.length === 1 ? f[0].nome : f.length + ' file');
-      usa(d);
-      return lettura.then(parti);
-    })).catch(err => {
+    // mentre il motore calcola, gli omini reagiscono alla campagna a schermo intero
+    const lavoro = sfida
+      ? (() => { S.sorgente = 'kit'; S.etichetta = 'Dati della sfida Wevion (simulati)'; if (D && !kit()) { datiP = null; D = null; palco = null; } return dati().then(() => lettura); })()
+      : (scelta === 'esempio'
+        ? fetch('data/esempio_gioco.csv').then(r => r.text()).then(testo => [{ nome: 'esempio_gioco.csv', testo }])
+        : Promise.resolve(S.file)).then(f => MotoreFlockets.analizza(f, m => window.Analisi.avvisa(m)).then(d => {
+          S.sorgente = scelta;
+          S.etichetta = scelta === 'esempio' ? 'Esempio inventato: gioco per telefono' : 'Il tuo file: ' + (f.length === 1 ? f[0].nome : f.length + ' file');
+          usa(d);
+          return lettura;
+        }));
+    window.Analisi.transizione(lavoro).then(parti).catch(err => {
       out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`);
     }).finally(() => { b.disabled = false; sorgente(S.file ? 'file' : 'kit'); });
   }
