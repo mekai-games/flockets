@@ -28,7 +28,7 @@
   .scheda-b { display: inline-flex; align-items: center; gap: 6px; background: #E4E4E0; border-radius: 6px 6px 0 0; padding: 5px 10px; font-size: 11.5px; color: #333; }
   .riga.scuro .scheda-b { background: #2A2A2A; color: #ddd; }
   .carta p { margin: 0; padding: 12px 16px 14px; border-top: 1px solid #ECECE8; color: #444; font-size: 13px; }
-  .uso > header { background: #F1F1EE; }
+  .uso > header { background: #F1F1EE; } .scelta > header { background: #FFF3EC; }
 </style>
 </head>
 <body>
@@ -67,7 +67,7 @@ const LOGHI = [
   { id: 'cerchi', nome: 'Adesso', uso: true, d: cerchi, t: 'Il logo di oggi, con i cerchi.' },
   { id: 'ventaglio', nome: 'Ventaglio', d: stormo({ teste: base, code: [[0, 9], [7, 15], [22, 19]] }),
     t: 'Code dritte che si aprono a ventaglio: la più fedele allo schizzo. La V è appena più aperta di quella di adesso, per far passare le code senza toccarsi.' },
-  { id: 'curve', nome: 'Code che piegano', d: stormo({ teste: base, code: [[0, 9], [16, 15], [24, 18]], curva: true }),
+  { id: 'curve', nome: 'Code che piegano', scelto: true, d: stormo({ teste: base, code: [[0, 9], [16, 15], [24, 18]], curva: true }),
     t: 'Le code partono dritte e piegano verso l’esterno in punta, come nel tuo disegno. Più morbido, sembra un’ala.' },
   { id: 'lunghe', nome: 'Scie lunghe', d: stormo({ teste: [[42, 24, 4.6], [34.2, 7.2, 3.7], [26.4, 14.4, 3.2]], code: [[0, 11], [7, 18], [20, 22]] }),
     t: 'Teste più piccole e code più lunghe: più velocità, più cometa. In piccolo le punte si assottigliano.' },
@@ -89,8 +89,8 @@ const cella = l => `<div class="cella"><span class="nome">${svg(l.d, 28)}Flocket
 document.getElementById('chiaro').innerHTML = LOGHI.map(cella).join('');
 document.getElementById('scuro').innerHTML = LOGHI.map(cella).join('');
 document.getElementById('g').innerHTML = LOGHI.map(l => `
-  <article class="carta${l.uso ? ' uso' : ''}">
-    <header><b>${l.num ? `<i>${l.num}</i>` : ''}${l.nome}</b><code>${l.id}${l.uso ? ' · in uso sul sito' : ''}</code></header>
+  <article class="carta${l.uso ? ' uso' : ''}${l.scelto ? ' scelta' : ''}">
+    <header><b>${l.num ? `<i>${l.num}</i>` : ''}${l.nome}</b><code>${l.id}${l.uso ? ' · quello di prima' : ''}${l.scelto ? ' · scelto, ora sul sito' : ''}</code></header>
     <div class="due"><div>${svg(l.d, 96)}</div><div class="scuro">${svg(l.d, 96)}</div></div>
     <div class="riga">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
     <div class="riga scuro">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>

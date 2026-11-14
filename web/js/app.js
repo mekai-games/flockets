@@ -21,7 +21,7 @@
     { id: 'dati', nome: 'Dati' }, { id: 'pubblici', nome: 'Pubblici' }, { id: 'simulazione', nome: 'Simulazione' },
     { id: 'decisioni', nome: 'Decisioni' }, { id: 'laboratorio', nome: 'Laboratorio' },
   ];
-  const TIPI = { ampio: 'Pubblico ampio', interessi: 'Interessi', sosia: 'Sosia dei clienti', caldo: 'Già vicini al marchio' };
+  const TIPI = { ampio: 'Pubblico ampio', interessi: 'Interessi', sosia: 'Sosia dei clienti', caldo: 'Già vicini al marchio', unico: 'Pubblico unico' };
   const CHI = {
     ampio: () => 'Chiunque in Italia tra 18 e 65 anni. Nessun interesse scelto: decide la piattaforma a chi mostrare l’annuncio.',
     interessi: v => ({
@@ -31,8 +31,11 @@
     }[v] || 'Persone scelte per interesse verso la categoria.'),
     sosia: () => 'Persone che somigliano a chi ha già comprato: stesse abitudini, ma non conoscono ancora il marchio.',
     caldo: () => 'Chi ha visitato il sito, lasciato il carrello a metà o già comprato negli ultimi 30 giorni.',
+    unico: () => 'È il solo ad set della campagna: tutto il pubblico passa da qui.',
   };
   const LEVE = { scarcity: 'scarsità', urgency: 'urgenza', black_friday: 'black friday' };
+  const leva = k => LEVE[k] || String(k).replace(/_/g, ' ');
+  const STADI = { storico: 'storico sufficiente', 'primi dati': 'primi dati', 'mai vista': 'creatività mai vista', 'dopo modifica': 'dopo un cambio di budget', 'fuori dominio': 'fuori da ciò che conosce' };
   const CARATT = {
     ugc: 'una persona parla in camera', hook: 'aggancio nei primi 2 secondi', ritmo: 'ritmo veloce',
     testo_pesante: 'grafica piena di testo', brand_lento: 'video di marca lento', timer: 'timer o conto alla rovescia',
@@ -42,16 +45,25 @@
   const BLU = '#3B4BE0', GRIGIO = '#A3A3A3';
   const FATTO = ['Completato', 'ok'];
 
-  const S = { campagna: null, passo: 'dati', giorno: 0, play: false, adset: null, ad: null, budget: {}, lab: null, visti: {}, testoConsole: '' };
+  const S = { campagna: null, passo: 'dati', giorno: 0, play: false, adset: null, ad: null, budget: {}, lab: null, visti: {}, testoConsole: '', file: null, fileKit: true, brief: null };
   let D = null, datiP = null, orologio = null, palco = null;
 
   /* ------------------------------------------------------------------ dati */
   function dati() {
     if (!datiP) {
-      datiP = Promise.all([fetch('data/analisi.json').then(r => r.json()), Flock.carica()]).then(([d]) => { D = d; prepara(); return D; });
+      datiP = Promise.all([fetch('data/analisi.json').then(r => r.json()), Flock.carica()]).then(([d]) => { usa(d); return D; });
     }
     return datiP;
   }
+  // cambia l'insieme di dati su cui lavora il sito (il kit, oppure un'analisi calcolata sui file caricati)
+  function usa(d) {
+    play(false);
+    D = d; palco = null;
+    Object.assign(S, { giorno: 0, adset: null, ad: null, budget: {}, lab: null, visti: {} });
+    prepara();
+    $('#reg-id').textContent = 'flockets · ' + (kit() ? 'kit sfida' : 'file caricati');
+  }
+  const kit = () => D.meta.origine === 'kit';
   function prepara() {
     const ogg = (cols, r) => Object.fromEntries(cols.map((k, i) => [k, r[i]]));
     D.P = D.pred.map(r => ogg(D.pred_cols, r));
@@ -71,9 +83,9 @@
     S.campagna = D.campagne[0].id;
   }
   const camp = () => D.campagne.find(c => c.id === S.campagna);
-  const nOmini = k => stringe(Math.round(3 * Math.log10(D.adset[k].grandezza) - 10.5), 3, 12);
-  const breve = k => k.split('-')[1];
-  const gente = g => (g >= 1e7 ? 'oltre 10 mln' : g >= 1e6 ? nf(g / 1e6, 1) + ' mln' : ni(g / 1000) + ' mila');
+  const nOmini = k => (D.adset[k].grandezza ? stringe(Math.round(3 * Math.log10(D.adset[k].grandezza) - 10.5), 3, 12) : 7);
+  const breve = k => { const p = String(k).split('-'), u = p[p.length - 1]; return p.length > 1 && u.length <= 6 ? u : String(k).slice(0, 16); };
+  const gente = g => (g == null ? 'grandezza non nota' : g >= 1e7 ? 'oltre 10 mln' : g >= 1e6 ? nf(g / 1e6, 1) + ' mln' : ni(g / 1000) + ' mila');
   // effetto del budget scelto con i cursori sui numeri di un pubblico
   function conFattore(k, g) {
     const r = S.budget[k] / D.adset[k].budget_test, e = D.par.elasticita;
@@ -100,11 +112,11 @@
   }
   function instrada() {
     const p = location.hash.replace(/^#\/?/, '').split('/');
-    if (p[0] === 'console') { play(false); mostra('console'); dati(); return; }
+    if (p[0] === 'console') { play(false); mostra('console'); (D ? Promise.resolve() : dati()).then(() => rCapito(false)); return; }
     if (p[0] !== 'sim') { play(false); mostra('benvenuto'); return; }
-    dati().then(() => {
+    (D ? Promise.resolve() : dati()).then(() => {
       mostra('sim');
-      S.passo = (p[1] === 'consegne' || PASSI.some(x => x.id === p[1])) ? p[1] : 'dati';
+      S.passo = ((p[1] === 'consegne' && kit()) || PASSI.some(x => x.id === p[1])) ? p[1] : 'dati';
       if (!palco) rCampagne();
       rPasso();
     });
@@ -142,7 +154,7 @@
       z.addEventListener('click', vai);
       z.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vai(); } });
     });
-    $('#pz-legenda').innerHTML = `<b class="mono">Come si legge</b><span><i class="punto leva-scarcity"></i>scarsità</span><span><i class="punto leva-urgency"></i>urgenza</span><span><i class="punto leva-black_friday"></i>black friday</span>
+    $('#pz-legenda').innerHTML = `<b class="mono">Come si legge</b>${D.par.leve.slice(0, 4).map(l => `<span><i class="punto leva-${l}"></i>${leva(l)}</span>`).join('')}
       <p>Più omini, pubblico più grande. Chi <b>esulta</b> vale circa ${ni(maxClk / (RITMO * DUR))} click. Chi <b>dorme</b> ha visto l’annuncio troppe volte.</p>`;
     const totali = d => {
       let sp = 0, im = 0, ck = 0;
@@ -172,7 +184,7 @@
         const g = D.zona[k][d], x = conFattore(k, g), a = D.ads[g.top.ad], z = $(`.zona[data-as="${k}"]`, el);
         $('.vivo', z).classList.remove('prova');
         $('.punto', z).className = 'punto leva-' + a.leva;
-        $('.cart-tag', z).innerHTML = `${LEVE[a.leva]} · ${a.formato}${g.top.eta < 4 ? ' <em>nuovo</em>' : ''}${a.cold ? ' <em>mai vista</em>' : ''}`;
+        $('.cart-tag', z).innerHTML = `${leva(a.leva)} · ${a.formato}${g.top.eta < 4 ? ' <em>nuovo</em>' : ''}${a.cold ? ' <em>mai vista</em>' : ''}`;
         $('.cart-titolo', z).textContent = a.titolo;
         $('[data-n="bud"]', z).textContent = ni(S.budget[k]) + ' €';
         $('[data-n="cpm"]', z).textContent = nf(x.cpm) + ' €';
@@ -189,7 +201,7 @@
         const z = $(`.zona[data-as="${x.k}"]`, el), clk = S.budget[x.k] * D.par.spesa_su_budget / x.cpm * 10 * x.ctr;
         $('.vivo', z).classList.add('prova');
         $('.punto', z).className = 'punto leva-' + L.leva;
-        $('.cart-tag', z).innerHTML = `${LEVE[L.leva]} · ${L.formato} <em>in prova</em>`;
+        $('.cart-tag', z).innerHTML = `${leva(L.leva)} · ${L.formato} <em>in prova</em>`;
         $('.cart-titolo', z).textContent = L.testo || ESEMPIO;
         $('[data-n="bud"]', z).textContent = ni(S.budget[x.k]) + ' €';
         $('[data-n="cpm"]', z).textContent = nf(x.cpm) + ' €';
@@ -222,6 +234,7 @@
   }
 
   /* ------------------------------------------------------------------ passi */
+  const scarico = () => (D.csv ? URL.createObjectURL(new Blob([D.csv], { type: 'text/csv' })) : 'data/' + D.meta.file_previsioni);
   const scheda = (n, titolo, st, corpo, mono) => `<article class="scheda"><header><span class="num mono">${n}</span><h3>${titolo}</h3>${st ? `<span class="stato-b ${st[1]}"${st[2] ? ` id="${st[2]}"` : ''}>${st[0]}</span>` : ''}</header>${mono ? `<p class="mono riga-m">${mono}</p>` : ''}${corpo}</article>`;
   const avanti = (hash, testo) => `<a class="vai" href="#/sim/${hash}"><span>${testo}</span><span aria-hidden="true">→</span></a>`;
 
@@ -229,7 +242,7 @@
     const i = PASSI.findIndex(x => x.id === S.passo), consegne = S.passo === 'consegne';
     if (S.passo !== 'simulazione' && S.play) play(false);
     $('#passi-nav').innerHTML = PASSI.map((x, j) => `<a href="#/sim/${x.id}" class="${x.id === S.passo ? 'attivo' : ''}"><span class="mono">0${j + 1}</span>${x.nome}</a>`).join('')
-      + `<a href="#/sim/consegne" class="fine ${consegne ? 'attivo' : ''}">Consegne</a>`;
+      + (kit() ? `<a href="#/sim/consegne" class="fine ${consegne ? 'attivo' : ''}">Consegne</a>` : '');
     $('#st-passo').textContent = consegne ? 'Consegne' : `Passo ${i + 1}/5`;
     $('#st-nome').textContent = consegne ? '' : PASSI[i].nome;
     stato('Pronto', false);
@@ -248,8 +261,8 @@
     const c = camp();
     if (S.passo === 'dati') {
       registraLista([`Storico letto: ${ni(D.meta.righe_storico)} righe, dal ${gm(D.meta.storico_dal)} al ${gm(D.meta.storico_al)}`,
-        `Budget letto: ${Object.keys(D.adset).length} ad set, ${D.meta.giorni.length} giorni da prevedere`,
-        `Creatività lette: ${new Set(Object.values(D.ads).map(a => a.asset)).size}`,
+        `${Object.keys(D.adset).length} ad set, ${D.meta.giorni.length} giorni da prevedere`,
+        `Creatività: ${D.meta.creativita}`, ...D.meta.note.slice(0, 4).map(n => 'Nota: ' + accenti(n).split(':')[0]),
         ...D.anomalie.map(a => `Anomalia ${gm(a.data)} · ${a.dove.replace('_', ' ')}`), '✓ Dati pronti']);
     } else if (S.passo === 'pubblici') {
       registraLista([...c.adset.map(k => `${k} → ${TIPI[D.adset[k].tipo]} (${gente(D.adset[k].grandezza)})`), `✓ ${c.adset.length} pubblici immaginati per ${c.nome}`]);
@@ -261,24 +274,28 @@
 
   /* ---- 01 dati */
   function rDati(el) {
-    const st = D.stagione.cpm, sett = Object.keys(st).sort();
-    const nAds = Object.keys(D.ads).length, giorniSto = giorniTra(D.meta.storico_al, D.meta.storico_dal) + 1;
+    const M = D.meta, st = D.stagione.cpm, sett = Object.keys(st).sort();
+    const giorniSto = giorniTra(M.storico_al, M.storico_dal) + 1;
+    const nomeFile = f => String(f).split('/').pop().replace(/\.csv$/i, '');
     el.innerHTML = scheda('01', 'Lettura dei dati', FATTO, `
-        <p>Flockets legge lo storico giornaliero di ogni annuncio, il budget di ogni ad set, le creatività e il calendario.</p>
-        <dl class="tessere tre"><div><dd>${ni(D.meta.righe_storico)}</dd><dt>Righe di storico</dt></div><div><dd>${giorniSto}</dd><dt>Giorni</dt></div><div><dd>${nAds}</dd><dt>Annunci</dt></div></dl>
+        <p>Flockets legge lo storico giornaliero di ogni annuncio e, quando ci sono, il budget di ogni ad set, le creatività e il calendario.</p>
+        <dl class="tessere tre"><div><dd>${ni(M.righe_storico)}</dd><dt>Righe di storico</dt></div><div><dd>${giorniSto}</dd><dt>Giorni</dt></div><div><dd>${ni(M.annunci_storico)}</dd><dt>Annunci</dt></div></dl>
         <p class="sopra-chip mono">File letti</p>
-        <p class="chips mono"><span>storico_giornaliero</span><span>budget_giornaliero</span><span>annunci</span><span>asset_creativi</span><span>calendario</span><span>benchmark_mercato_2025</span></p>
+        <p class="chips mono">${M.file_letti.map(f => `<span>${esc(nomeFile(f))}</span>`).join('')}</p>
+        ${M.note.length ? `<p class="sopra-chip mono">Cosa mancava, e cosa ho fatto</p><ul class="avvisi">${M.note.map(n => `<li class="giallo">${esc(accenti(n))}</li>`).join('')}</ul>` : ''}
         <details><summary>Cosa serve al modello</summary><ul class="punti">
-          <li><b>Storico giornaliero per annuncio</b>: data, ad set, annuncio, spesa, impression, click. Con la copertura stima anche la grandezza del pubblico.</li>
+          <li><b>Obbligatorio: lo storico giornaliero per annuncio</b>, con data, annuncio, spesa, impression e click. I nomi delle colonne possono essere in italiano o in inglese.</li>
+          <li><b>Ad set, campagna e copertura</b>: per riconoscere i pubblici e stimarne la grandezza.</li>
           <li><b>Budget di ogni ad set</b>, giorno per giorno, compresi i giorni da prevedere.</li>
-          <li><b>Creatività</b>: leva, formato, testi e una descrizione di cosa si vede. Serve per stimare gli annunci senza storico.</li>
-          <li><b>Utili ma non obbligatori</b>: andamento del mercato dell’anno prima, calendario degli eventi, vendite.</li></ul></details>`, 'storico_giornaliero.csv · budget_giornaliero.csv · asset_creativi/')
-      + scheda('02', 'Controllo delle anomalie', [`${D.anomalie.length} trovate`, 'corso'], `
+          <li><b>Creatività</b>: leva, formato e una descrizione di cosa si vede. Serve per stimare gli annunci senza storico.</li>
+          <li><b>Andamento del mercato e calendario</b>: per la stagione.</li></ul></details>`, M.file_letti.slice(0, 3).map(nomeFile).join(' · '))
+      + scheda('02', 'Controllo delle anomalie', D.anomalie.length ? [`${D.anomalie.length} trovate`, 'corso'] : ['Nessuna', 'ok'], D.anomalie.length ? `
         <p>Giorni che romperebbero la stima se presi per buoni. Vengono esclusi.</p>
-        <ul class="avvisi">${D.anomalie.map(a => `<li class="giallo"><b>${gm(a.data)} · ${esc(a.dove.replace('_', ' '))}.</b> ${esc(a.cosa.charAt(0).toUpperCase() + a.cosa.slice(1))}.</li>`).join('')}</ul>`)
-      + scheda('03', 'Andamento del mercato', FATTO, `
-        <p>Il CPM del 2026 segue quello dell’anno prima spostato di 52 settimane. Ecco quanto costerà il mercato nelle settimane da prevedere, rispetto a settembre e ottobre.</p>
-        <dl class="tessere tre">${sett.map(w => `<div><dd>+${ni((Math.exp(st[w]) - 1) * 100)}%</dd><dt>Settimana del ${gm(w)}</dt></div>`).join('')}</dl>`)
+        <ul class="avvisi">${D.anomalie.map(a => `<li class="giallo"><b>${gm(a.data)} · ${esc(a.dove.replace('_', ' '))}.</b> ${esc(a.cosa.charAt(0).toUpperCase() + a.cosa.slice(1))}.</li>`).join('')}</ul>` : '<p>Nessun giorno senza click e nessuna spesa fuori budget.</p>')
+      + (M.stagione ? scheda('03', 'Andamento del mercato', FATTO, `
+        <p>Il costo del mercato cambia durante l’anno, e il CPM lo segue. Ecco quanto costerà nelle settimane da prevedere, rispetto al livello normale.</p>
+        <dl class="tessere tre">${sett.slice(0, 3).map(w => `<div><dd>${st[w] >= 0 ? '+' : ''}${ni((Math.exp(st[w]) - 1) * 100)}%</dd><dt>Settimana del ${gm(w)}</dt></div>`).join('')}</dl>`, M.stagione)
+        : scheda('03', 'Andamento del mercato', ['Non disponibile', 'neutro'], '<p>Nessun dato di mercato: la stagione è considerata piatta e la forchetta delle previsioni è più larga.</p>'))
       + scheda('04', 'Dati pronti', null, `<p>Il pubblico di ogni ad set non è nei dati: va immaginato.</p>${avanti('pubblici', 'Vai ai pubblici')}`);
   }
 
@@ -292,7 +309,7 @@
         <div class="profili">${c.adset.map(k => {
           const a = D.adset[k];
           return `<div class="profilo"><header><b>${TIPI[a.tipo]}</b><span class="mono">@${k}</span></header>
-            <p class="chips mono"><span>${gente(a.grandezza)}</span><span>CTR ${nf(a.ctr_rel)}×</span><span>CPM ${nf(a.cpm_rel)}×</span><span>frequenza ${nf(a.frequenza)}</span>${LEVE[a.leva] ? `<span>rende di più: ${LEVE[a.leva]}</span>` : ''}</p>
+            <p class="chips mono"><span>${gente(a.grandezza)}</span><span>CTR ${nf(a.ctr_rel)}×</span><span>CPM ${nf(a.cpm_rel)}×</span><span>frequenza ${nf(a.frequenza)}</span>${a.leva && a.leva !== 'nessuna differenza netta' ? `<span>rende di più: ${leva(a.leva)}</span>` : ''}</p>
             <p>${CHI[a.tipo](a.vertical)}</p><p class="nota">${esc(accenti(a.motivazione.charAt(0).toUpperCase() + a.motivazione.slice(1)))}.</p></div>`;
         }).join('')}</div>
         <p class="nota">La grandezza è un ordine di grandezza. L’età non è nei dati: resta un’ipotesi.</p>`, 'CPM · CTR · frequenza → pubblico')
@@ -313,6 +330,7 @@
     const sto = f => giorni.map(d => (H[d] && !H[d].anom ? H[d][f] : null));
     const sp = P.reduce((s, p) => s + p.spesa, 0), im = P.reduce((s, p) => s + p.imp, 0), ck = P.reduce((s, p) => s + p.clk, 0);
     const ev = {}; Object.entries(D.meta.eventi).forEach(([d, n]) => { if (/Black Friday|Cyber/.test(n)) ev[d] = n; });
+    if (!Object.keys(ev).length) Object.entries(D.meta.eventi).filter(([d]) => d >= D.meta.giorni[0] && d <= fine).slice(0, 2).forEach(([d, n]) => { ev[d] = n; });
     el.innerHTML = scheda('01', 'Simulazione dei 15 giorni', ['', 'ok', 'sim-stato'], `
         <p>Ogni giorno il modello prevede spesa, impression e click di ogni annuncio. A sinistra il pubblico reagisce.</p>
         <dl class="tessere tre" id="sim-cum"></dl>
@@ -321,7 +339,7 @@
         <div class="gruppo" role="tablist" aria-label="Pubblico">${c.adset.map(k => `<button data-as="${k}" aria-selected="${k === S.adset}">${TIPI[D.adset[k].tipo]}</button>`).join('')}</div>
         <div class="gruppo annunci" role="tablist" aria-label="Annuncio">${annunci.map(a => `<button data-ad="${a}" aria-selected="${a === S.ad}"><i class="punto leva-${D.ads[a].leva}"></i>${esc(D.ads[a].titolo)}</button>`).join('')}</div>
         <div class="annuncio">
-          <p class="chips mono"><span><i class="punto leva-${ad.leva}"></i>${LEVE[ad.leva]}</span><span>${ad.formato}</span>${ad.cold ? '<span class="avviso">mai vista</span>' : ''}</p>
+          <p class="chips mono"><span><i class="punto leva-${ad.leva}"></i>${leva(ad.leva)}</span><span>${ad.formato}</span><span class="aff-${P[0].aff}">affidabilità ${P[0].aff}</span><span>${STADI[P[0].stadio] || P[0].stadio}</span></p>
           <h4>${esc(ad.titolo)}</h4><p class="tenue">${esc(ad.visual)}</p>
           ${ad.cold ? '<p class="nota">Questa creatività non ha storico: la stima viene dalle sue caratteristiche, quindi la forchetta è larga.</p>' : ''}
         </div>
@@ -333,7 +351,7 @@
           <div class="scorri"><table><thead><tr><th>Giorno</th><th>CTR</th><th>tra</th><th>CPM</th><th>tra</th><th>Click</th></tr></thead>
           <tbody>${P.map(p => `<tr><td>${NOMI_G[dow(p.d)].slice(0, 3)} ${gm(p.d)}</td><td>${nf(p.ctr)}%</td><td>${nf(p.c10)} – ${nf(p.c90)}</td><td>${nf(p.cpm)} €</td><td>${nf(p.m10)} – ${nf(p.m90)}</td><td>${ni(p.clk)}</td></tr>`).join('')}</tbody></table></div>
         </details>
-        <p><a class="pulsante bordo" href="data/previsioni_16-30_nov.csv" download>Scarica tutte le previsioni (CSV)</a></p>`, `${ni(D.meta.righe_previste)} righe · ${D.meta.annunci_previsti} annunci · ${D.meta.righe_cold} righe su creatività mai viste`)
+        <p><a class="pulsante bordo" href="${scarico()}" download="${D.meta.file_previsioni}">Scarica tutte le previsioni (CSV)</a></p>`, `${ni(D.meta.righe_previste)} righe · affidabilità: ${['alta', 'media', 'bassa'].map(a => (D.meta.affidabilita[a] || 0) + ' ' + a).join(', ')}`)
       + scheda('03', 'Simulazione pronta', null, `<p>Con le previsioni in mano si decide: quanto budget, dove, e quale creatività.</p>${avanti('decisioni', 'Vai alle decisioni')}`);
     const oggi = giorni.indexOf(D.meta.giorni[0]);
     Grafici.linee($('#g-ctr'), {
@@ -391,7 +409,7 @@
         <p class="nota">Il CPM sale quando si spinge su un pubblico: con il doppio del budget arriva circa il ${ni((Math.pow(2, 1 - e) - 1) * 100)}% di click in più, non il 100%. Click non vuol dire vendite: il pubblico ampio alimenta quelli caldi.</p>`, `CPM × (budget ÷ budget previsto)^${nf(e)}`)
       + scheda('02', 'Quale creatività, e quando cambiarla', FATTO, `
         <ul class="avvisi">
-          ${stanche.map(x => `<li class="rosso"><b>Da sostituire.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) al 30/11 avrà perso il ${ni((1 - x.fat) * 100)}% della forza iniziale.</li>`).join('')}
+          ${stanche.map(x => `<li class="rosso"><b>Da sostituire.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) al ${gm(D.meta.giorni[D.meta.giorni.length - 1])} avrà perso il ${ni((1 - x.fat) * 100)}% della forza iniziale.</li>`).join('')}
           ${migliori.map(x => `<li class="verde"><b>Rende di più in ${breve(x.ad.adset)}.</b> «${esc(x.ad.titolo)}»: ${nf(x.cpc)} € a click.</li>`).join('')}
           ${nuove.map(x => `<li class="giallo"><b>Mai vista.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) parte il ${gm(x.primo.d)}: CTR stimato ${nf(x.primo.ctr)}%, ma può stare tra ${nf(x.primo.a10)} e ${nf(x.primo.a90)}. Da controllare dopo tre giorni.</li>`).join('')}
         </ul>
@@ -424,16 +442,18 @@
   function leggiTesto(t) {
     const s = t.toLowerCase(), f = {};
     Object.entries(D.par.feat_regole).forEach(([k, rx]) => { f[k] = new RegExp(rx).test(s) ? 1 : 0; });
-    const formato = /video|reel|secondi|filmato/.test(s) ? 'video' : /carosello|schede|slide/.test(s) ? 'carosello' : 'immagine';
-    const leva = /black/.test(s) ? 'black_friday' : /solo oggi|scade|mezzanotte|24 ore|48 ore|countdown|timer|fino a domenica|stanotte/.test(s) ? 'urgency' : 'scarcity';
-    return { f, formato, leva };
+    const c = (x, lista) => (lista.includes(x) ? x : lista[0]);
+    const formato = c(/video|reel|secondi|filmato/.test(s) ? 'video' : /carosello|schede|slide/.test(s) ? 'carosello' : 'immagine', D.par.formati);
+    const lv = c(/black/.test(s) ? 'black_friday' : /solo oggi|scade|mezzanotte|24 ore|48 ore|countdown|timer|fino a domenica|stanotte/.test(s) ? 'urgency' : 'scarcity', D.par.leve);
+    return { f, formato, leva: lv };
   }
   function logFatica(eta, leva) {
     const lf = k => { const [fl, tau] = D.par.fatica[k]; return Math.log(fl + (1 - fl) * Math.exp(-eta / tau)); };
     return leva === 'scarcity' ? lf('scarcity') : leva === 'urgency' ? lf('urgency') : 0.5 * (lf('scarcity') + lf('urgency'));
   }
   function stima(c, L) {
-    const P = D.par, x = Object.assign({}, L.f, { video: L.formato === 'video' ? 1 : 0, carosello: L.formato === 'carosello' ? 1 : 0, urgency: L.leva === 'urgency' ? 1 : 0, black_friday: L.leva === 'black_friday' ? 1 : 0 });
+    const P = D.par, x = Object.assign({}, L.f);
+    P.feat_cols.forEach(k => { if (k === L.formato || k === L.leva) x[k] = 1; });
     let beta = P.feat_w[0];
     P.feat_cols.forEach((k, i) => { beta += P.feat_w[i + 1] * (x[k] || 0); });
     const giorni = D.meta.giorni.filter(d => d >= L.lancio).slice(0, 7);
@@ -455,7 +475,7 @@
   }
   function rLaboratorio(el) {
     const c = camp();
-    if (!S.lab) { const t = S.testoConsole || ESEMPIO; S.lab = Object.assign({ testo: t, lancio: D.meta.giorni[0] }, leggiTesto(t)); }
+    if (!S.lab) { const t = S.testoConsole || ESEMPIO; S.lab = Object.assign({ testo: t, lancio: D.meta.giorni[0], budget: null }, leggiTesto(t)); }
     const L = S.lab;
     el.innerHTML = scheda('01', 'Descrivi l’annuncio', ['Interattivo', 'neutro'], `
         <label class="nascosta" for="lab-testo">Descrizione dell’annuncio</label>
@@ -463,9 +483,10 @@
         <p><button class="pulsante nero" id="lab-leggi">Leggi la descrizione</button></p>
         <p class="nota">Flockets riconosce le caratteristiche che nello storico spostano il CTR. Puoi correggerle a mano.</p>
         <div class="campi">
-          <label>Formato <select id="lab-formato">${['immagine', 'video', 'carosello'].map(v => `<option${v === L.formato ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
-          <label>Leva <select id="lab-leva">${Object.entries(LEVE).map(([v, n]) => `<option value="${v}"${v === L.leva ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+          <label>Formato <select id="lab-formato">${D.par.formati.map(v => `<option${v === L.formato ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
+          <label>Leva <select id="lab-leva">${D.par.leve.map(v => `<option value="${v}"${v === L.leva ? ' selected' : ''}>${leva(v)}</option>`).join('')}</select></label>
           <label>Lancio <select id="lab-lancio">${D.meta.giorni.slice(0, 12).map(d => `<option value="${d}"${d === L.lancio ? ' selected' : ''}>${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('')}</select></label>
+          <label>Budget al giorno, € <input type="number" id="lab-budget" min="1" step="1" inputmode="numeric" placeholder="facoltativo" value="${L.budget || ''}"></label>
         </div>
         <div class="spunte">${Object.entries(CARATT).map(([k, n]) => `<label><input type="checkbox" data-f="${k}"${L.f[k] ? ' checked' : ''}> ${n}</label>`).join('')}</div>`, 'descrizione → caratteristiche → qualità stimata')
       + `<div id="lab-esito"></div>`
@@ -478,13 +499,13 @@
         ${r.righe.map(x => `
           <div class="lab-riga${x.k === top.k ? ' top' : ''}">
             <div class="lab-nome"><b>${TIPI[D.adset[x.k].tipo]}</b><span class="sigla mono">${breve(x.k)}</span></div>
-            <div class="lab-num"><b>${ni(x.per100)}</b> click ogni 100 €</div>
+            <div class="lab-num">${L.budget ? `<b>${ni(L.budget * D.par.spesa_su_budget * x.per100 / 100)}</b> click al giorno con ${ni(L.budget)} €` : `<b>${ni(x.per100)}</b> click ogni 100 €`}</div>
             <div class="barra-o"><i style="width:${(x.per100 / max * 100).toFixed(1)}%"></i></div>
             <div class="lab-det mono">CTR ${nf(x.ctr)}% (tra ${nf(x.ctr / su)} e ${nf(x.ctr * su)}) · CPM ${nf(x.cpm)} € · ${nf(x.cpc)} € a click</div>
           </div>`).join('')}
         <p class="nota">Media dei primi ${r.giorni} giorni dal lancio. L’annuncio non ha storico, quindi la forchetta è larga. Rende di più su <b>${TIPI[D.adset[top.k].tipo]}</b>.</p>`);
       palco.prova(r, L);
-      if (scrivi) registra(`Annuncio provato (${LEVE[L.leva]}, ${L.formato}): rende di più su ${TIPI[D.adset[top.k].tipo]}, ${ni(top.per100)} click ogni 100 €`);
+      if (scrivi) registra(`Annuncio provato (${leva(L.leva)}, ${L.formato}): rende di più su ${TIPI[D.adset[top.k].tipo]}, ${ni(top.per100)} click ogni 100 €`);
     };
     const campi = () => {
       $('#lab-formato').value = L.formato; $('#lab-leva').value = L.leva;
@@ -494,6 +515,7 @@
     $('#lab-formato').addEventListener('change', e => { L.formato = e.target.value; esito(true); });
     $('#lab-leva').addEventListener('change', e => { L.leva = e.target.value; esito(true); });
     $('#lab-lancio').addEventListener('change', e => { L.lancio = e.target.value; esito(true); });
+    $('#lab-budget').addEventListener('input', e => { L.budget = +e.target.value || null; esito(false); });
     $$('.spunte input', el).forEach(i => i.addEventListener('change', () => { L.f[i.dataset.f] = i.checked ? 1 : 0; esito(true); }));
     esito(true);
   }
@@ -509,7 +531,7 @@
       + scheda('02', 'Le previsioni', FATTO, `
         <p><b>${ni(D.meta.righe_previste)} righe</b>: ${D.meta.annunci_previsti} annunci, ogni giorno dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}. Per ogni riga CTR e CPM con la loro forchetta, più costo per click, spesa, impression e click.</p>
         <p>${D.meta.righe_cold} righe riguardano creatività mai viste nello storico: sono stimate dalle caratteristiche dell’annuncio.</p>
-        <p><a class="pulsante nero" href="data/previsioni_16-30_nov.csv" download>Scarica il file (CSV)</a></p>`, 'previsioni_16-30_nov.csv')
+        <p><a class="pulsante nero" href="${scarico()}" download="${D.meta.file_previsioni}">Scarica il file (CSV)</a></p>`, D.meta.file_previsioni)
       + scheda('03', 'Il ragionamento', FATTO, `
         <p>Lo storico segue una struttura a fattori che si moltiplicano. Ogni fattore è stimato dai dati.</p>
         <pre class="formula">CTR = qualità dell’asset × pubblico × fatica × stagione × giorno
@@ -528,6 +550,12 @@ CPM = livello del pubblico × stagione × giorno
         <div class="scorri"><table><thead><tr><th>Errore medio</th><th>Flockets</th><th>«Come gli ultimi 7 giorni»</th></tr></thead><tbody>
           ${riga('CPM, tutti gli annunci', 'tutti', 'cpm')}${riga('CPM, annunci nuovi', 'annunci nuovi', 'cpm')}${riga('CTR, tutti gli annunci', 'tutti', 'ctr')}${riga('CTR, annunci nuovi', 'annunci nuovi', 'ctr')}
         </tbody></table></div>
+        ${D.generalizzazione && D.generalizzazione.length ? `<h4>Vale anche su un inserzionista mai visto?</h4>
+        <p>Abbiamo tolto un inserzionista alla volta. I fattori comuni (fatica, giorno della settimana, effetto del budget, peso delle caratteristiche creative) li abbiamo stimati solo sugli altri due; di lui abbiamo stimato soltanto i livelli.</p>
+        <div class="scorri"><table><thead><tr><th>Errore medio</th><th>CPM</th><th>CTR</th></tr></thead><tbody>
+          ${D.generalizzazione.map(x => `<tr><td>${x.storia}, ${x.modello}</td><td>${nf(x.cpm, 1)}%</td><td>${nf(x.ctr, 1)}%</td></tr>`).join('')}
+        </tbody></table></div>
+        <p class="nota">I fattori imparati dagli altri valgono quanto quelli imparati sui suoi dati, e aiutano quando lo storico è corto. È una prova dentro il kit, che è fatto di dati simulati.</p>` : ''}
         <h4>Dove siamo più incerti</h4>
         <ul class="punti"><li>Nello storico non c’è un Black Friday, né un aumento di budget su più ad set insieme.</li><li>L’effetto del budget sul CPM viene da un solo ad set.</li><li>Le creatività mai viste hanno una forchetta larga.</li></ul>
         <p>I pubblici immaginati, con i numeri che li motivano, sono al <a href="#/sim/pubblici">passo 2</a>.</p>`, 'README · video di 3 minuti');
@@ -571,23 +599,70 @@ CPM = livello del pubblico × stagione × giorno
     const lista = Array.from(files).filter(f => /\.csv$/i.test(f.name) || f.type === 'text/csv');
     if (!lista.length) { out.innerHTML = '<p class="errore mono">Serve un file CSV.</p>'; return; }
     out.innerHTML = '<p class="tenue mono">Leggo…</p>';
-    Promise.all([dati(), ...lista.map(f => f.text().then(t => ({ nome: f.name, righe: leggiCSV(t) })))]).then(([, ...letti]) => {
-      const st = letti.map(x => Object.assign({ nome: x.nome }, controllaStorico(x.righe))).filter(x => x.ok).sort((a, b) => b.n - a.n)[0];
-      if (!st) { out.innerHTML = '<p class="errore mono">Non trovo lo storico giornaliero. Servono le colonne: data, ad_id, adset_id, spesa, impression, click.</p>'; return; }
-      const kit = st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000;
-      $('#file-nome').textContent = st.nome;
+    Promise.all([dati(), ...lista.map(f => f.text().then(t => ({ nome: f.webkitRelativePath || f.name, testo: t })))]).then(([, ...letti]) => {
+      const st = letti.map(x => Object.assign({ nome: x.nome }, controllaStorico(leggiCSV(x.testo)))).filter(x => x.ok).sort((a, b) => b.n - a.n)[0];
+      S.file = letti;
+      S.fileKit = !!st && st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000 && kit();
+      $('#file-nome').textContent = letti.length === 1 ? letti[0].nome : letti.length + ' file caricati';
       out.innerHTML = `<ul class="controlli mono">
-          <li class="si">${ni(st.n)} righe · ${st.ads} annunci · dal ${gm(st.min)} al ${gm(st.max)}</li>
-          ${st.note.map(x => `<li class="attento">${esc(x)}</li>`).join('') || '<li class="si">Nessuna anomalia evidente</li>'}
-          <li class="${kit ? 'si' : 'attento'}">${kit ? 'È il kit della sfida: pronto per la simulazione' : 'Non è il kit della sfida: per calcolare previsioni su dati nuovi va lanciato il motore dal codice. La demo continua sui dati della sfida.'}</li>
-        </ul>`;
+          ${st ? `<li class="si">${ni(st.n)} righe · ${st.ads} annunci · dal ${gm(st.min)} al ${gm(st.max)}</li>` : '<li class="attento">Colonne con nomi diversi dal solito: provo a riconoscerle al calcolo</li>'}
+          ${st ? (st.note.map(x => `<li class="attento">${esc(x)}</li>`).join('') || '<li class="si">Nessuna anomalia evidente</li>') : ''}
+          <li class="si">${S.fileKit ? 'È il kit della sfida: uso le previsioni già calcolate' : 'Flockets calcolerà le previsioni su questi dati, qui nel browser: i file non lasciano il tuo computer'}</li>
+        </ul><p><button class="testo-link mono" id="togli-file">Torna ai dati della sfida</button></p>`;
+      $('#togli-file').addEventListener('click', () => { S.file = null; S.fileKit = true; out.innerHTML = ''; $('#file-ingresso').value = ''; $('#file-nome').textContent = 'kit della sfida · storico_giornaliero.csv'; $('.avviso-barra').textContent = 'Demo sui dati della sfida: le previsioni sono già state calcolate dal motore.'; });
+      $('.avviso-barra').textContent = S.fileKit ? 'Demo sui dati della sfida: le previsioni sono già state calcolate dal motore.' : 'Il calcolo avviene nel tuo browser. La prima volta scarica il motore: può volerci mezzo minuto.';
     });
+  }
+  // Zona «Ho capito»: mostra cosa il sito legge dal testo (formato, leva, caratteristiche) e lascia correggere
+  function rCapito(rileggi) {
+    if (!D) return;
+    const testo = $('#richiesta').value.trim(), box = $('#capito');
+    if (!$('#br-lancio').options.length) $('#br-lancio').innerHTML = D.meta.giorni.slice(0, 12).map(d => `<option value="${d}">${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('');
+    box.hidden = !testo;
+    if (!testo) { S.brief = null; return; }
+    if (rileggi || !S.brief) S.brief = leggiTesto(testo);
+    const B = S.brief;
+    $('#capito-chips').innerHTML =
+      D.par.formati.map(v => `<span data-k="formato" data-v="${v}" class="${v === B.formato ? 'si' : ''}">${v}</span>`).join('')
+      + D.par.leve.map(v => `<span data-k="leva" data-v="${v}" class="${v === B.leva ? 'si' : ''}">${leva(v)}</span>`).join('')
+      + Object.entries(CARATT).map(([k, n]) => `<span data-k="f" data-v="${k}" class="${B.f[k] ? 'si' : ''}">${n}</span>`).join('');
+    $$('#capito-chips span').forEach(s => s.addEventListener('click', () => {
+      if (s.dataset.k === 'f') B.f[s.dataset.v] = B.f[s.dataset.v] ? 0 : 1; else B[s.dataset.k] = s.dataset.v;
+      rCapito(false);
+    }));
+  }
+  // «Avvia la simulazione»: il kit è già calcolato; per altri file il motore gira nel browser
+  function avvia() {
+    const b = $('#avvia'), out = $('#esito-file');
+    S.testoConsole = $('#richiesta').value.trim();
+    const brief = S.brief, budget = +$('#br-budget').value || null, lancio = $('#br-lancio').value;
+    const parti = () => {
+      $('#registro').innerHTML = ''; S.visti = {};
+      S.lab = S.testoConsole ? Object.assign({ testo: S.testoConsole, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
+        brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(S.testoConsole)) : null;
+      location.hash = '#/sim/dati';
+    };
+    if (!S.file || S.fileKit) {
+      if (D && !kit()) { datiP = null; D = null; }   // si torna ai dati della sfida
+      dati().then(parti);
+      return;
+    }
+    b.disabled = true;
+    const stato = m => { b.firstElementChild.textContent = m; };
+    MotoreFlockets.analizza(S.file, stato).then(d => {
+      usa(d);
+      registra('Motore eseguito nel browser su ' + S.file.length + ' file');
+      parti();
+    }).catch(err => {
+      out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`);
+    }).finally(() => { b.disabled = false; b.firstElementChild.textContent = 'Avvia la simulazione'; });
   }
 
   /* ------------------------------------------------------------------ avvio */
   function inizio() {
     Flock.carica().then(() => { new Flock.Scena($('#folla'), { scala: 4, altezza: 390, contorno: true, ombra: false, linea: false, suolo: 0 }).folla(); });
-    $('#avvia').addEventListener('click', () => { S.testoConsole = $('#richiesta').value.trim(); S.lab = null; S.visti = {}; $('#registro').innerHTML = ''; location.hash = '#/sim/dati'; });
+    $('#avvia').addEventListener('click', avvia);
+    $('#richiesta').addEventListener('input', () => (D ? rCapito(true) : dati().then(() => rCapito(true))));
     $('#file-ingresso').addEventListener('change', e => suFile(e.target.files));
     const z = $('#zona-file');
     ['dragenter', 'dragover'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); z.classList.add('sopra'); }));

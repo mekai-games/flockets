@@ -11,12 +11,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body data-vista="benvenuto">
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="marchio" viewBox="0 0 48 48"><circle cx="37" cy="24" r="5.5"/><circle cx="25.5" cy="15.5" r="4.6"/><circle cx="25.5" cy="32.5" r="4.6"/><circle cx="14" cy="7.5" r="3.8"/><circle cx="14" cy="40.5" r="3.8"/></symbol>
+  <symbol id="marchio" viewBox="0 0 48 48"><path d="M41 19.4Q36.5 22.5 32 24Q36.5 25.5 41 28.6Z" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/><circle cx="41" cy="24" r="5"/><path d="M32.7 12.82Q24.8 15.35 18.28 12.37Q24.1 17.65 32.7 20.18Z" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/><circle cx="32.7" cy="16.5" r="4"/><path d="M32.7 27.82Q24.1 30.35 18.28 35.63Q24.8 32.65 32.7 35.18Z" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/><circle cx="32.7" cy="31.5" r="4"/><path d="M24.4 5.78Q14.93 8.04 7.96 1.68Q14.07 9.96 24.4 12.22Z" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/><circle cx="24.4" cy="9" r="3.5"/><path d="M24.4 35.78Q14.07 38.04 7.96 46.32Q14.93 39.96 24.4 42.22Z" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/><circle cx="24.4" cy="39" r="3.5"/></symbol>
 </svg>
 
 <!-- 1. HOME -->
@@ -47,7 +47,7 @@
     <div class="console-sx">
       <p class="mono etichetta-m">■ Stato del sistema</p>
       <h2>Motore pronto</h2>
-      <p class="tenue">Dati della sfida caricati: tre campagne, 91 giorni di storico.</p>
+      <p class="tenue">Pronto con i dati della sfida. Oppure carica il tuo storico: basta un CSV con data, annuncio, spesa, impression e click.</p>
       <p class="mono etichetta-m spazio">◇ Passi</p>
       <ol class="passi-lista">
         <li><span>01</span><div><b>Dati</b><p>Lettura di storico, budget e creatività; ricerca delle anomalie.</p></div></li>
@@ -66,7 +66,15 @@
         <div id="esito-file" aria-live="polite"></div>
         <div class="divisore"><span class="mono">Parametri</span></div>
         <div class="scatola-riga"><label class="mono" for="richiesta">&gt;_ 02 / Annuncio da provare (facoltativo)</label></div>
-        <textarea id="richiesta" class="mono" rows="4" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
+        <textarea id="richiesta" class="mono" rows="3" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
+        <div class="capito" id="capito" hidden>
+          <p class="mono etichetta-m">Ho capito (tocca per correggere)</p>
+          <div class="chips mono" id="capito-chips"></div>
+        </div>
+        <div class="campi due">
+          <label>Budget al giorno, in euro <input type="number" id="br-budget" min="1" step="1" inputmode="numeric" placeholder="facoltativo"></label>
+          <label>Giorno di lancio <select id="br-lancio"></select></label>
+        </div>
         <p class="mono motore">Motore: Flockets v0.1</p>
         <button class="avvia" id="avvia"><span>Avvia la simulazione</span><span aria-hidden="true">→</span></button>
         <p class="avviso-barra mono">Demo sui dati della sfida: le previsioni sono già state calcolate dal motore.</p>
@@ -111,8 +119,9 @@
   </div>
 </section>
 
-<script src="js/scena.js?v=10"></script>
-<script src="js/grafici.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/scena.js?v=14"></script>
+<script src="js/motore.js?v=14"></script>
+<script src="js/grafici.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
 </body>
 </html>

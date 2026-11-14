@@ -43,14 +43,14 @@ Il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo
 python3 -m http.server 4173 --directory web
 ```
 
-Le proposte di logo sono in [`design/loghi.html`](design/loghi.html).
+Il logo è in [`design/logo.svg`](design/logo.svg); le proposte scartate sono nelle altre pagine di `design/`.
 
 ### Il motore
 
-Il motore è in Python e usa solo `numpy` e `pandas`.
+Il motore è il pacchetto Python [`flockets/`](flockets/) e usa solo `numpy` e `pandas`.
 
 ```bash
-python3 modello/run.py
+python3 esegui.py dati --sito --nome previsioni_16-30_nov
 ```
 
 Il kit dei dati della sfida va messo nella cartella `dati/` (non è incluso in questo repository).
@@ -61,25 +61,61 @@ Il comando rifà tutto da zero in pochi secondi e scrive in `output/`:
 | `previsioni_16-30_nov.csv` | le previsioni, una riga per annuncio e giorno |
 | `pubblici_adset.csv` | il pubblico proposto per ogni ad set, con i numeri che lo motivano |
 | `scenario_budget.csv` | dove spostare il budget dentro ogni campagna, a spesa invariata |
-| `validazione_backtest.csv` | la prova sullo storico: errore del modello contro un riferimento ingenuo |
+| `validazione_backtest.csv` | la prova sul passato: errore del modello contro un riferimento ingenuo |
+| `prova_generalizzazione.csv` | la prova su un inserzionista mai visto |
 | `parametri_modello.json` | i parametri stimati (fatica, elasticità al budget, giorno della settimana...) |
 
-Per aggiornare i dati che il sito legge:
+### Non solo il kit: qualsiasi storico
+
+Il motore non è legato ai file della sfida. Gli basta **un CSV con data, annuncio, spesa, impression e click**;
+i nomi delle colonne possono essere in italiano o in inglese (per esempio l'esportazione di Meta), le date
+all'italiana, i decimali con la virgola.
 
 ```bash
-python3 modello/export_web.py
+python3 esegui.py cartella_con_il_mio_storico
 ```
+
+Tutto il resto è facoltativo e migliora la previsione: ad set e campagna, copertura, budget, date di lancio,
+creatività con leva e descrizione, calendario, andamento del mercato. Ogni cosa che manca viene sostituita
+con una scelta prudente e **dichiarata**: il motore scrive cosa mancava e cosa ha fatto.
+
+Sul sito si può caricare lo stesso file: il motore gira **dentro il browser**, i dati non vengono inviati a
+nessun server.
+
+Come è costruito:
+
+- **Fattori comuni e livelli propri.** Fatica della creatività, giorno della settimana, effetto del budget e
+  peso delle caratteristiche creative sono comuni a tutti. Il livello di ogni ad set e di ogni creatività è
+  proprio di quello storico. Se lo storico è troppo corto per stimare i fattori comuni, entrano i *valori di
+  base* ([`flockets/valori_base.json`](flockets/valori_base.json)).
+- **Stadio e affidabilità** su ogni riga: `storico`, `primi dati`, `mai vista`, `dopo modifica`,
+  `fuori dominio`; affidabilità alta, media o bassa secondo la larghezza della forchetta.
+- **Stagione a scelta**: indice settimanale di mercato se c'è, altrimenti CPM mensile, altrimenti piatta con
+  forchetta più larga.
+
+Quanto perde quando i dati sono poveri (stessa prova: 14 giorni nascosti dal 2 al 15 novembre):
+
+| Dati a disposizione | Errore CPM | Errore CTR |
+|---|---|---|
+| Kit completo | 6,1% | 14,9% |
+| Senza indice settimanale, con il CPM mensile | 8,2% | 14,8% |
+| Senza alcun dato di mercato | 9,8% | 14,8% |
+| Solo lo storico, colonne in inglese, niente budget né creatività | 7,8% | 17,1% |
+
+L'ultima riga riguarda solo gli annunci già attivi: senza la tabella degli annunci futuri quelli nuovi non
+si possono prevedere.
 
 ### Come è diviso il codice
 
-| Cartella | Cosa c'è |
+| File | Cosa fa |
 |---|---|
-| [`modello/wevion_model.py`](modello/wevion_model.py) | il motore: lettura dati, stagionalità, modello CTR, modello CPM, quote di spesa, incertezza, validazione |
-| [`modello/run.py`](modello/run.py) | esegue stima, validazione e previsioni, scrive `output/` |
-| [`modello/export_web.py`](modello/export_web.py) | prepara `web/data/analisi.json` per il sito |
-| [`web/`](web/) | il sito: `index.html`, `style.css`, `js/scena.js` (omini), `js/grafici.js` (grafici), `js/app.js` (schede) |
+| [`flockets/contratto.py`](flockets/contratto.py) | il contratto dei dati: riconosce le colonne, controlla, riempie ciò che manca |
+| [`flockets/motore.py`](flockets/motore.py) | il modello: stagione, CTR, CPM, quote di spesa, incertezza, stadio, prova sul passato |
+| [`flockets/rapporto.py`](flockets/rapporto.py) | pubblici, scenario di budget, prova di generalizzazione, dati per il sito |
+| [`esegui.py`](esegui.py) | esegue tutto da riga di comando |
+| [`web/`](web/) | il sito: `js/scena.js` (omini), `js/grafici.js` (grafici), `js/motore.js` (il motore nel browser), `js/app.js` |
 | [`strumenti/atlante.py`](strumenti/atlante.py) | unisce i fogli di animazione dei personaggi in una sola immagine |
-| [`output/`](output/) | i risultati del motore |
+| [`design/`](design/) | logo e proposte di logo |
 
 ---
 
@@ -189,6 +225,20 @@ Ripetuto su quattro date diverse.
 
 Il CPM oscilla da solo di circa il 7% al giorno, quindi il 6% è vicino al minimo possibile. Le forchette
 all'80% contengono il valore vero l'82-88% delle volte.
+
+**Vale anche su un inserzionista mai visto?** Abbiamo tolto un inserzionista alla volta: i fattori comuni
+sono stati stimati solo sugli altri due, di lui soltanto i livelli.
+
+| Errore medio | CPM | CTR |
+|---|---|---|
+| Storico intero, fattori comuni dagli altri | 6,1% | 15,3% |
+| Storico intero, tutto dai suoi dati | 6,1% | 14,9% |
+| 3 settimane di storico, fattori comuni dagli altri | 6,2% | 16,2% |
+| 3 settimane di storico, tutto dai suoi dati | 6,4% | 17,2% |
+| «Resta come gli ultimi 7 giorni» | 8,8% | 23,6% |
+
+I fattori imparati dagli altri valgono quanto quelli imparati sui suoi dati, e aiutano quando lo storico è
+corto. È una prova dentro il kit, che è fatto di dati simulati: su dati veri va rifatta.
 
 Cosa questa prova non copre, e quindi dove la previsione è più incerta:
 
