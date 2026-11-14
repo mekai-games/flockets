@@ -20,10 +20,12 @@ window.Analisi = (function () {
   const somma0 = a => a.reduce((s, x) => s + (x || 0), 0);
   const VERDE = 'var(--verde)', ARANCIO = 'var(--arancio)', BLU = 'var(--blu)', VIOLA = '#8B5CF6', INCHIOSTRO = '#111113', GRIGIO = '#9A9A94';
   const BORDO = { compra: '#22A85A', clicca: '#F26A1D', passa: '#A7A7AE' };   // colori del perimetro degli omini
-  const COLORE_TIPO = { ampio: BLU, interessi: ARANCIO, sosia: VIOLA, caldo: VERDE, retargeting: VERDE, unico: BLU };
-  const NOMI_PUBBLICO = { ampio: 'Pubblico ampio', interessi: 'Interessi', sosia: 'Sosia dei clienti', caldo: 'Già vicini al marchio', retargeting: 'Già vicini al marchio', unico: 'Tutto il pubblico' };
-  const FRASI_PUBBLICO = { ampio: 'Tutti, decide la piattaforma', interessi: 'Chi segue la categoria', sosia: 'Simili a chi compra', caldo: 'Chi conosce già il marchio', retargeting: 'Chi ha già visitato il sito', unico: 'L’unico pubblico della campagna' };
-  const CANALI = { social: 'Facebook e Instagram', video_brevi: 'TikTok e Reels', ricerca: 'ricerca Google', shopping: 'Google Shopping', display: 'banner su siti e app', video: 'YouTube', email: 'email' };
+  const COLORE_TIPO = { ampio: BLU, interessi: ARANCIO, sosia: VIOLA, caldo: VERDE, retargeting: VERDE, unico: BLU, mirato: '#E0457B' };
+  const NOMI_PUBBLICO = { ampio: 'Pubblico ampio', interessi: 'Interessi', sosia: 'Sosia dei clienti', caldo: 'Già vicini al marchio', retargeting: 'Già vicini al marchio', unico: 'Tutto il pubblico', mirato: 'Pubblico mirato' };
+  const FRASI_PUBBLICO = { ampio: 'Tutti, decide la piattaforma', interessi: 'Chi segue la categoria', sosia: 'Simili a chi compra', caldo: 'Chi conosce già il marchio', retargeting: 'Chi ha già visitato il sito', unico: 'L’unico pubblico della campagna', mirato: 'Chi rende di più, scelto dall’analisi' };
+  const CANALI = { social: 'Facebook e Instagram', video_brevi: 'TikTok e Reels', ricerca: 'ricerca Google', shopping: 'Google Shopping', display: 'banner su siti e app', video: 'YouTube', email: 'email', linkedin: 'LinkedIn',
+    tv: 'TV', radio: 'radio', affissioni: 'cartelloni', stampa: 'giornali e riviste' };
+  const OFFLINE = ['tv', 'radio', 'affissioni', 'stampa'];
   const FORMATI = { immagine: 'immagine', carosello: 'carosello', video_breve: 'video breve', video: 'video', testo: 'annuncio di testo' };
   const CATEGORIE = { moda: 'moda', beauty: 'bellezza e cura della pelle', animali: 'animali', videogiochi: 'videogiochi', tecnologia: 'tecnologia', casa_arredo: 'casa e arredo',
     cibo_bevande: 'cibo e bevande', sport_fitness: 'sport e fitness', viaggi: 'viaggi', salute_benessere: 'salute e benessere', bambini_famiglia: 'bambini e famiglia',
@@ -48,7 +50,10 @@ window.Analisi = (function () {
     acquisti: { plur: 'acquisti', sing: 'acquisto', fatto: ['Ha comprato', 'Ha comprato'], costo: 'Costo per acquisto', ogni: 'ad acquisto' },
     download: { plur: 'download', sing: 'download', fatto: ['Ha scaricato', 'Ha scaricato'], costo: 'Costo per download', ogni: 'a download' },
     iscrizioni: { plur: 'iscrizioni', sing: 'iscrizione', fatto: ['Si è iscritta', 'Si è iscritto'], costo: 'Costo per iscrizione', ogni: 'a iscrizione' },
+    contatti: { plur: 'contatti', sing: 'contatto', fatto: ['Ha chiesto un contatto', 'Ha chiesto un contatto'], costo: 'Costo per contatto', ogni: 'a contatto' },
   };
+  // dal tipo di risultato del testo al tipo di conversione del motore
+  const CONVERSIONE = { acquisti: 'acquisto', contatti: 'contatto', iscrizioni: 'iscrizione', download: 'download' };
 
   let M = null, sorgente = null, nuovaDati = null, contesto = {}, modo = 'persone', scena = null, punti = null, scelto = null, filtroPub = 'tutti', segui = null;
   const es = { metrica: 'acq', vista: 'giorno', divisione: 'totale' };
@@ -61,9 +66,11 @@ window.Analisi = (function () {
     const num = x => parseFloat(String(x).replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
     const spec = { testo_annuncio: testo, descrizione_prodotto: testo };
     const canali = [[/tiktok|\breels?\b|\bshorts?\b/, 'video_brevi'], [/youtube/, 'video'], [/shopping/, 'shopping'], [/google|ricerca|\bsearch\b|parole chiave/, 'ricerca'],
-      [/banner|display/, 'display'], [/e-?mail|newsletter/, 'email'], [/instagram|facebook|\bmeta\b|social|stori/, 'social']];
+      [/banner|display/, 'display'], [/e-?mail|newsletter/, 'email'], [/linkedin/, 'linkedin'], [/instagram|facebook|\bmeta\b|social|stori/, 'social'],
+      [/\btv\b|televisi|spot televis/, 'tv'], [/\bradio\b/, 'radio'], [/cartellon|affission|manifest|billboard/, 'affissioni'], [/giornal|rivist|quotidian/, 'stampa']];
     const c = canali.find(([rx]) => rx.test(s));
     spec.canale = c ? c[1] : 'social';
+    spec.canale_indicato = !!c;   // se il testo non lo dice, il mezzo lo sceglie la strategia per il target
     let resto = s;
     const g = s.match(/(\d+)\s*(?:giorni|gg)\b/), sett = s.match(/(\d+)\s*settiman/);
     if (g) spec.giorni = +g[1]; else if (sett) spec.giorni = 7 * sett[1]; else if (/un mese|1 mese/.test(s)) spec.giorni = 30;
@@ -82,7 +89,7 @@ window.Analisi = (function () {
     else if (/\bvisite\b|traffico|portare (?:gente|persone) sul sito/.test(s)) spec.obiettivo = 'traffico';
     // a chi è rivolto, vantaggi dell'offerta, quando parte (regole di riserva, se la lettura del testo non risponde)
     const filtri = {};
-    if (/\bdonne\b|ragazze|mamme|\bsignore\b|femminil/.test(s) && !/uomini/.test(s)) filtri.genere = ['donna'];
+    if (/\bdonne\b|ragazze|mamme|femminil/.test(s) && !/uomini/.test(s)) filtri.genere = ['donna'];   // «signore» no: può essere un signore
     else if (/\buomini\b|papà|maschil/.test(s) && !/donne|ragazze/.test(s)) filtri.genere = ['uomo'];
     const FASCE = [['18-24', 18, 24], ['25-34', 25, 34], ['35-44', 35, 44], ['45-54', 45, 54], ['55-64', 55, 64], ['65+', 65, 120]];
     const anni = s.match(/\b(?:da\s*)?(1[89]|[2-9]\d)\s*(?:-|–|a)\s*([2-9]\d)\b(?!\s*(?:%|€|euro))/) || s.match(/(?:over|oltre i?)\s*(\d{2})()/);
@@ -105,6 +112,7 @@ window.Analisi = (function () {
     else if (/natale|natalizi/.test(s)) spec.inizio = futura(11, 1);
     else if (mese >= 0) spec.inizio = futura(mese, 1);
     let unita = /scaric|download|install|\bapp\b|gioco (?:per|sul|da) (?:telefono|cellulare|smartphone)|mobile game/.test(s) ? 'download'
+      : /preventiv|prenota|appuntament|\bdemo\b|colloqui|richiest\w* (?:di )?(?:informazioni|contatto)|contattaci|visita gratuita|consulenza/.test(s) ? 'contatti'
       : /iscri|registra/.test(s) ? 'iscrizioni' : 'acquisti';
     // gratis vale per il prodotto, non per spedizione, reso o prova
     let gratis = /gratis|gratuit|\bfree\b/.test(s.replace(/(?:spedizion\w*|reso|consegna|prova|campione|resi)\s+(?:è\s+)?gratu\w*|gratis la spedizione/g, ' ')), ia = false, messaggio = null, suggerimenti = [];
@@ -113,7 +121,7 @@ window.Analisi = (function () {
     if (brief && brief.fonte === 'ia' && brief.f) spec.creativita = brief.f;
     if (ia2) {
       ia = true;
-      if (ia2.canale !== 'non_indicato') spec.canale = ia2.canale;
+      if (ia2.canale !== 'non_indicato') { spec.canale = ia2.canale; spec.canale_indicato = true; }
       if (ia2.categoria && ia2.categoria !== 'generica') spec.categoria_ia = ia2.categoria;   // il motore la controlla con le parole del testo
       if (ia2.formato_campagna !== 'non_indicato') spec.formato = ia2.formato_campagna;
       if (ia2.budget_giorno > 0) spec.budget_giorno = ia2.budget_giorno;
@@ -129,7 +137,15 @@ window.Analisi = (function () {
       if (ia2.trend && ia2.trend !== 'non_indicato') spec.trend = { in_calo: 0.8, normale: 1, in_crescita: 1.3, di_moda: 1.6 }[ia2.trend];
       if (ia2.extra) spec.extra = [...new Set([...spec.extra, ...ia2.extra])];
       unita = ia2.risultato; gratis = ia2.gratis;
+      if (typeof ia2.fisico === 'boolean') spec.fisico = ia2.fisico;
+      if (ia2.nicchia && ia2.nicchia.persone > 0) spec.nicchia = ia2.nicchia;
+      if (ia2.zona && ia2.zona.persone > 0) spec.zona = ia2.zona;
+      if (ia2.profilo) spec.profilo = ia2.profilo;   // chi lo compra di solito, prezzo di prodotti simili, frequenza, costo dei click
     }
+    // cosa conta come risultato: un contatto o un'iscrizione non sono un incasso; un download gratuito nemmeno
+    spec.conversione = CONVERSIONE[unita] || 'acquisto';
+    if (spec.conversione === 'acquisto' && gratis) spec.conversione = 'iscrizione';
+    if (spec.conversione === 'download' && !gratis) spec.conversione = 'acquisto';
     if (brief && brief.fonte === 'ia' && brief.presentazione) spec.presentazione = brief.presentazione;   // come è presentato il prodotto
     if (brief && brief.fonte === 'ia' && brief.messaggio) {
       // voto del messaggio: concretezza, credibilità e invito all'azione contati sul testo (stabili tra prompt simili),
@@ -144,7 +160,8 @@ window.Analisi = (function () {
       const g = brief.messaggio;
       // adatto al canale: il formato rispetto a quello che il canale preferisce (se il formato non si capisce, decide la lettura del testo)
       const PREF = { social: { video_breve: 2, carosello: 2, immagine: 1, video: 2 }, video_brevi: { video_breve: 2, video: 2 }, ricerca: { testo: 2 },
-        shopping: { immagine: 2 }, display: { immagine: 2, video: 1 }, video: { video: 2, video_breve: 1 }, email: { immagine: 2, testo: 2 } };
+        shopping: { immagine: 2 }, display: { immagine: 2, video: 1 }, video: { video: 2, video_breve: 1 }, email: { immagine: 2, testo: 2 },
+        linkedin: { immagine: 2, carosello: 2, video: 1 }, tv: { video: 2 }, radio: { testo: 2 }, affissioni: { immagine: 2 }, stampa: { immagine: 2 } };
       const fmt = spec.formato || (/video|reel|secondi|clip/.test(s) ? (spec.canale === 'video' ? 'video' : 'video_breve') : /carosello|slide|schede/.test(s) ? 'carosello'
         : /\bfoto\b|immagine|grafica/.test(s) ? 'immagine' : spec.canale === 'ricerca' ? 'testo' : null);
       const adatto = fmt ? ((PREF[spec.canale] || {})[fmt] || 0) : g.adatto;
@@ -207,7 +224,7 @@ window.Analisi = (function () {
     const u = UNITA[contesto.unita] || UNITA.acquisti;
     const titolo = contesto.prompt || C.descrizione_prodotto || CATEGORIE[C.categoria] || 'Campagna nuova';
     return completa({ sorgente: 'nuova', titolo, giorni: d.pubblici[0].giorni.map(g => g.data), dal: C.inizio, al: piu(C.inizio, C.giorni - 1), ngiorni: C.giorni,
-      tot, eventi: {}, pubblici: pub, conAcquisti: true, u, ricavi: !contesto.gratis, etichettaPubblico: p => p.nome, principale: best, nuova: d });
+      tot, eventi: {}, pubblici: pub, conAcquisti: true, u, ricavi: !contesto.gratis && (C.conversione || 'acquisto') === 'acquisto', etichettaPubblico: p => p.nome, principale: best, nuova: d });
   }
   function somma(pub, conAcquisti) {
     const t = { spesa: 0, imp: 0, clk: 0, acq: 0, ricavi: 0, visite: 0, acqBasso: 0, acqAlto: 0, ricBasso: 0, ricAlto: 0, clkBasso: 0, clkAlto: 0, impBasso: 0, impAlto: 0 };
@@ -257,6 +274,10 @@ window.Analisi = (function () {
       const valB = (m.conAcquisti ? best.acq : best.clk) / best.spesa, valP = (m.conAcquisti ? peggio.acq : peggio.clk) / peggio.spesa;
       const guadagno = sposta * m.ngiorni * (valB - valP) * 0.8;   // 0,8: spingere un pubblico lo fa costare un po' di più
       a.push(`Sposta ${ni(sposta)} € al giorno da «${m.etichettaPubblico(peggio)}» a «${m.etichettaPubblico(best)}»: circa ${n1(guadagno)} ${u} in più nello stesso periodo.`);
+    }
+    if (m.sorgente === 'nuova' && m.nuova.strategia && m.nuova.target && m.nuova.target.principale) {
+      const mix = m.nuova.strategia.mix || [], t = m.nuova.target.principale;
+      a.push(`Punta su ${t.descrizione} (rispondono ${nf(t.indice, 1)} volte la media)${mix.length ? `: ${mix.map(x => pc(x.quota * 100) + ' ' + (CANALI[x.canale] || x.nome)).join(', ')}` : ''}.`);
     }
     if (m.sorgente === 'nuova') {
       // pubblico troppo piccolo per il budget: ogni persona vedrebbe l'annuncio troppe volte
@@ -493,12 +514,14 @@ window.Analisi = (function () {
       contesto.gratis ? 'gratis' : C.prezzo ? `prezzo ${eur(C.prezzo)}${C.sconto ? ` −${ni(C.sconto * 100)}%` : ''}` : '',
       ...C.leve.map(l => LEVE[l]), ...(C.extra || []).map(e => EXTRA[e] || e),
       C.marchio === 'nuovo' ? 'marchio nuovo' : C.marchio === 'famoso' ? 'marchio famoso' : '', TREND[C.trend] || '',
+      C.nicchia ? `per ${C.nicchia.descrizione || 'una nicchia'}` : '', C.zona ? `zona: ${C.zona.descrizione || 'locale'}` : '',
+      C.conversione === 'contatto' ? 'risultato: contatti' : '',
       ...Object.entries(C.filtri || {}).map(([k, v]) => (k === 'eta' ? 'per ' + etaInBreve(v) : 'per ' + v.map(x => VALORI[x] || x).join(' o '))),
       C.forza != null ? `messaggio ${ni(C.forza)}/10` : '',
     ].filter(Boolean);
     const cr = contesto.creativa, fonte = cr ? (contesto.prompt && contesto.prompt !== (cr.vista && cr.vista.descrizione) ? `Dal testo e ${cr.tipo === 'video' ? 'dal video' : 'dalla foto'}` : cr.tipo === 'video' ? 'Dal video' : cr.tipo === 'carosello' ? 'Dalle foto' : 'Dalla foto') : 'Dal tuo testo';
     return `<div class="a-capito"><span class="a-capito-t">${fonte}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
-      ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
+      ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato|^Pubblico di nicchia|^Attività locale/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
       ${m.nuova.taratura ? `<p class="a-nota a-tarato">Tarato su ${esc(contesto.fonte || 'il tuo storico')}${contesto.marca ? ' (' + esc(contesto.marca) + ')' : ''}: per questa marca i click partono da ×${nf(Math.exp(m.nuova.taratura.ctr), 2)} e il costo da ×${nf(Math.exp(m.nuova.taratura.cpm), 2)} rispetto al tipico del settore.</p>` : ''}`;
   }
   function rAnalisi() {
@@ -559,13 +582,15 @@ window.Analisi = (function () {
         <dl class="a-kpi">
           <div><dt>Spesa</dt>${conta(T.spesa, 'eur')}<small>${eur(T.spesa / m.ngiorni)} al giorno</small></div>
           <div><dt>${nuova ? 'Persone raggiunte' : 'Visualizzazioni'}</dt>${conta(nuova ? T.raggiunte : T.imp, 'ni')}${nuova ? `<small>${ni(T.imp)} visualizzazioni</small>` : tra(T.impBasso, T.impAlto, ni)}</div>
-          <div><dt>Click</dt>${conta(T.clk, 'ni')}<small>${nf(100 * T.clk / Math.max(T.imp, 1))} ogni 100 viste</small></div>
+          <div><dt>${nuova && OFFLINE.includes(C.canale) ? 'Visite stimate' : 'Click'}</dt>${conta(T.clk, 'ni')}<small>${nf(100 * T.clk / Math.max(T.imp, 1))} ogni 100 ${nuova && OFFLINE.includes(C.canale) ? 'contatti' : 'viste'}</small></div>
           ${m.conAcquisti ? `<div><dt>${esc(nomeMet('acq'))}</dt>${conta(T.acq, 'n1')}${tra(T.acqBasso, T.acqAlto, n1)}</div>` : ''}
           ${ric ? `<div><dt>Ricavi</dt>${conta(T.ricavi, 'eur')}${tra(T.ricBasso, T.ricAlto, eur)}</div>
           <div><dt>Ogni euro speso</dt>${conta(roas, 'nf2')}<small>${roas >= 1 ? 'torna con un guadagno' : 'non si ripaga ancora'}</small></div>` : m.conAcquisti ? `<div><dt>${esc(u.costo)}</dt>${conta(T.spesa / Math.max(T.acq, 1e-9), 'eur')}</div>` : ''}
         </dl>
         ${!nuova && m.conAcquisti ? `<p class="a-nota">${u.plur.charAt(0).toUpperCase() + u.plur.slice(1)} e ricavi stimati dalle persone simulate, tarate sui click previsti.</p>` : ''}
       </div>
+      ${nuova ? schedaTarget(i++, card) : ''}
+      ${nuova ? schedaStrategia(i++, card) : ''}
       <div class="a-griglia">
         ${card(i++, 'Il pubblico migliore', `
           <p class="a-best"><b><i style="background:${COLORE_TIPO[best.tipo] || GRIGIO}"></i>${esc(m.etichettaPubblico(best))}</b> <span>${esc(best.frase)}</span></p>
@@ -604,6 +629,45 @@ window.Analisi = (function () {
     rb.addEventListener('input', () => rBudget(+rb.value));
     rEsplora(); rBudget(1); rPareggio();
     contaSu(el); luce(el);
+  }
+  // tutte le persone simulate → il target dove ha più senso puntare
+  function schedaTarget(i, card) {
+    const t = M.nuova.target;
+    if (!t || !t.principale) return '';
+    const p = t.principale, a = t.alternativa, mappa = t.mappa || {};
+    const barre = tag => {
+      const r = (mappa[tag] || []).filter(x => x.quota > 0.005), mx = Math.max(...r.map(x => x.indice), 0.01);
+      return `<div class="a-gr"><b>${{ eta: 'Età', genere: 'Genere', reddito: 'Reddito', famiglia: 'Famiglia', area: 'Area' }[tag]}</b>${r.map(x =>
+        `<div class="a-gr-riga"><span>${esc(x.etichetta)}</span><div><i style="width:${(x.indice / mx * 100).toFixed(1)}%" class="${x.indice >= 1.15 ? 'su' : x.indice <= 0.85 ? 'giu' : ''}"></i></div><em>×${nf(x.indice, 1)}</em></div>`).join('')}</div>`;
+    };
+    const persone = p.persone >= 1e6 ? nf(p.persone / 1e6, 1) + ' milioni di' : ni(p.persone);
+    return card(i, 'Il target', `
+      <p class="a-best a-target"><b>${esc(p.descrizione.charAt(0).toUpperCase() + p.descrizione.slice(1))}</b>${p.perimetro ? ` <span>dentro il pubblico che hai indicato (${esc(p.perimetro)})</span>` : ''}</p>
+      <p>Circa <b>${persone} persone</b>, il ${pc(p.quota_persone * 100)} di quelle possibili: rispondono <b>${nf(p.indice, 1)} volte</b> la media e valgono il <b>${pc(p.quota_risultati * 100)}</b> dei ${esc(M.u.plur)} possibili.</p>
+      ${a ? `<p class="a-sotto">In alternativa: ${esc(a.descrizione)} (×${nf(a.indice, 1)}).</p>` : ''}
+      <div class="a-gruppi">${['eta', 'genere', 'reddito', 'famiglia'].map(barre).join('')}</div>
+      <p class="a-nota">Valutati tutti i tipi di persona adulta in Italia: per ognuno quanto è probabile che, vedendo l’annuncio, arrivi e ${M.u === UNITA.acquisti ? 'compri' : M.u === UNITA.download ? 'scarichi' : M.u === UNITA.iscrizioni ? 'si iscriva' : 'chieda un contatto'}. Il target è il gruppo più grande che risponde molto più della media.</p>`, 'evidenza a-luce');
+  }
+  // per quel target: ogni mezzo, online e offline, con lo stesso budget, e come dividere il budget
+  function schedaStrategia(i, card) {
+    const st = M.nuova.strategia;
+    if (!st || !st.mezzi || !st.mezzi.length) return '';
+    const u = M.u, mix = st.mix || [];
+    const frase = mix.length ? mix.map(x => `<b>${pc(x.quota * 100)}</b> ${esc(CANALI[x.canale] || x.nome)}`).join(', ') : '';
+    const righe = st.mezzi.map(x => {
+      const T = x.totali, ris = M.nuova.campagna.obiettivo === 'notorieta' ? T.persone_raggiunte : M.nuova.campagna.obiettivo === 'traffico' ? T.click : T.acquisti;
+      const costo = ris > 0 ? T.spesa / ris : 0;
+      return `<tr class="${x.quota_budget > 0 ? 'scelto' : ''}${x.fattibile ? '' : ' no'}">
+        <td><b>${esc((CANALI[x.canale] || x.nome).replace(/^./, c => c.toUpperCase()))}</b><small>${x.tipo === 'offline' ? 'offline' : 'online'}${x.selezione && x.selezione !== 'nessuna' ? ' · ' + esc(x.selezione) : ''}</small></td>
+        <td>${x.quota_budget > 0 ? `<b>${pc(x.quota_budget * 100)}</b>` : '–'}</td>
+        <td>${M.nuova.campagna.obiettivo === 'notorieta' ? ni(ris) + ' persone' : n1(ris) + ' ' + esc(u.plur)}<small>${costo ? eur(costo) + ' ' + (M.nuova.campagna.obiettivo === 'vendite' ? u.ogni : 'l’una') : ''}</small></td>
+        <td>${pc(x.quota_target * 100)}<small>dei contatti sul target</small></td>
+        <td>${x.fattibile ? (x.produzione ? `produzione ~${eur(x.produzione)}` : '') : `<span class="a-badge arancio">da ${eur(x.budget_minimo)}</span>`}</td></tr>`;
+    }).join('');
+    return card(i, 'La strategia per questo target', `
+      <p>${frase ? `Con ${eur(st.budget)} in tutto: ${frase}.` : 'Con questo budget nessun mezzo rende abbastanza.'}</p>
+      <div class="scorri"><table class="a-strat"><thead><tr><th>Mezzo</th><th>Budget</th><th>Con tutto il budget</th><th>Mira</th><th></th></tr></thead><tbody>${righe}</tbody></table></div>
+      <p class="a-nota">Ogni mezzo provato con tutto il budget sulle stesse persone simulate. Online si può scegliere il target (età, genere, zona; su LinkedIn anche lavoro); TV, radio, cartelloni e giornali arrivano a chi li usa, e il risultato conta le visite indirette. La divisione tiene conto dei rendimenti decrescenti e di quanto ogni mezzo riesce a spendere. Costi offline e visite indirette sono ipotesi sul mercato italiano.</p>`, 'a-luce');
   }
   // il testo dell'annuncio giudicato dalla lettura del testo: cinque criteri, il voto entra nel simulatore come forza del messaggio
   function messaggio(i) {

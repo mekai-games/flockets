@@ -47,6 +47,11 @@ const CANALI = {
   display: "banner su siti e app",
   video: "YouTube e video lunghi",
   email: "email e newsletter",
+  linkedin: "LinkedIn, annunci per professionisti e aziende",
+  tv: "spot in televisione",
+  radio: "spot alla radio",
+  affissioni: "cartelloni, manifesti, affissioni in città",
+  stampa: "annunci su giornali e riviste",
   non_indicato: "il testo non lo dice",
 };
 const CATEGORIE = ["moda", "beauty", "animali", "videogiochi", "tecnologia", "casa_arredo", "cibo_bevande", "sport_fitness", "viaggi",
@@ -71,6 +76,9 @@ const PUBBLICO = {
   reddito: ["basso", "medio", "alto"],
   famiglia: ["single", "coppia", "figli_piccoli", "figli_grandi"],
 };
+// chi compra di solito il prodotto (profilo): gli stessi tag, più istruzione e lavoro
+const PROFILO_TAG = { ...PUBBLICO, istruzione: ["bassa", "media", "alta"], lavoro: ["studente", "occupato", "pensionato", "non_occupato"] };
+const FREQUENZE = ["raro", "occasionale", "frequente", "continuo"];
 const EXTRA = {
   spedizione_gratuita: "spedizione gratuita",
   reso_gratuito: "reso gratuito o soddisfatti o rimborsati",
@@ -150,7 +158,25 @@ ${elenco(Object.keys(CANALI), CANALI)}
 - sconto_percento: lo sconto in percento (20 per -20%).
 - marchio: nuovo (appena lanciato, nessuno lo conosce), conosciuto, famoso, oppure non_indicato.
 - obiettivo: vendite, traffico (portare visite al sito o all'app) o notorieta (farsi conoscere); vendite se non è chiaro.
-- risultato: cosa conta come conversione: acquisti, download (app e giochi da scaricare) o iscrizioni.
+- risultato: cosa conta come conversione: acquisti (si paga online), download (app e giochi da scaricare), iscrizioni (account, newsletter,
+  registrazioni gratuite) o contatti (richieste di preventivo o informazioni, prenotazioni di visite o appuntamenti, demo, prove gratuite
+  di un servizio, colloqui, iscrizioni a un corso o a un servizio caro che si paga dopo).
+- fisico: true se si vende un oggetto da spedire o da ritirare (si può mostrare in Google Shopping); false per servizi, software,
+  corsi, biglietti, viaggi, assicurazioni.
+- nicchia: solo se il pubblico è un gruppo che età, genere e area non descrivono (una professione, un tipo di azienda, chi ha una
+  certa condizione o un certo mezzo: dentisti titolari, ristoratori, agricoltori, architetti, chi ha un’auto elettrica).
+  descrizione al massimo 6 parole; persone = quanti sono in Italia, stima ragionata (0 se il pubblico è il grande pubblico);
+  b2b = true se il prodotto lo comprano aziende o professionisti per il loro lavoro.
+- zona: solo per attività locali (negozio, ristorante, consegne, studio, palestra, servizio in una città o in un quartiere):
+  descrizione al massimo 6 parole; persone = quanti adulti abitano nella zona servita, stima ragionata (0 se l'attività non è locale).
+  Se c'è una zona, metti anche l'area (e il comune, per una grande città) nel pubblico.
+- profilo: come è fatto il prodotto nel mercato, anche se il testo non lo dice (usa quello che sai del prodotto):
+  pubblico_tipico = chi lo compra di solito, solo i livelli molto più interessati della media per ogni tag
+  (liste vuote dove non c'è differenza netta; tag: ${Object.entries(PROFILO_TAG).map(([k, v]) => k + " " + v.join("/")).join("; ")});
+  prezzo_tipico = prezzo tipico in euro di prodotti come questo (0 se non sai); frequenza = tra le persone a cui interessa, quanto spesso
+  lo cercano o lo comprano: raro (una volta ogni qualche anno: auto, apparecchi, corsi cari, viaggi lunghi), occasionale (qualche volta
+  l'anno), frequente (ogni mese o quasi), continuo (ogni settimana: cibo, consegne, consumi); cpc_ricerca = costo tipico in euro di un click
+  su Google in Italia per le ricerche di questo prodotto (0 se non sai).
 - gratis: true se il prodotto si ottiene gratis (app o gioco gratuito, prova gratuita).
 - leve: le leve dell'offerta presenti nel testo, tra:
 ${elenco(Object.keys(LEVE_CAMPAGNA), LEVE_CAMPAGNA)}
@@ -213,8 +239,37 @@ function schema(formati, leve) {
           sconto_percento: { type: "number" },
           marchio: { type: "string", enum: ["nuovo", "conosciuto", "famoso", "non_indicato"] },
           obiettivo: { type: "string", enum: ["vendite", "traffico", "notorieta"] },
-          risultato: { type: "string", enum: ["acquisti", "download", "iscrizioni"] },
+          risultato: { type: "string", enum: ["acquisti", "download", "iscrizioni", "contatti"] },
           gratis: { type: "boolean" },
+          fisico: { type: "boolean" },
+          zona: {
+            type: "object",
+            properties: { descrizione: { type: "string" }, persone: { type: "number" } },
+            required: ["descrizione", "persone"],
+            additionalProperties: false,
+          },
+          profilo: {
+            type: "object",
+            properties: {
+              pubblico_tipico: {
+                type: "object",
+                properties: Object.fromEntries(Object.entries(PROFILO_TAG).map(([k, v]) => [k, { type: "array", items: { type: "string", enum: v } }])),
+                required: Object.keys(PROFILO_TAG),
+                additionalProperties: false,
+              },
+              prezzo_tipico: { type: "number" },
+              frequenza: { type: "string", enum: FREQUENZE },
+              cpc_ricerca: { type: "number" },
+            },
+            required: ["pubblico_tipico", "prezzo_tipico", "frequenza", "cpc_ricerca"],
+            additionalProperties: false,
+          },
+          nicchia: {
+            type: "object",
+            properties: { descrizione: { type: "string" }, persone: { type: "number" }, b2b: { type: "boolean" } },
+            required: ["descrizione", "persone", "b2b"],
+            additionalProperties: false,
+          },
           leve: { type: "array", items: { type: "string", enum: Object.keys(LEVE_CAMPAGNA) } },
           pubblico: {
             type: "object",
@@ -227,7 +282,7 @@ function schema(formati, leve) {
           extra: { type: "array", items: { type: "string", enum: Object.keys(EXTRA) } },
         },
         required: ["prodotto", "categoria", "canale", "formato_campagna", "budget_giorno", "giorni", "prezzo", "sconto_percento",
-          "marchio", "obiettivo", "risultato", "gratis", "leve", "pubblico", "inizio", "trend", "extra"],
+          "marchio", "obiettivo", "risultato", "gratis", "fisico", "nicchia", "zona", "profilo", "leve", "pubblico", "inizio", "trend", "extra"],
         additionalProperties: false,
       },
       messaggio: {
@@ -277,8 +332,21 @@ function pulisci(c) {
     sconto_percento: n(c.sconto_percento, 90),
     marchio: ["nuovo", "conosciuto", "famoso"].includes(c.marchio) ? c.marchio : "non_indicato",
     obiettivo: ["vendite", "traffico", "notorieta"].includes(c.obiettivo) ? c.obiettivo : "vendite",
-    risultato: ["acquisti", "download", "iscrizioni"].includes(c.risultato) ? c.risultato : "acquisti",
+    risultato: ["acquisti", "download", "iscrizioni", "contatti"].includes(c.risultato) ? c.risultato : "acquisti",
     gratis: c.gratis === true,
+    fisico: typeof c.fisico === "boolean" ? c.fisico : null,
+    zona: c.zona && n(c.zona.persone, 3e7) >= 500 ? { descrizione: String(c.zona.descrizione || "").slice(0, 80), persone: Math.round(c.zona.persone) } : null,
+    profilo: c.profilo ? {
+      pubblico_tipico: Object.fromEntries(Object.entries(PROFILO_TAG).map(([k, ammessi]) => {
+        const v = Array.isArray(c.profilo.pubblico_tipico?.[k]) ? [...new Set(c.profilo.pubblico_tipico[k].filter((x) => ammessi.includes(x)))] : [];
+        return [k, v.length === ammessi.length ? [] : v];
+      })),
+      prezzo_tipico: n(c.profilo.prezzo_tipico, 1e6),
+      frequenza: FREQUENZE.includes(c.profilo.frequenza) ? c.profilo.frequenza : null,
+      cpc_ricerca: n(c.profilo.cpc_ricerca, 40),
+    } : null,
+    nicchia: c.nicchia && n(c.nicchia.persone, 3e7) >= 100
+      ? { descrizione: String(c.nicchia.descrizione || "").slice(0, 80), persone: Math.round(c.nicchia.persone), b2b: c.nicchia.b2b === true } : null,
     leve: Array.isArray(c.leve) ? [...new Set(c.leve.filter((l) => Object.hasOwn(LEVE_CAMPAGNA, l)))] : [],
     pubblico: Object.fromEntries(Object.entries(PUBBLICO).map(([k, ammessi]) => {
       const v = Array.isArray(c.pubblico?.[k]) ? [...new Set(c.pubblico[k].filter((x) => ammessi.includes(x)))] : [];

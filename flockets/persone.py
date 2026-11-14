@@ -67,18 +67,32 @@ REDDITO_PUNTI = {"istruzione": [-0.6, 0.0, 0.8], "lavoro": [-0.2, 0.4, 0.0, -0.9
                  "area": [0.35, 0.35, 0.15, -0.45, -0.5], "eta": [0.0, -0.2, 0.0, 0.2, 0.2, 0.0]}
 
 # ---------------------------------------------------------------------------------------------- canali
-CANALI = ["social", "video_brevi", "ricerca", "shopping", "display", "video", "email"]
+CANALI = ["social", "video_brevi", "ricerca", "shopping", "display", "video", "email", "linkedin", "tv", "radio", "affissioni", "stampa"]
 NOMI_CANALI = {"social": "Social (Facebook, Instagram)", "video_brevi": "Video brevi (TikTok, Reels, Shorts)",
                "ricerca": "Ricerca (Google)", "shopping": "Annunci prodotto (Google Shopping)",
-               "display": "Banner su siti e app", "video": "Video (YouTube)", "email": "Email e newsletter"}
+               "display": "Banner su siti e app", "video": "Video (YouTube)", "email": "Email e newsletter", "linkedin": "LinkedIn",
+                "tv": "Televisione", "radio": "Radio", "affissioni": "Cartelloni e affissioni", "stampa": "Giornali e riviste"}
 USO = {   # probabilita di usare il canale in un giorno qualsiasi, per fascia di eta
     "social": [0.85, 0.85, 0.80, 0.72, 0.58, 0.32],
-    "video_brevi": [0.85, 0.65, 0.45, 0.32, 0.20, 0.08],
+    "video_brevi": [0.85, 0.65, 0.45, 0.30, 0.17, 0.05],
     "ricerca": [0.90, 0.90, 0.88, 0.82, 0.72, 0.45],
     "display": [0.85, 0.85, 0.82, 0.78, 0.68, 0.42],
     "video": [0.80, 0.72, 0.62, 0.55, 0.45, 0.28],
     "email": [0.40, 0.60, 0.66, 0.64, 0.56, 0.36],
+    # LinkedIn: in Italia lo apre ogni giorno una minoranza, quasi solo chi lavora ed è laureato (vedi USO_LINKEDIN)
+    "linkedin": [0.05, 0.10, 0.09, 0.07, 0.05, 0.01],
 }
+# Mezzi offline: quota che in un giorno qualsiasi guarda la TV, ascolta la radio, passa davanti a cartelloni, legge un giornale
+# (ordini di grandezza Auditel, Audiradio/TER, Audipress: approssimazioni ragionate, non tabelle ufficiali)
+USO_OFFLINE = {
+    "tv": [0.55, 0.62, 0.72, 0.82, 0.88, 0.95],
+    "radio": [0.45, 0.62, 0.72, 0.74, 0.66, 0.50],
+    "affissioni": [0.72, 0.76, 0.74, 0.70, 0.62, 0.42],
+    "stampa": [0.10, 0.12, 0.16, 0.22, 0.30, 0.40],
+}
+USO_OFFLINE_MOD = {"affissioni": {"comune": [1.25, 1.0, 0.75]}, "radio": {"lavoro": [0.9, 1.15, 0.85, 0.9]},
+                   "stampa": {"istruzione": [0.7, 1.0, 1.4]}, "tv": {"istruzione": [1.08, 1.0, 0.88]}}
+USO_LINKEDIN = {"istruzione": [0.3, 0.8, 2.2], "lavoro": [0.9, 1.4, 0.2, 0.7]}   # moltiplicatori: bassa/media/alta; studente/occupato/pensionato/non occupato
 USO_MOD = {   # spostamenti moltiplicativi per tag
     "istruzione": {"bassa": 0.88, "alta": 1.08}, "comune": {"piccolo_comune": 0.95, "grande_citta": 1.03},
     "genere": {"donna": {"social": 1.05, "video": 0.94}, "uomo": {"social": 0.95, "video": 1.06}},
@@ -126,7 +140,7 @@ NOMI_LEVE = {"sconto": "sconto o prezzo basso", "urgenza": "urgenza (solo oggi, 
 FORMATI = ["immagine", "carosello", "video_breve", "video", "testo"]
 PREFERENZA_FORMATO = {   # spostamento sulla scala logistica del click, per eta
     "immagine": [-0.10, -0.05, 0.0, 0.05, 0.10, 0.15], "carosello": [0.0, 0.05, 0.05, 0.05, 0.0, -0.10],
-    "video_breve": [0.35, 0.20, 0.05, -0.05, -0.20, -0.35], "video": [0.10, 0.05, 0.0, 0.0, 0.0, -0.05], "testo": [0.0] * 6,
+    "video_breve": [0.35, 0.20, 0.05, -0.10, -0.35, -0.60], "video": [0.10, 0.05, 0.0, 0.0, 0.0, -0.05], "testo": [0.0] * 6,
 }
 
 
@@ -196,6 +210,14 @@ def popolazione():
         u = np.array(per_eta)[e] * np.where(ist == 0, USO_MOD["istruzione"]["bassa"], np.where(ist == 2, USO_MOD["istruzione"]["alta"], 1.0))
         u = u * np.where(co == 2, USO_MOD["comune"]["piccolo_comune"], np.where(co == 0, USO_MOD["comune"]["grande_citta"], 1.0))
         u = u * np.where(g == 0, USO_MOD["genere"]["donna"].get(c, 1.0), USO_MOD["genere"]["uomo"].get(c, 1.0))
+        if c == "linkedin":
+            u = u * np.array(USO_LINKEDIN["istruzione"])[ist] * np.array(USO_LINKEDIN["lavoro"])[la]
+        P["uso_" + c] = np.clip(u, 0.01, 0.97)
+    for c, per_eta in USO_OFFLINE.items():
+        u = np.array(per_eta)[e]
+        for tag, livelli in (("comune", co), ("lavoro", la), ("istruzione", ist)):
+            if tag in USO_OFFLINE_MOD.get(c, {}):
+                u = u * np.array(USO_OFFLINE_MOD[c][tag])[livelli]
         P["uso_" + c] = np.clip(u, 0.01, 0.97)
     acquisto_online = np.array([0.70, 0.78, 0.74, 0.65, 0.52, 0.28])[e] + np.array([-0.10, 0.0, 0.08])[ist] \
         + np.array([0.03, 0.03, 0.0, -0.05, -0.05])[ar] + np.array([-0.05, 0.0, 0.05])[re]
@@ -233,7 +255,8 @@ def popolazione():
     P["potere_acquisto"] = potere
     # quanto costa raggiungerla: piu inserzionisti cercano le stesse persone, piu il CPM sale
     costo = (np.array([0.80, 1.20, 1.20, 1.05, 0.90, 0.75])[e] * np.array([0.90, 1.0, 1.15])[re]
-             * np.where(g == 0, 1.08, 0.95) * np.array([1.10, 1.0, 0.92])[co])
+             * np.where(g == 0, 1.08, 0.95) * np.array([1.10, 1.0, 0.92])[co]
+             * np.array([1.08, 1.05, 1.0, 0.86, 0.86])[ar])   # al Sud e nelle Isole la pubblicità costa meno (meno inserzionisti, ipotesi)
     P["costo_relativo"] = costo / np.average(costo, weights=P.peso)
     P.insert(0, "id", np.arange(len(P)))
     _CACHE["pop"] = P

@@ -404,6 +404,58 @@ giorni, gruppi che rispondono e alcune persone. Il retargeting non viene propost
 **7. Il consiglio.** Con lo stesso budget prova 20-30 combinazioni di canale, formato, pubblico e leva e le ordina
 nello stesso modo.
 
+**Dal target alla strategia.** Per una campagna nuova il percorso è:
+1. **tutte le persone**: per ognuno dei 14.434 tipi di persona, quanto è probabile che vedendo l'annuncio arrivi e compri
+   (o chieda un contatto, si iscriva, scarichi), senza canale né consegna (`trova_target`);
+2. **il target**: il gruppo più grande che risponde molto più della media (un tag alla volta, finché il guadagno vale e il gruppo
+   resta almeno il 4% delle persone possibili), con un'alternativa;
+3. **la strategia** (`strategia`): ogni mezzo, online (Facebook e Instagram, TikTok e Reels, ricerca, Shopping, banner, YouTube,
+   LinkedIn) e offline (TV, radio, cartelloni, giornali), provato con tutto il budget sul target. Online si seleziona il target dove
+   la piattaforma lo permette; offline si sceglie solo la zona e il risultato sono le visite indirette. Per ogni mezzo: budget
+   minimo sensato e costo di produzione; il budget si divide tra i migliori tenendo conto dei rendimenti decrescenti e di quanto
+   ogni mezzo riesce a spendere;
+4. se il testo non dice il mezzo, l'analisi dettagliata (pubblici e persone) gira sul mezzo online migliore per il target.
+
+Con obiettivo notorietà vincono di solito cartelloni e radio; per vendite e contatti i mezzi digitali, perché misurano la risposta
+diretta. Costi e visite indirette dei mezzi offline sono ipotesi sul mercato italiano.
+
+**Fuori dalle categorie della sfida.** Il simulatore deve dare numeri credibili anche per prodotti lontani da bellezza,
+animali e abbigliamento. Il banco di prova [`strumenti/prova_lontani.py`](strumenti/prova_lontani.py) simula nove casi (un
+gestionale per dentisti su LinkedIn e su Google, un apparecchio acustico, una serata in un club, un corso caro, una polizza auto,
+una bici elettrica, il sushi a domicilio) e controlla CTR, CPM, costo per click e costo per risultato contro gli ordini di
+grandezza del mercato italiano. Quello che serve per starci dentro:
+- **cosa conta come risultato**: acquisto, contatto (preventivi, prenotazioni, demo, prove), iscrizione o download. Un contatto
+  non è un incasso: niente fatturato finto, e il prezzo pesa poco;
+- **nicchie** (una professione, un tipo di azienda): la lettura del testo stima quante persone sono in Italia; ogni canale le
+  raggiunge con la sua precisione (LinkedIn e ricerca bene, Facebook e banner male), e i professionisti costano di più;
+- **LinkedIn** come canale, con CTR e costi del mercato italiano dichiarati come ipotesi;
+- **ricerca**: costo per click per settore (il dato reale è dominato dalle ricerche del nome della marca, che costano poco),
+  solo le persone che cercano davvero quel giorno quel tipo di offerta, niente rincaro per frequenza;
+- **marchio non detto** = attività piccola e poco conosciuta (prima era «conosciuto», con migliaia di visitatori da ritrovare);
+- **stanchezza della persona**: chi rivede lo stesso annuncio clicca meno, e la spesa non supera mai il budget; così un
+  pubblico piccolo come il retargeting non rende all'infinito;
+- pubblici simili ai clienti solo dove esistono (Meta e TikTok), Google Shopping solo per oggetti in vendita, CPM di TikTok
+  e Reels corretto per l'Italia.
+
+- **profilo del prodotto**: la lettura del testo dice chi lo compra di solito (età, genere, reddito, famiglia, lavoro…), il prezzo
+  tipico di prodotti simili, quanto spesso lo si cerca e quanto costa un click su Google. L'interesse delle persone diventa su misura
+  per quel prodotto (stesso interesse medio della categoria, ma di persone diverse), e più il prezzo tipico è alto, meno visite
+  diventano acquisti: così funziona anche fuori dalle 15 categorie;
+- **attività locali**: la zona servita (quanti adulti ci abitano) al posto della macro-area; la geolocalizzazione la colpisce bene,
+  restringere a una zona non rende il pubblico più caro, e al Sud e nelle Isole la pubblicità costa meno;
+- **pubblico mirato**: dai gruppi che rendono di più per euro il motore costruisce un pubblico ristretto e lo prova accanto agli
+  altri; usa solo ciò che si può davvero selezionare su quel canale in Italia (età, genere, zona; figli su Google; lavoro e istruzione
+  su LinkedIn). Sul pubblico aperto l'algoritmo trova da solo chi risponde, quindi restringere a mano conviene solo se il gruppo è
+  davvero diverso;
+- **download**: dalla pagina dello store si installa molto più spesso che comprare su un sito, simile da ogni canale.
+
+Il banco [`strumenti/prova_differenze.py`](strumenti/prova_differenze.py) cambia un solo dettaglio alla volta (sconto, prezzo,
+leve, volto, sottotitoli, forza del messaggio, aggancio, vantaggi, marchio, budget, durata, qualità del sito, stagione, Black Friday,
+formato, genere, retargeting, profilo, zona) e controlla che l'effetto vada nel verso giusto e abbia una grandezza credibile.
+
+Sui 12 pubblici della sfida queste regole lasciano quasi gli stessi errori di prima (CPM 14,5% invece di 13,7%; ordine dei
+pubblici 0,80 invece di 0,81).
+
 **Prova a freddo.** Sui dati della sfida abbiamo previsto i 12 pubblici **senza usare lo storico**: solo categoria,
 tipo di pubblico, budget, creatività e date ([`output/prova_a_freddo.csv`](output/prova_a_freddo.csv)).
 

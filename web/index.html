@@ -13,7 +13,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=50">
+<link rel="stylesheet" href="style.css?v=53">
 </head>
 <body data-vista="benvenuto">
 
@@ -198,14 +198,14 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
           <label>Sconto, % <input type="number" id="nc-sconto" min="0" max="90" step="5" inputmode="numeric" value="0"></label>
         </div>
         <div class="campi due">
-          <label>Il marchio è <select id="nc-marchio"><option value="nuovo">nuovo, quasi nessuno lo conosce</option><option value="conosciuto" selected>conosciuto da una parte del pubblico</option><option value="famoso">famoso</option></select></label>
+          <label>Il marchio è <select id="nc-marchio"><option value="nuovo">nuovo, quasi nessuno lo conosce</option><option value="piccolo">piccolo, poco conosciuto</option><option value="conosciuto" selected>conosciuto da una parte del pubblico</option><option value="famoso">famoso</option></select></label>
           <label>Momento della categoria <select id="nc-trend"><option value="0.8">in calo</option><option value="1" selected>normale</option><option value="1.3">in crescita</option><option value="1.6">di moda adesso</option></select></label>
         </div>
       </fieldset>
 
       <fieldset><legend class="mono">02 / La campagna</legend>
         <div class="campi tre">
-          <label>Obiettivo <select id="nc-obiettivo"><option value="vendite">vendite</option><option value="traffico">visite al sito</option><option value="notorieta">farsi conoscere</option></select></label>
+          <label>Obiettivo <select id="nc-obiettivo"><option value="vendite">vendite</option><option value="contatti">contatti (preventivi, prenotazioni, demo)</option><option value="traffico">visite al sito</option><option value="notorieta">farsi conoscere</option></select></label>
           <label>Canale <select id="nc-canale"></select></label>
           <label>Formato <select id="nc-formato"></select></label>
         </div>
@@ -290,10 +290,10 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 
 
 <script src="js/scena.js?v=48"></script>
-<script src="js/motore.js?v=48"></script>
-<script src="js/nuova.js?v=48"></script>
+<script src="js/motore.js?v=53"></script>
+<script src="js/nuova.js?v=53"></script>
 <script src="js/esplora.js?v=48"></script>
-<script src="js/analisi.js?v=48"></script>
+<script src="js/analisi.js?v=53"></script>
 <script src="js/app.js?v=49"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="js/account.js?v=50"></script>
