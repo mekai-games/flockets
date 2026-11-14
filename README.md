@@ -22,13 +22,19 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 
 ### Il sito
 
-| Scheda | Cosa mostra |
+Il percorso è in tre schermate.
+
+1. **Home**: nome, frase e la folla del pubblico simulato.
+2. **Console**: i dati di partenza e, se vuoi, la descrizione di un annuncio da provare. Poi «Avvia la simulazione».
+3. **Area di lavoro**: a sinistra il pubblico simulato, a destra la parte tecnica in cinque passi, con il registro di ciò che il motore ha fatto.
+
+| Passo | Cosa mostra |
 |---|---|
-| Piazza | i quattro pubblici di ogni campagna come gruppi di omini: chi esulta ha cliccato, chi dorme ha visto l'annuncio troppe volte. Si scorre giorno per giorno dal 16 al 30 novembre |
-| Pubblici | chi c'è dietro ogni ad set e i numeri che lo motivano |
-| Previsioni | CTR e CPM di ogni annuncio con la forchetta di errore, storico e previsto sullo stesso grafico |
-| Decisioni | cursori del budget con ricalcolo immediato, proposta di riallocazione, creatività da sostituire |
-| Laboratorio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
+| 01 Dati | cosa è stato letto, le anomalie trovate, l'andamento del mercato nelle settimane da prevedere |
+| 02 Pubblici | chi c'è dietro ogni ad set e i numeri che lo motivano |
+| 03 Simulazione | i 15 giorni scorrono: gli omini che esultano sono i click, quelli che dormono hanno visto l'annuncio troppe volte. Per ogni annuncio CTR e CPM con la forchetta di errore |
+| 04 Decisioni | cursori del budget con ricalcolo immediato (anche sul pubblico simulato), proposta di riallocazione, creatività da sostituire |
+| 05 Laboratorio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
 | Consegne | le tre consegne della sfida |
 
 Il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo in locale:
@@ -36,6 +42,8 @@ Il sito è statico: legge un solo file di dati preparato dal motore. Per vederlo
 ```bash
 python3 -m http.server 4173 --directory web
 ```
+
+Le proposte di logo sono in [`design/loghi.html`](design/loghi.html).
 
 ### Il motore
 

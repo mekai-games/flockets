@@ -3,87 +3,129 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flockets · prova la tua campagna su clienti che non esistono</title>
-<meta name="description" content="Flockets immagina il pubblico, prevede CTR e CPM giorno per giorno e ti dice dove mettere il budget. Prima di spendere un euro.">
+<title>Flockets · clienti finti, previsioni vere</title>
+<meta name="description" content="Un pubblico simulato prova la tua campagna e ti dice CTR, CPM e dove mettere il budget. Prima di spendere un euro.">
 <meta property="og:title" content="Flockets">
-<meta property="og:description" content="Prova la tua campagna su clienti che non esistono.">
-<link rel="icon" type="image/png" href="assets/icona.png">
+<meta property="og:description" content="Clienti finti. Previsioni vere.">
+<link rel="icon" type="image/svg+xml" href="assets/icona.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body data-vista="benvenuto">
 
-<header class="barra">
-  <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><img src="assets/icona.png" alt="" width="28" height="28">Flockets</a>
-  <nav class="schede" id="schede" aria-label="Sezioni dell'analisi"></nav>
-  <a class="esterno" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">Codice</a>
-</header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="marchio" viewBox="0 0 48 48"><circle cx="37" cy="24" r="5.5"/><circle cx="25.5" cy="15.5" r="4.6"/><circle cx="25.5" cy="32.5" r="4.6"/><circle cx="14" cy="7.5" r="3.8"/><circle cx="14" cy="40.5" r="3.8"/></symbol>
+</svg>
 
-<main>
-
-<!-- 1. BENVENUTO -->
-<section class="vista" id="v-benvenuto">
+<!-- 1. HOME -->
+<section class="vista scura" id="v-benvenuto">
+  <header class="nav">
+    <a class="logo" href="#/" aria-label="Flockets"><svg width="26" height="26"><use href="#marchio"/></svg>Flockets</a>
+    <nav class="nav-centro"><a href="#/console">Demo</a><a href="#passi">Come funziona</a><a href="#/sim/consegne">Consegne</a></nav>
+    <a class="pulsante bianco" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub</a>
+  </header>
   <div class="eroe">
     <h1>Flockets</h1>
-    <p class="motto">Prova la tua campagna su clienti che non esistono.</p>
-    <p class="sotto">Flockets immagina il pubblico, prevede CTR e CPM giorno per giorno e ti dice dove mettere il budget. Prima di spendere un euro.</p>
-    <a class="bottone grande" href="#/avvio">Inizia</a>
+    <p class="motto">Clienti finti. Previsioni <span class="sotto-riga">vere<svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9.5C40 3 92 2.5 132 5.5c24 1.8 46 2.2 65 .5"/></svg></span>.</p>
+    <p class="sotto">Un pubblico simulato prova la tua campagna e ti dice CTR, CPM e dove mettere il budget. Prima di spendere un euro.</p>
+    <div class="azioni">
+      <a class="pulsante metallo grande" href="#/console">Prova la demo</a>
+      <a class="pulsante scuro grande" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">Guarda il codice</a>
+    </div>
   </div>
-  <canvas id="striscia" aria-hidden="true"></canvas>
+  <canvas id="folla" aria-hidden="true"></canvas>
+  <div class="sezione" id="passi">
+    <h2>Dalla campagna alla decisione in 5 passi</h2>
+    <p class="sezione-sotto">Parte dallo storico e dalle creatività. Arriva a cosa fare domani.</p>
+    <ol class="passi-griglia">
+      <li><span>01</span><b>Dati</b><p>Legge storico, budget e creatività. Segnala le anomalie.</p></li>
+      <li><span>02</span><b>Pubblici</b><p>Immagina chi c’è dietro ogni ad set, e lo motiva con i numeri.</p></li>
+      <li><span>03</span><b>Simulazione</b><p>Prevede CTR e CPM di ogni annuncio, giorno per giorno.</p></li>
+      <li><span>04</span><b>Decisioni</b><p>Dove spostare il budget, quale creatività cambiare, quando.</p></li>
+      <li><span>05</span><b>Laboratorio</b><p>Prova un annuncio nuovo sul pubblico, prima del lancio.</p></li>
+    </ol>
+    <p class="piede">The Big Hack 2026 · sfida Wevion «Clienti che non esistono»</p>
+  </div>
 </section>
 
-<!-- 2. AVVIO -->
-<section class="vista" id="v-avvio" hidden>
-  <div class="contenuto stretto">
-    <h2>Da dove partiamo?</h2>
-    <p class="intro">Dai a Flockets uno storico di campagna oppure descrivi un annuncio. Il pubblico finto fa il resto.</p>
-    <div class="griglia tre">
-      <article class="scheda">
-        <h3>Il kit della sfida</h3>
-        <p>Tre campagne, 91 giorni di storico, due settimane di Black Friday da prevedere.</p>
-        <button class="bottone" id="avvio-kit">Apri l'analisi</button>
-      </article>
-      <article class="scheda" id="zona-file">
-        <h3>Carica i tuoi file</h3>
-        <p>Trascina qui lo storico giornaliero in CSV, oppure sceglilo dal computer.</p>
-        <label class="bottone chiaro" for="file-ingresso">Scegli file</label>
-        <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden>
-        <div id="esito-file" class="esito" aria-live="polite"></div>
-      </article>
-      <article class="scheda">
-        <h3>Descrivi un annuncio</h3>
-        <label class="nascosta" for="avvio-testo">Descrizione dell'annuncio</label>
-        <textarea id="avvio-testo" rows="4" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
-        <button class="bottone" id="avvio-prompt">Prova sul pubblico</button>
-      </article>
+<!-- 2. CONSOLE -->
+<section class="vista" id="v-console" hidden>
+  <header class="nav chiara">
+    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
+    <a class="mono-link" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">Codice su GitHub ↗</a>
+  </header>
+  <div class="console">
+    <div class="console-sx">
+      <p class="mono etichetta-m">■ Stato del sistema</p>
+      <h2>Motore pronto</h2>
+      <p class="tenue">Dati della sfida caricati: tre campagne, 91 giorni di storico.</p>
+      <p class="mono etichetta-m spazio">◇ Passi</p>
+      <ol class="passi-lista">
+        <li><span>01</span><div><b>Dati</b><p>Lettura di storico, budget e creatività; ricerca delle anomalie.</p></div></li>
+        <li><span>02</span><div><b>Pubblici</b><p>Per ogni ad set: grandezza, temperatura e leva che rende di più.</p></div></li>
+        <li><span>03</span><div><b>Simulazione</b><p>Quindici giorni di CTR e CPM, con il margine di errore.</p></div></li>
+        <li><span>04</span><div><b>Decisioni</b><p>Budget, creatività da sostituire, momento giusto.</p></div></li>
+        <li><span>05</span><div><b>Laboratorio</b><p>Un annuncio nuovo provato sul pubblico simulato.</p></div></li>
+      </ol>
+    </div>
+    <div class="console-dx">
+      <div class="scatola" id="zona-file">
+        <div class="scatola-riga"><span class="mono">01 / Dati di partenza</span><span class="mono tenue">CSV</span></div>
+        <div class="file-riga"><span class="mono" id="file-nome">kit della sfida · storico_giornaliero.csv</span>
+          <label class="quadro" for="file-ingresso" title="Carica un altro storico" aria-label="Carica un altro storico">↑</label>
+          <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden></div>
+        <div id="esito-file" aria-live="polite"></div>
+        <div class="divisore"><span class="mono">Parametri</span></div>
+        <div class="scatola-riga"><label class="mono" for="richiesta">&gt;_ 02 / Annuncio da provare (facoltativo)</label></div>
+        <textarea id="richiesta" class="mono" rows="4" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
+        <p class="mono motore">Motore: Flockets v0.1</p>
+        <button class="avvia" id="avvia"><span>Avvia la simulazione</span><span aria-hidden="true">→</span></button>
+        <p class="avviso-barra mono">Demo sui dati della sfida: le previsioni sono già state calcolate dal motore.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 3. ANALISI -->
-<section class="vista" id="v-analisi" hidden>
-  <div class="contenuto">
-    <div class="testa-analisi">
-      <div class="campagne" id="campagne" role="tablist" aria-label="Campagna"></div>
-      <p class="campagna-desc" id="campagna-desc"></p>
+<!-- 3. AREA DI LAVORO -->
+<section class="vista" id="v-sim" hidden>
+  <header class="barra">
+    <a class="indietro" href="#/console" aria-label="Torna alla console">←</a>
+    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="22" height="22"><use href="#marchio"/></svg>Flockets</a>
+    <div class="viste" role="tablist" aria-label="Disposizione">
+      <button data-v="pubblico" role="tab">Pubblico</button><button data-v="diviso" role="tab" aria-selected="true">Diviso</button><button data-v="tecnica" role="tab">Tecnica</button>
     </div>
-    <div id="pannello"></div>
+    <div class="stato"><span class="mono tenue" id="st-passo"></span><b id="st-nome"></b><span class="spia" id="st-spia"></span><span class="tenue" id="st-testo"></span></div>
+    <a class="pulsante nero" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub</a>
+  </header>
+  <div class="lavoro" data-disp="diviso">
+    <section class="palco" aria-label="Pubblico simulato">
+      <div class="palco-testa">
+        <b class="palco-titolo">Pubblico simulato</b>
+        <div class="campagne" id="campagne" role="tablist" aria-label="Campagna"></div>
+      </div>
+      <div class="tempo" id="tempo">
+        <button class="tondo" id="pz-play" aria-label="Avvia i 15 giorni"><svg width="12" height="12" viewBox="0 0 14 14"><path id="pz-icona" d="M3 1.5v11l9-5.5z"/></svg></button>
+        <b id="pz-data" class="mono"></b><span id="pz-evento" class="evento" hidden></span>
+        <input type="range" id="pz-slider" min="0" max="14" value="0" aria-label="Giorno della previsione">
+      </div>
+      <div class="zone" id="zone"></div>
+      <div class="legenda" id="pz-legenda"></div>
+    </section>
+    <section class="tecnica" aria-label="Parte tecnica">
+      <nav class="passi-nav" id="passi-nav" aria-label="Passi"></nav>
+      <div class="schede" id="pannello"></div>
+      <div class="registro" aria-label="Registro">
+        <div class="registro-testa mono"><span>Registro</span><span id="reg-id">flockets · kit sfida</span></div>
+        <div class="registro-righe mono" id="registro"></div>
+      </div>
+    </section>
   </div>
 </section>
 
-</main>
-
-<div class="velo" id="velo" hidden>
-  <div class="velo-dentro">
-    <canvas id="velo-omino" width="96" height="96" aria-hidden="true"></canvas>
-    <ol id="velo-passi"></ol>
-  </div>
-</div>
-
-<script src="js/scena.js?v=1"></script>
-<script src="js/grafici.js?v=1"></script>
-<script src="js/app.js?v=1"></script>
+<script src="js/scena.js?v=7"></script>
+<script src="js/grafici.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>

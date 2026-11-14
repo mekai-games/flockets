@@ -1,4 +1,4 @@
-/* Flockets: viste, piazza animata, pubblici, previsioni, decisioni, laboratorio, consegne. */
+/* Flockets: home, console, area di lavoro (pubblico simulato a sinistra, parte tecnica a destra). */
 (function () {
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
@@ -17,7 +17,10 @@
   const stringe = (v, a, b) => Math.max(a, Math.min(b, v));
   const accenti = t => t.replace(/\bpiu\b/g, 'più').replace(/\bgia\b/g, 'già').replace(/(\d)\.(\d)/g, '$1,$2');
 
-  const SCHEDE = { piazza: 'Piazza', pubblici: 'Pubblici', previsioni: 'Previsioni', decisioni: 'Decisioni', laboratorio: 'Laboratorio', consegne: 'Consegne' };
+  const PASSI = [
+    { id: 'dati', nome: 'Dati' }, { id: 'pubblici', nome: 'Pubblici' }, { id: 'simulazione', nome: 'Simulazione' },
+    { id: 'decisioni', nome: 'Decisioni' }, { id: 'laboratorio', nome: 'Laboratorio' },
+  ];
   const TIPI = { ampio: 'Pubblico ampio', interessi: 'Interessi', sosia: 'Sosia dei clienti', caldo: 'Già vicini al marchio' };
   const CHI = {
     ampio: () => 'Chiunque in Italia tra 18 e 65 anni. Nessun interesse scelto: decide la piattaforma a chi mostrare l’annuncio.',
@@ -34,10 +37,13 @@
     ugc: 'una persona parla in camera', hook: 'aggancio nei primi 2 secondi', ritmo: 'ritmo veloce',
     testo_pesante: 'grafica piena di testo', brand_lento: 'video di marca lento', timer: 'timer o conto alla rovescia',
   };
+  const ESEMPIO = 'Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI';
   const REPO = 'https://github.com/mekai-games/flockets';
+  const BLU = '#3B4BE0', GRIGIO = '#A3A3A3';
+  const FATTO = ['Completato', 'ok'];
 
-  const S = { campagna: null, tab: 'piazza', giorno: 0, play: false, adset: null, ad: null, budget: {}, lab: null };
-  let D = null, datiP = null, orologio = null;
+  const S = { campagna: null, passo: 'dati', giorno: 0, play: false, adset: null, ad: null, budget: {}, lab: null, visti: {}, testoConsole: '' };
+  let D = null, datiP = null, orologio = null, palco = null;
 
   /* ------------------------------------------------------------------ dati */
   function dati() {
@@ -67,144 +73,234 @@
   const camp = () => D.campagne.find(c => c.id === S.campagna);
   const nOmini = k => stringe(Math.round(3 * Math.log10(D.adset[k].grandezza) - 10.5), 3, 12);
   const breve = k => k.split('-')[1];
+  const gente = g => (g >= 1e7 ? 'oltre 10 mln' : g >= 1e6 ? nf(g / 1e6, 1) + ' mln' : ni(g / 1000) + ' mila');
+  // effetto del budget scelto con i cursori sui numeri di un pubblico
+  function conFattore(k, g) {
+    const r = S.budget[k] / D.adset[k].budget_test, e = D.par.elasticita;
+    return { spesa: g.spesa * r, imp: g.imp * Math.pow(r, 1 - e), clk: g.clk * Math.pow(r, 1 - e), cpm: g.cpm * Math.pow(r, e), ctr: g.ctr };
+  }
+
+  /* ---------------------------------------------------------------- registro */
+  function registra(msg) {
+    const el = $('#registro'); if (!el) return;
+    const t = new Date(), ora = t.toTimeString().slice(0, 8) + '.' + String(t.getMilliseconds()).padStart(3, '0');
+    el.insertAdjacentHTML('beforeend', `<div><span>${ora}</span>${esc(msg)}</div>`);
+    while (el.children.length > 90) el.firstChild.remove();
+    el.scrollTop = el.scrollHeight;
+  }
+  function registraLista(righe) { righe.forEach((r, i) => setTimeout(() => registra(r), i * 140)); }
+  function stato(testo, corso) { $('#st-testo').textContent = testo; $('#st-spia').classList.toggle('corso', !!corso); }
 
   /* ------------------------------------------------------------------ viste */
   function mostra(v) {
+    if (document.body.dataset.vista === v) return;
     document.body.dataset.vista = v;
     $$('.vista').forEach(s => { s.hidden = s.id !== 'v-' + v; });
     window.scrollTo(0, 0);
   }
   function instrada() {
     const p = location.hash.replace(/^#\/?/, '').split('/');
-    ferma();
-    if (p[0] === 'analisi') {
-      mostra('analisi');
-      if (p[1] && SCHEDE[p[1]]) S.tab = p[1];
-      dati().then(rAnalisi);
-    } else {
-      $('#schede').innerHTML = '';
-      mostra(p[0] === 'avvio' ? 'avvio' : 'benvenuto');
-    }
+    if (p[0] === 'console') { play(false); mostra('console'); dati(); return; }
+    if (p[0] !== 'sim') { play(false); mostra('benvenuto'); return; }
+    dati().then(() => {
+      mostra('sim');
+      S.passo = (p[1] === 'consegne' || PASSI.some(x => x.id === p[1])) ? p[1] : 'dati';
+      if (!palco) rCampagne();
+      rPasso();
+    });
   }
-  function ferma() { S.play = false; clearInterval(orologio); orologio = null; }
-
-  function rAnalisi() {
-    ferma();
-    $('#schede').innerHTML = Object.entries(SCHEDE).map(([k, n]) => `<a href="#/analisi/${k}" class="${k === S.tab ? 'attiva' : ''}">${n}</a>`).join('');
-    const c = camp();
-    $('#campagne').innerHTML = D.campagne.map(x => `<button role="tab" aria-selected="${x.id === c.id}" data-c="${x.id}">${esc(x.nome)}</button>`).join('');
-    $('#campagna-desc').textContent = c.descrizione;
-    $$('#campagne button').forEach(b => b.addEventListener('click', () => { S.campagna = b.dataset.c; S.adset = null; S.ad = null; rAnalisi(); }));
-    $('.testa-analisi').hidden = S.tab === 'consegne';
-    const el = $('#pannello');
-    el.className = 'pannello p-' + S.tab;
-    ({ piazza: rPiazza, pubblici: rPubblici, previsioni: rPrevisioni, decisioni: rDecisioni, laboratorio: rLaboratorio, consegne: rConsegne })[S.tab](el);
+  function rCampagne() {
+    $('#campagne').innerHTML = D.campagne.map(x => `<button role="tab" aria-selected="${x.id === S.campagna}" data-c="${x.id}">${esc(x.nome)}</button>`).join('');
+    $$('#campagne button').forEach(b => b.addEventListener('click', () => {
+      play(false); S.campagna = b.dataset.c; S.adset = null; S.ad = null; S.giorno = 0; palco = null; rCampagne(); rPasso();
+      registra('Campagna: ' + camp().nome);
+    }));
   }
 
-  /* ----------------------------------------------------------------- piazza */
-  const DUR = 7, RITMO = 1.3; // secondi per giorno simulato, salti al secondo nella zona piu attiva
-  function rPiazza(el) {
-    const c = camp(), giorni = D.meta.giorni;
+  /* ------------------------------------------------------------------ palco */
+  const DUR = 4.5, RITMO = 1.3; // secondi per giorno simulato, reazioni al secondo nel pubblico piu attivo
+  function rPalco(noto) {
+    const c = camp(), giorni = D.meta.giorni, el = $('#zone');
     const maxClk = Math.max(...c.adset.flatMap(k => giorni.map(d => D.zona[k][d].clk)));
-    const perSalto = maxClk / (RITMO * DUR);
-    el.innerHTML = `
-      <div class="comandi">
-        <button class="bottone piccolo" id="pz-play">Avvia i 15 giorni</button>
-        <div class="pz-giorno"><b id="pz-data"></b> <span id="pz-evento" class="evento" hidden></span></div>
-        <input type="range" id="pz-slider" min="0" max="${giorni.length - 1}" value="${S.giorno}" aria-label="Giorno della previsione">
-      </div>
-      <div class="zone">${c.adset.map(k => `
-        <article class="zona" data-as="${k}">
-          <header><b>${TIPI[D.adset[k].tipo]}</b><span>${breve(k)}</span></header>
-          <div class="cartellone"><div class="cart-tag"></div><div class="cart-titolo"></div></div>
-          <canvas></canvas>
-          <dl class="numeri">
-            <div><dt>Budget</dt><dd data-n="bud"></dd></div><div><dt>CPM</dt><dd data-n="cpm"></dd></div>
-            <div><dt>CTR</dt><dd data-n="ctr"></dd></div><div><dt>Click</dt><dd data-n="clk"></dd></div>
-          </dl>
-        </article>`).join('')}
-      </div>
-      <div class="totale" id="pz-totale"></div>
-      <p class="legenda"><b>Come si legge.</b> Ogni gruppo è un pubblico: più omini, pubblico più grande. Un omino che <b>esulta</b> vale circa ${ni(perSalto)} click. Chi <b>dorme</b> ha visto l’annuncio troppe volte: la creatività è stanca. I numeri sono le previsioni del modello per quel giorno.</p>`;
+    el.innerHTML = c.adset.map((k, i) => {
+      const a = D.adset[k];
+      return `<article class="zona" data-as="${k}" tabindex="0" role="button" aria-label="${noto ? TIPI[a.tipo] : 'Ad set ' + (i + 1)}">
+        <header><div><b>${noto ? TIPI[a.tipo] : 'Ad set ' + (i + 1)}</b><span class="sigla mono">${breve(k)}</span></div><span class="gente mono">${noto ? gente(a.grandezza) : 'pubblico da definire'}</span></header>
+        <div class="vivo"><i class="punto"></i><div><span class="cart-tag mono"></span><p class="cart-titolo"></p></div></div>
+        <canvas></canvas>
+        <dl class="kpi"><div><dt>Budget</dt><dd data-n="bud"></dd></div><div><dt>CPM</dt><dd data-n="cpm"></dd></div><div><dt>CTR</dt><dd data-n="ctr"></dd></div><div><dt>Click</dt><dd data-n="clk"></dd></div></dl>
+      </article>`;
+    }).join('');
     const scene = {};
     c.adset.forEach(k => {
-      scene[k] = new Flock.Scena($(`.zona[data-as="${k}"] canvas`, el), { scala: 2, altezza: 112 }).popola(nOmini(k));
+      const sc = new Flock.Scena($(`.zona[data-as="${k}"] canvas`, el), { scala: 2, altezza: 118, suolo: 14 }).popola(noto ? nOmini(k) : 6);
+      if (!noto) sc.omini.forEach(o => { o.a = 0.45; });
+      scene[k] = sc;
     });
+    $$('.zona', el).forEach(z => {
+      const vai = () => { S.adset = z.dataset.as; S.ad = null; location.hash = '#/sim/simulazione'; if (S.passo === 'simulazione') rPasso(); };
+      z.addEventListener('click', vai);
+      z.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vai(); } });
+    });
+    $('#pz-legenda').innerHTML = `<b class="mono">Come si legge</b><span><i class="punto leva-scarcity"></i>scarsità</span><span><i class="punto leva-urgency"></i>urgenza</span><span><i class="punto leva-black_friday"></i>black friday</span>
+      <p>Più omini, pubblico più grande. Chi <b>esulta</b> vale circa ${ni(maxClk / (RITMO * DUR))} click. Chi <b>dorme</b> ha visto l’annuncio troppe volte.</p>`;
+    const totali = d => {
+      let sp = 0, im = 0, ck = 0;
+      c.adset.forEach(k => { const x = conFattore(k, D.zona[k][d]); sp += x.spesa; im += x.imp; ck += x.clk; });
+      return { sp, im, ck };
+    };
     const numeri = p => {
       const d = giorni[S.giorno];
-      let sp = 0, im = 0, ck = 0;
-      c.adset.forEach(k => {
-        const g = D.zona[k][d], z = $(`.zona[data-as="${k}"]`, el);
-        $('[data-n="clk"]', z).textContent = ni(g.clk * p);
-        sp += g.spesa; im += g.imp; ck += g.clk;
-      });
-      $('#pz-totale').innerHTML = `<span>Campagna, ${gm(d)}</span><b>${ni(sp)} €</b> spesi <b>${ni(im * p)}</b> impression <b>${ni(ck * p)}</b> click <b>${nf(sp / ck)} €</b> a click`;
+      c.adset.forEach(k => { $(`.zona[data-as="${k}"] [data-n="clk"]`, el).textContent = ni(conFattore(k, D.zona[k][d]).clk * p); });
+      const cum = $('#sim-cum');
+      if (cum) {
+        let sp = 0, im = 0, ck = 0;
+        giorni.forEach((g, i) => { if (i > S.giorno) return; const t = totali(g), f = i === S.giorno ? p : 1; sp += t.sp * f; im += t.im * f; ck += t.ck * f; });
+        cum.innerHTML = `<div><dt>Spesa fin qui</dt><dd>${ni(sp)} €</dd></div><div><dt>Impression</dt><dd>${ni(im)}</dd></div><div><dt>Click</dt><dd>${ni(ck)}</dd></div>`;
+        $('#sim-barra').style.width = ((S.giorno + p) / giorni.length * 100).toFixed(1) + '%';
+        $('#sim-stato').textContent = S.play ? `Giorno ${S.giorno + 1} di ${giorni.length}` : (S.giorno >= giorni.length - 1 ? 'Completata' : `Giorno ${S.giorno + 1} di ${giorni.length}`);
+        $('#sim-stato').className = 'stato-b ' + (S.play ? 'corso' : 'ok');
+      }
     };
-    const giorno = p => {
+    const aggiorna = p => {
       const d = giorni[S.giorno];
-      $('#pz-data').textContent = NOMI_G[dow(d)] + ' ' + gm(d);
+      $('#pz-data').textContent = NOMI_G[dow(d)].slice(0, 3) + ' ' + gm(d);
       const ev = D.meta.eventi[d];
       $('#pz-evento').hidden = !ev; $('#pz-evento').textContent = ev || '';
+      $('#pz-slider').value = S.giorno;
       c.adset.forEach(k => {
-        const g = D.zona[k][d], a = D.ads[g.top.ad], z = $(`.zona[data-as="${k}"]`, el);
-        const cart = $('.cartellone', z);
-        cart.className = 'cartellone leva-' + a.leva;
-        $('.cart-tag', cart).innerHTML = `${LEVE[a.leva]} · ${a.formato}${g.top.eta < 4 ? ' <em>nuovo</em>' : ''}${a.cold ? ' <em>mai vista</em>' : ''}`;
-        $('.cart-titolo', cart).textContent = a.titolo;
-        $('[data-n="bud"]', z).textContent = ni(g.ads[0] ? S_bud(k) : 0) + ' €';
-        $('[data-n="cpm"]', z).textContent = nf(g.cpm) + ' €';
-        $('[data-n="ctr"]', z).textContent = nf(g.ctr) + '%';
-        scene[k].ritmo = g.clk / maxClk * RITMO;
-        scene[k].dormienti((1 - g.fat) * 0.9);
+        const g = D.zona[k][d], x = conFattore(k, g), a = D.ads[g.top.ad], z = $(`.zona[data-as="${k}"]`, el);
+        $('.vivo', z).classList.remove('prova');
+        $('.punto', z).className = 'punto leva-' + a.leva;
+        $('.cart-tag', z).innerHTML = `${LEVE[a.leva]} · ${a.formato}${g.top.eta < 4 ? ' <em>nuovo</em>' : ''}${a.cold ? ' <em>mai vista</em>' : ''}`;
+        $('.cart-titolo', z).textContent = a.titolo;
+        $('[data-n="bud"]', z).textContent = ni(S.budget[k]) + ' €';
+        $('[data-n="cpm"]', z).textContent = nf(x.cpm) + ' €';
+        $('[data-n="ctr"]', z).textContent = nf(x.ctr) + '%';
+        scene[k].ritmo = noto ? Math.min(x.clk / maxClk * RITMO, 2.4) : 0;
+        scene[k].dormienti(noto ? (1 - g.fat) * 0.9 : 0);
       });
       numeri(p);
     };
-    const S_bud = k => D.adset[k].budget_test;
-    const play = on => {
-      ferma(); S.play = on;
-      $('#pz-play').textContent = on ? 'Pausa' : 'Avvia i 15 giorni';
-      if (!on) { numeri(1); return; }
-      if (S.giorno >= giorni.length - 1) { S.giorno = 0; $('#pz-slider').value = 0; }
-      let t0 = performance.now();
-      giorno(0);
-      orologio = setInterval(() => {
-        const p = (performance.now() - t0) / (DUR * 1000);
-        if (p < 1) { numeri(p); return; }
-        if (S.giorno >= giorni.length - 1) { play(false); return; }
-        S.giorno++; t0 = performance.now(); $('#pz-slider').value = S.giorno; giorno(0);
-      }, 100);
+    // passo 5: sui cartelloni va l'annuncio in prova
+    const prova = (r, L) => {
+      const mx = Math.max(...r.righe.map(x => S.budget[x.k] / x.cpm * x.ctr));
+      r.righe.forEach(x => {
+        const z = $(`.zona[data-as="${x.k}"]`, el), clk = S.budget[x.k] * D.par.spesa_su_budget / x.cpm * 10 * x.ctr;
+        $('.vivo', z).classList.add('prova');
+        $('.punto', z).className = 'punto leva-' + L.leva;
+        $('.cart-tag', z).innerHTML = `${LEVE[L.leva]} · ${L.formato} <em>in prova</em>`;
+        $('.cart-titolo', z).textContent = L.testo || ESEMPIO;
+        $('[data-n="bud"]', z).textContent = ni(S.budget[x.k]) + ' €';
+        $('[data-n="cpm"]', z).textContent = nf(x.cpm) + ' €';
+        $('[data-n="ctr"]', z).textContent = nf(x.ctr) + '%';
+        $('[data-n="clk"]', z).textContent = ni(clk);
+        scene[x.k].ritmo = S.budget[x.k] / x.cpm * x.ctr / mx * RITMO; scene[x.k].dormienti(0);
+      });
     };
-    $('#pz-play').addEventListener('click', () => play(!S.play));
-    $('#pz-slider').addEventListener('input', e => { if (S.play) play(false); S.giorno = +e.target.value; giorno(1); });
-    giorno(1);
+    palco = { aggiorna, numeri, prova, totali, giorni, noto, campagna: c.id };
+    aggiorna(1);
+  }
+  function play(on) {
+    clearInterval(orologio); orologio = null; S.play = on;
+    const ic = $('#pz-icona'); if (ic) ic.setAttribute('d', on ? 'M3 1.5h3v11H3zM8 1.5h3v11H8z' : 'M3 1.5v11l9-5.5z');
+    const b = $('#pz-play'); if (b) b.setAttribute('aria-label', on ? 'Pausa' : 'Avvia i 15 giorni');
+    if (!palco || !D) return;
+    if (S.passo === 'simulazione') stato(on ? 'In corso' : 'Pronto', on);
+    if (!on) { palco.numeri(1); return; }
+    const ultimo = palco.giorni.length - 1;
+    if (S.giorno >= ultimo) S.giorno = 0;
+    const riga = () => { const d = palco.giorni[S.giorno], t = palco.totali(d); registra(`${gm(d)} · ${ni(t.ck)} click · CPM ${nf(t.sp / t.im * 1000)} € · CTR ${nf(t.ck / t.im * 100)}%`); };
+    let t0 = performance.now();
+    palco.aggiorna(0); riga();
+    orologio = setInterval(() => {
+      const p = (performance.now() - t0) / (DUR * 1000);
+      if (p < 1) { palco.numeri(p); return; }
+      if (S.giorno >= ultimo) { play(false); registra(`✓ Simulazione completata: ${palco.giorni.length} giorni, ${ni(D.meta.righe_previste)} previsioni`); return; }
+      S.giorno++; t0 = performance.now(); palco.aggiorna(0); riga();
+    }, 100);
   }
 
-  /* --------------------------------------------------------------- pubblici */
-  function rPubblici(el) {
+  /* ------------------------------------------------------------------ passi */
+  const scheda = (n, titolo, st, corpo, mono) => `<article class="scheda"><header><span class="num mono">${n}</span><h3>${titolo}</h3>${st ? `<span class="stato-b ${st[1]}"${st[2] ? ` id="${st[2]}"` : ''}>${st[0]}</span>` : ''}</header>${mono ? `<p class="mono riga-m">${mono}</p>` : ''}${corpo}</article>`;
+  const avanti = (hash, testo) => `<a class="vai" href="#/sim/${hash}"><span>${testo}</span><span aria-hidden="true">→</span></a>`;
+
+  function rPasso() {
+    const i = PASSI.findIndex(x => x.id === S.passo), consegne = S.passo === 'consegne';
+    if (S.passo !== 'simulazione' && S.play) play(false);
+    $('#passi-nav').innerHTML = PASSI.map((x, j) => `<a href="#/sim/${x.id}" class="${x.id === S.passo ? 'attivo' : ''}"><span class="mono">0${j + 1}</span>${x.nome}</a>`).join('')
+      + `<a href="#/sim/consegne" class="fine ${consegne ? 'attivo' : ''}">Consegne</a>`;
+    $('#st-passo').textContent = consegne ? 'Consegne' : `Passo ${i + 1}/5`;
+    $('#st-nome').textContent = consegne ? '' : PASSI[i].nome;
+    stato('Pronto', false);
+    const noto = consegne || i >= 1;
+    if (!palco || palco.noto !== noto || palco.campagna !== S.campagna) rPalco(noto);
+    $('.palco').dataset.passo = consegne ? 6 : i + 1;
+    const el = $('#pannello');
+    el.scrollTop = 0;
+    ({ dati: rDati, pubblici: rPubblici, simulazione: rSimulazione, decisioni: rDecisioni, laboratorio: rLaboratorio, consegne: rConsegne })[S.passo](el);
+    if (S.passo !== 'laboratorio') palco.aggiorna(1);
+    $$('#zone .zona').forEach(z => z.classList.toggle('scelta', S.passo === 'simulazione' && z.dataset.as === S.adset));
+    const chiave = S.passo + '|' + S.campagna;
+    if (!S.visti[chiave]) { S.visti[chiave] = true; primaVolta(); }
+  }
+  function primaVolta() {
     const c = camp();
-    el.innerHTML = `
-      <p class="intro">Il pubblico non è nei dati. Flockets lo ricava da tre segnali: quanto costa raggiungerlo (CPM), quanto reagisce (CTR) e quanto spesso le stesse persone rivedono l’annuncio (frequenza).</p>
-      <div class="carte">${c.adset.map(k => {
-        const a = D.adset[k];
-        const gr = a.grandezza >= 1e7 ? 'oltre 10 milioni' : a.grandezza >= 1e6 ? 'circa ' + nf(a.grandezza / 1e6, 1) + ' milioni' : 'circa ' + ni(a.grandezza / 1000) + ' mila';
-        return `<article class="carta tipo-${a.tipo}" data-as="${k}">
-          <header><b>${TIPI[a.tipo]}</b><span>${breve(k)}</span></header>
-          <canvas></canvas>
-          <p class="chi">${CHI[a.tipo](a.vertical)}</p>
-          <dl class="numeri">
-            <div><dt>CTR sulla media</dt><dd>${nf(a.ctr_rel)}×</dd></div><div><dt>CPM sulla media</dt><dd>${nf(a.cpm_rel)}×</dd></div>
-            <div><dt>Frequenza</dt><dd>${nf(a.frequenza)}</dd></div><div><dt>Persone</dt><dd class="piccolo">${gr}</dd></div>
-          </dl>
-          <p class="perche"><b>Perché.</b> ${esc(accenti(a.motivazione))}.</p>
-          ${LEVE[a.leva] ? `<p class="perche"><b>Leva che qui rende di più:</b> ${LEVE[a.leva]}.</p>` : ''}
-        </article>`;
-      }).join('')}</div>
-      <p class="legenda">La grandezza è un ordine di grandezza, ricavato da come cresce la frequenza quando crescono le impression. L’età non è nei dati: resta un’ipotesi.</p>`;
-    c.adset.forEach(k => new Flock.Scena($(`.carta[data-as="${k}"] canvas`, el), { scala: 2, altezza: 96 }).popola(nOmini(k)));
+    if (S.passo === 'dati') {
+      registraLista([`Storico letto: ${ni(D.meta.righe_storico)} righe, dal ${gm(D.meta.storico_dal)} al ${gm(D.meta.storico_al)}`,
+        `Budget letto: ${Object.keys(D.adset).length} ad set, ${D.meta.giorni.length} giorni da prevedere`,
+        `Creatività lette: ${new Set(Object.values(D.ads).map(a => a.asset)).size}`,
+        ...D.anomalie.map(a => `Anomalia ${gm(a.data)} · ${a.dove.replace('_', ' ')}`), '✓ Dati pronti']);
+    } else if (S.passo === 'pubblici') {
+      registraLista([...c.adset.map(k => `${k} → ${TIPI[D.adset[k].tipo]} (${gente(D.adset[k].grandezza)})`), `✓ ${c.adset.length} pubblici immaginati per ${c.nome}`]);
+    } else if (S.passo === 'simulazione') {
+      registra('Avvio simulazione: ' + c.nome);
+      S.giorno = 0; play(true);
+    }
   }
 
-  /* ------------------------------------------------------------- previsioni */
-  function rPrevisioni(el) {
+  /* ---- 01 dati */
+  function rDati(el) {
+    const st = D.stagione.cpm, sett = Object.keys(st).sort();
+    const nAds = Object.keys(D.ads).length, giorniSto = giorniTra(D.meta.storico_al, D.meta.storico_dal) + 1;
+    el.innerHTML = scheda('01', 'Lettura dei dati', FATTO, `
+        <p>Flockets legge lo storico giornaliero di ogni annuncio, il budget di ogni ad set, le creatività e il calendario.</p>
+        <dl class="tessere tre"><div><dd>${ni(D.meta.righe_storico)}</dd><dt>Righe di storico</dt></div><div><dd>${giorniSto}</dd><dt>Giorni</dt></div><div><dd>${nAds}</dd><dt>Annunci</dt></div></dl>
+        <p class="sopra-chip mono">File letti</p>
+        <p class="chips mono"><span>storico_giornaliero</span><span>budget_giornaliero</span><span>annunci</span><span>asset_creativi</span><span>calendario</span><span>benchmark_mercato_2025</span></p>
+        <details><summary>Cosa serve al modello</summary><ul class="punti">
+          <li><b>Storico giornaliero per annuncio</b>: data, ad set, annuncio, spesa, impression, click. Con la copertura stima anche la grandezza del pubblico.</li>
+          <li><b>Budget di ogni ad set</b>, giorno per giorno, compresi i giorni da prevedere.</li>
+          <li><b>Creatività</b>: leva, formato, testi e una descrizione di cosa si vede. Serve per stimare gli annunci senza storico.</li>
+          <li><b>Utili ma non obbligatori</b>: andamento del mercato dell’anno prima, calendario degli eventi, vendite.</li></ul></details>`, 'storico_giornaliero.csv · budget_giornaliero.csv · asset_creativi/')
+      + scheda('02', 'Controllo delle anomalie', [`${D.anomalie.length} trovate`, 'corso'], `
+        <p>Giorni che romperebbero la stima se presi per buoni. Vengono esclusi.</p>
+        <ul class="avvisi">${D.anomalie.map(a => `<li class="giallo"><b>${gm(a.data)} · ${esc(a.dove.replace('_', ' '))}.</b> ${esc(a.cosa.charAt(0).toUpperCase() + a.cosa.slice(1))}.</li>`).join('')}</ul>`)
+      + scheda('03', 'Andamento del mercato', FATTO, `
+        <p>Il CPM del 2026 segue quello dell’anno prima spostato di 52 settimane. Ecco quanto costerà il mercato nelle settimane da prevedere, rispetto a settembre e ottobre.</p>
+        <dl class="tessere tre">${sett.map(w => `<div><dd>+${ni((Math.exp(st[w]) - 1) * 100)}%</dd><dt>Settimana del ${gm(w)}</dt></div>`).join('')}</dl>`)
+      + scheda('04', 'Dati pronti', null, `<p>Il pubblico di ogni ad set non è nei dati: va immaginato.</p>${avanti('pubblici', 'Vai ai pubblici')}`);
+  }
+
+  /* ---- 02 pubblici */
+  function rPubblici(el) {
+    const c = camp(), gr = c.adset.map(k => D.adset[k].grandezza);
+    el.innerHTML = scheda('01', 'Pubblici immaginati', FATTO, `
+        <p>Flockets ricava il pubblico da tre segnali: quanto costa raggiungerlo (CPM), quanto reagisce (CTR) e quanto spesso le stesse persone rivedono l’annuncio (frequenza).</p>
+        <dl class="tessere tre"><div><dd>${c.adset.length}</dd><dt>Pubblici</dt></div><div><dd>${gente(Math.min(...gr))}</dd><dt>Il più piccolo</dt></div><div><dd>${gente(Math.max(...gr))}</dd><dt>Il più grande</dt></div></dl>
+        <p class="sopra-chip mono">Profili generati</p>
+        <div class="profili">${c.adset.map(k => {
+          const a = D.adset[k];
+          return `<div class="profilo"><header><b>${TIPI[a.tipo]}</b><span class="mono">@${k}</span></header>
+            <p class="chips mono"><span>${gente(a.grandezza)}</span><span>CTR ${nf(a.ctr_rel)}×</span><span>CPM ${nf(a.cpm_rel)}×</span><span>frequenza ${nf(a.frequenza)}</span>${LEVE[a.leva] ? `<span>rende di più: ${LEVE[a.leva]}</span>` : ''}</p>
+            <p>${CHI[a.tipo](a.vertical)}</p><p class="nota">${esc(accenti(a.motivazione.charAt(0).toUpperCase() + a.motivazione.slice(1)))}.</p></div>`;
+        }).join('')}</div>
+        <p class="nota">La grandezza è un ordine di grandezza. L’età non è nei dati: resta un’ipotesi.</p>`, 'CPM · CTR · frequenza → pubblico')
+      + scheda('02', 'Pubblici pronti', null, `<p>Ora gli annunci vanno davanti ai pubblici, un giorno alla volta, dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}.</p>${avanti('simulazione', 'Avvia la simulazione')}`);
+  }
+
+  /* ---- 03 simulazione */
+  function rSimulazione(el) {
     const c = camp();
     if (!S.adset || !c.adset.includes(S.adset)) S.adset = c.adset[0];
     const annunci = Object.keys(D.perAd).filter(a => D.ads[a].adset === S.adset);
@@ -213,50 +309,49 @@
     const inizio = piu(D.meta.storico_al, -20), fine = D.meta.giorni[D.meta.giorni.length - 1];
     const giorni = []; for (let d = inizio; d <= fine; d = piu(d, 1)) giorni.push(d);
     const perD = Object.fromEntries(P.map(p => [p.d, p])), H = D.histAd[S.ad] || {};
-    const col = (f) => giorni.map(d => (perD[d] ? perD[d][f] : null));
-    const sto = (f) => giorni.map(d => (H[d] && !H[d].anom ? H[d][f] : null));
+    const col = f => giorni.map(d => (perD[d] ? perD[d][f] : null));
+    const sto = f => giorni.map(d => (H[d] && !H[d].anom ? H[d][f] : null));
     const sp = P.reduce((s, p) => s + p.spesa, 0), im = P.reduce((s, p) => s + p.imp, 0), ck = P.reduce((s, p) => s + p.clk, 0);
     const ev = {}; Object.entries(D.meta.eventi).forEach(([d, n]) => { if (/Black Friday|Cyber/.test(n)) ev[d] = n; });
-    el.innerHTML = `
-      <div class="scelte">
-        <div class="gruppo" role="tablist" aria-label="Ad set">${c.adset.map(k => `<button data-as="${k}" aria-selected="${k === S.adset}">${breve(k)} · ${TIPI[D.adset[k].tipo]}</button>`).join('')}</div>
-        <div class="gruppo annunci" role="tablist" aria-label="Annuncio">${annunci.map(a => `<button data-ad="${a}" aria-selected="${a === S.ad}" class="leva-${D.ads[a].leva}">${esc(D.ads[a].titolo)}</button>`).join('')}</div>
-      </div>
-      <div class="annuncio">
-        <div><span class="etichetta leva-${ad.leva}">${LEVE[ad.leva]}</span> <span class="etichetta">${ad.formato}</span> ${ad.cold ? '<span class="etichetta avviso">mai vista</span>' : ''}
-          <h3>${esc(ad.titolo)}</h3><p>${esc(ad.visual)}</p>
-          ${ad.cold ? '<p class="nota">Questa creatività non ha storico: la stima viene dalle sue caratteristiche, quindi la forchetta è larga.</p>' : ''}</div>
-        <dl class="tessere">
-          <div><dt>CTR previsto</dt><dd>${nf(ck / im * 100)}%</dd></div><div><dt>CPM previsto</dt><dd>${nf(sp / im * 1000)} €</dd></div>
-          <div><dt>Costo per click</dt><dd>${nf(sp / ck)} €</dd></div><div><dt>Click in ${P.length} giorni</dt><dd>${ni(ck)}</dd></div>
-        </dl>
-      </div>
-      <div class="griglia due">
-        <figure><figcaption>CTR, in percentuale</figcaption><div id="g-ctr"></div></figure>
-        <figure><figcaption>CPM, in euro</figcaption><div id="g-cpm"></div></figure>
-      </div>
-      <p class="legenda"><b>Come si legge.</b> La linea blu è la previsione. La fascia scura dice dove sta il valore di fondo; la fascia chiara dove cadrà il numero di quel giorno, 8 volte su 10. Più la fascia è larga, meno ci fidiamo.</p>
-      <details><summary>Tabella giorno per giorno</summary>
-        <div class="scorri"><table><thead><tr><th>Giorno</th><th>CTR</th><th>tra</th><th>CPM</th><th>tra</th><th>Costo per click</th><th>Spesa</th><th>Impression</th><th>Click</th></tr></thead>
-        <tbody>${P.map(p => `<tr><td>${NOMI_G[dow(p.d)].slice(0, 3)} ${gm(p.d)}</td><td>${nf(p.ctr)}%</td><td>${nf(p.c10)} – ${nf(p.c90)}</td><td>${nf(p.cpm)} €</td><td>${nf(p.m10)} – ${nf(p.m90)}</td><td>${nf(p.cpc)} €</td><td>${nf(p.spesa)} €</td><td>${ni(p.imp)}</td><td>${ni(p.clk)}</td></tr>`).join('')}</tbody></table></div>
-      </details>
-      <p><a class="bottone chiaro" href="data/previsioni_16-30_nov.csv" download>Scarica tutte le previsioni (CSV)</a></p>`;
+    el.innerHTML = scheda('01', 'Simulazione dei 15 giorni', ['', 'ok', 'sim-stato'], `
+        <p>Ogni giorno il modello prevede spesa, impression e click di ogni annuncio. A sinistra il pubblico reagisce.</p>
+        <dl class="tessere tre" id="sim-cum"></dl>
+        <div class="avanzamento"><i id="sim-barra"></i></div>`, 'CTR = asset × pubblico × fatica × stagione × giorno')
+      + scheda('02', 'Previsioni per annuncio', FATTO, `
+        <div class="gruppo" role="tablist" aria-label="Pubblico">${c.adset.map(k => `<button data-as="${k}" aria-selected="${k === S.adset}">${TIPI[D.adset[k].tipo]}</button>`).join('')}</div>
+        <div class="gruppo annunci" role="tablist" aria-label="Annuncio">${annunci.map(a => `<button data-ad="${a}" aria-selected="${a === S.ad}"><i class="punto leva-${D.ads[a].leva}"></i>${esc(D.ads[a].titolo)}</button>`).join('')}</div>
+        <div class="annuncio">
+          <p class="chips mono"><span><i class="punto leva-${ad.leva}"></i>${LEVE[ad.leva]}</span><span>${ad.formato}</span>${ad.cold ? '<span class="avviso">mai vista</span>' : ''}</p>
+          <h4>${esc(ad.titolo)}</h4><p class="tenue">${esc(ad.visual)}</p>
+          ${ad.cold ? '<p class="nota">Questa creatività non ha storico: la stima viene dalle sue caratteristiche, quindi la forchetta è larga.</p>' : ''}
+        </div>
+        <dl class="tessere quattro"><div><dd>${nf(ck / im * 100)}%</dd><dt>CTR previsto</dt></div><div><dd>${nf(sp / im * 1000)} €</dd><dt>CPM previsto</dt></div><div><dd>${nf(sp / ck)} €</dd><dt>Costo per click</dt></div><div><dd>${ni(ck)}</dd><dt>Click in ${P.length} giorni</dt></div></dl>
+        <figure><figcaption>CTR <span class="mono">percentuale</span></figcaption><div id="g-ctr"></div></figure>
+        <figure><figcaption>CPM <span class="mono">euro per mille impression</span></figcaption><div id="g-cpm"></div></figure>
+        <p class="nota"><b>Come si legge.</b> La linea blu è la previsione. La fascia scura dice dove sta il valore di fondo; la fascia chiara dove cadrà il numero di quel giorno, 8 volte su 10. Più la fascia è larga, meno ci fidiamo.</p>
+        <details><summary>Tabella giorno per giorno</summary>
+          <div class="scorri"><table><thead><tr><th>Giorno</th><th>CTR</th><th>tra</th><th>CPM</th><th>tra</th><th>Click</th></tr></thead>
+          <tbody>${P.map(p => `<tr><td>${NOMI_G[dow(p.d)].slice(0, 3)} ${gm(p.d)}</td><td>${nf(p.ctr)}%</td><td>${nf(p.c10)} – ${nf(p.c90)}</td><td>${nf(p.cpm)} €</td><td>${nf(p.m10)} – ${nf(p.m90)}</td><td>${ni(p.clk)}</td></tr>`).join('')}</tbody></table></div>
+        </details>
+        <p><a class="pulsante bordo" href="data/previsioni_16-30_nov.csv" download>Scarica tutte le previsioni (CSV)</a></p>`, `${ni(D.meta.righe_previste)} righe · ${D.meta.annunci_previsti} annunci · ${D.meta.righe_cold} righe su creatività mai viste`)
+      + scheda('03', 'Simulazione pronta', null, `<p>Con le previsioni in mano si decide: quanto budget, dove, e quale creatività.</p>${avanti('decisioni', 'Vai alle decisioni')}`);
     const oggi = giorni.indexOf(D.meta.giorni[0]);
     Grafici.linee($('#g-ctr'), {
-      titolo: 'CTR', giorni, oggi, unita: '%', eventi: ev,
-      serie: [{ nome: 'storico', colore: '#8E95B3', valori: sto('ctr'), punti: true, spessore: 1.5 }, { nome: 'previsto', colore: '#3247C9', valori: col('ctr'), spessore: 2.5 }],
-      fasce: [{ nome: 'quel giorno', colore: '#3247C9', opacita: 0.13, basso: col('c10'), alto: col('c90') }, { nome: 'valore di fondo', colore: '#3247C9', opacita: 0.26, basso: col('a10'), alto: col('a90') }],
+      titolo: 'CTR', giorni, oggi, unita: '%', eventi: ev, altezza: 200,
+      serie: [{ nome: 'storico', colore: GRIGIO, valori: sto('ctr'), punti: true, spessore: 1.3 }, { nome: 'previsto', colore: BLU, valori: col('ctr'), spessore: 2.2 }],
+      fasce: [{ nome: 'quel giorno', colore: BLU, opacita: 0.12, basso: col('c10'), alto: col('c90') }, { nome: 'valore di fondo', colore: BLU, opacita: 0.24, basso: col('a10'), alto: col('a90') }],
     });
     Grafici.linee($('#g-cpm'), {
-      titolo: 'CPM', giorni, oggi, unita: ' €', eventi: ev,
-      serie: [{ nome: 'storico', colore: '#8E95B3', valori: sto('cpm'), punti: true, spessore: 1.5 }, { nome: 'previsto', colore: '#3247C9', valori: col('cpm'), spessore: 2.5 }],
-      fasce: [{ nome: 'quel giorno', colore: '#3247C9', opacita: 0.2, basso: col('m10'), alto: col('m90') }],
+      titolo: 'CPM', giorni, oggi, unita: ' €', eventi: ev, altezza: 200,
+      serie: [{ nome: 'storico', colore: GRIGIO, valori: sto('cpm'), punti: true, spessore: 1.3 }, { nome: 'previsto', colore: BLU, valori: col('cpm'), spessore: 2.2 }],
+      fasce: [{ nome: 'quel giorno', colore: BLU, opacita: 0.18, basso: col('m10'), alto: col('m90') }],
     });
-    $$('[data-as]', $('.scelte', el)).forEach(b => b.addEventListener('click', () => { S.adset = b.dataset.as; S.ad = null; rAnalisi(); }));
-    $$('[data-ad]', el).forEach(b => b.addEventListener('click', () => { S.ad = b.dataset.ad; rAnalisi(); }));
+    const ridisegna = () => { const y = el.scrollTop; rSimulazione(el); el.scrollTop = y; palco.numeri(S.play ? 0 : 1); $$('#zone .zona').forEach(z => z.classList.toggle('scelta', z.dataset.as === S.adset)); };
+    $$('[data-as]', el).forEach(b => b.addEventListener('click', () => { S.adset = b.dataset.as; S.ad = null; ridisegna(); }));
+    $$('[data-ad]', el).forEach(b => b.addEventListener('click', () => { S.ad = b.dataset.ad; ridisegna(); }));
   }
 
-  /* -------------------------------------------------------------- decisioni */
+  /* ---- 04 decisioni */
   function baseAdset(k) {
     let sp = 0, im = 0, ck = 0;
     D.meta.giorni.forEach(d => { const g = D.zona[k][d]; sp += g.spesa; im += g.imp; ck += g.clk; });
@@ -274,64 +369,58 @@
   function rDecisioni(el) {
     const c = camp(), e = D.par.elasticita;
     const piano = c.adset.reduce((s, k) => s + D.adset[k].budget_test, 0);
-    // avvisi sulle creativita
     const annunci = Object.keys(D.perAd).filter(a => c.adset.includes(D.ads[a].adset));
     const riass = annunci.map(a => {
       const P = D.perAd[a], sp = P.reduce((s, p) => s + p.spesa, 0), ck = P.reduce((s, p) => s + p.clk, 0);
-      return { a, ad: D.ads[a], cpc: sp / ck, fat: P[P.length - 1].fat, primo: P[0], P };
+      return { a, ad: D.ads[a], cpc: sp / ck, fat: P[P.length - 1].fat, primo: P[0] };
     });
     const stanche = riass.filter(x => x.fat <= 0.7).sort((x, y) => x.fat - y.fat).slice(0, 3);
     const migliori = c.adset.map(k => riass.filter(x => x.ad.adset === k).sort((x, y) => x.cpc - y.cpc)[0]);
     const nuove = riass.filter(x => x.ad.cold);
-    el.innerHTML = `
-      <div class="griglia due larga">
-        <section class="blocco">
-          <h3>Dove mettere il budget</h3>
-          <p class="nota">Sposta i cursori: il budget giornaliero di ogni pubblico cambia, costi e click si ricalcolano subito.</p>
-          <div id="dec-righe">${c.adset.map(k => {
-            const a = D.adset[k];
-            return `<div class="dec-riga" data-as="${k}">
-              <label for="b-${k}"><b>${TIPI[a.tipo]}</b> <span>${breve(k)}</span></label>
-              <input type="range" id="b-${k}" min="${Math.round(a.budget_test * 0.5)}" max="${Math.round(a.budget_test * 2)}" step="1" value="${S.budget[k]}">
-              <output></output>
-            </div>`;
-          }).join('')}</div>
-          <div class="dec-bottoni"><button class="bottone piccolo chiaro" id="dec-piano">Piano attuale</button><button class="bottone piccolo" id="dec-proposta">Proposta di Flockets</button></div>
-          <div id="dec-totale" class="totale colonna"></div>
-          <p class="nota">Il CPM sale quando si spinge su un pubblico: con il doppio del budget arrivano circa il ${ni((Math.pow(2, 1 - e) - 1) * 100)}% di click in più, non il 100%. Click non vuol dire vendite: il pubblico ampio alimenta quelli caldi.</p>
-        </section>
-        <section class="blocco">
-          <h3>Quale creatività, e quando cambiarla</h3>
-          <ul class="avvisi">
-            ${stanche.map(x => `<li class="rosso"><b>Da sostituire.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) al 30/11 avrà perso il ${ni((1 - x.fat) * 100)}% della forza iniziale.</li>`).join('')}
-            ${migliori.map(x => `<li class="verde"><b>Rende di più in ${breve(x.ad.adset)}.</b> «${esc(x.ad.titolo)}»: ${nf(x.cpc)} € a click.</li>`).join('')}
-            ${nuove.map(x => `<li class="giallo"><b>Mai vista.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) parte il ${gm(x.primo.d)}: CTR stimato ${nf(x.primo.ctr)}%, ma può stare tra ${nf(x.primo.a10)} e ${nf(x.primo.a90)}. Da controllare dopo tre giorni.</li>`).join('')}
-          </ul>
-          <p class="nota"><b>Quando.</b> Un annuncio di urgenza perde un quarto della forza in ${tempoPerdita('urgency', 0.75)} giorni, uno di scarsità in ${tempoPerdita('scarcity', 0.75)}. Un annuncio nuovo paga il CPM più caro per i primi tre giorni: meglio lanciarlo prima del giorno che conta, non il giorno stesso.</p>
-        </section>
-      </div>`;
+    el.innerHTML = scheda('01', 'Dove mettere il budget', ['Interattivo', 'neutro'], `
+        <p>Sposta i cursori: costi e click si ricalcolano subito, anche nel pubblico simulato a sinistra.</p>
+        <div id="dec-righe">${c.adset.map(k => `
+          <div class="dec-riga" data-as="${k}">
+            <label for="b-${k}"><b>${TIPI[D.adset[k].tipo]}</b><span class="sigla mono">${breve(k)}</span></label>
+            <output class="dec-b"></output>
+            <input type="range" id="b-${k}" min="${Math.round(D.adset[k].budget_test * 0.5)}" max="${Math.round(D.adset[k].budget_test * 2)}" step="1" value="${S.budget[k]}">
+            <p class="dec-d mono"></p>
+          </div>`).join('')}</div>
+        <div class="azioni"><button class="pulsante nero" id="dec-proposta">Proposta di Flockets</button><button class="pulsante bordo" id="dec-piano">Piano attuale</button></div>
+        <dl class="tessere tre" id="dec-totale"></dl>
+        <p class="nota">Il CPM sale quando si spinge su un pubblico: con il doppio del budget arriva circa il ${ni((Math.pow(2, 1 - e) - 1) * 100)}% di click in più, non il 100%. Click non vuol dire vendite: il pubblico ampio alimenta quelli caldi.</p>`, `CPM × (budget ÷ budget previsto)^${nf(e)}`)
+      + scheda('02', 'Quale creatività, e quando cambiarla', FATTO, `
+        <ul class="avvisi">
+          ${stanche.map(x => `<li class="rosso"><b>Da sostituire.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) al 30/11 avrà perso il ${ni((1 - x.fat) * 100)}% della forza iniziale.</li>`).join('')}
+          ${migliori.map(x => `<li class="verde"><b>Rende di più in ${breve(x.ad.adset)}.</b> «${esc(x.ad.titolo)}»: ${nf(x.cpc)} € a click.</li>`).join('')}
+          ${nuove.map(x => `<li class="giallo"><b>Mai vista.</b> «${esc(x.ad.titolo)}» (${breve(x.ad.adset)}) parte il ${gm(x.primo.d)}: CTR stimato ${nf(x.primo.ctr)}%, ma può stare tra ${nf(x.primo.a10)} e ${nf(x.primo.a90)}. Da controllare dopo tre giorni.</li>`).join('')}
+        </ul>
+        <p class="nota"><b>Quando.</b> Un annuncio di urgenza perde un quarto della forza in ${tempoPerdita('urgency', 0.75)} giorni, uno di scarsità in ${tempoPerdita('scarcity', 0.75)}. Un annuncio nuovo paga il CPM più caro per i primi tre giorni: meglio lanciarlo prima del giorno che conta, non il giorno stesso.</p>`)
+      + scheda('03', 'Decisioni prese', null, `<p>Manca un’idea nuova? Provala sul pubblico prima di produrla.</p>${avanti('laboratorio', 'Vai al laboratorio')}`);
     const agg = () => {
       let tot = 0, ck = 0, ck0 = 0, sp = 0;
       c.adset.forEach(k => {
-        const B = S.budget[k], x = conBudget(k, B), x0 = conBudget(k, D.adset[k].budget_test);
+        const B = S.budget[k], x = conBudget(k, B), x0 = conBudget(k, D.adset[k].budget_test), riga = $(`.dec-riga[data-as="${k}"]`, el);
         tot += B; ck += x.clk; ck0 += x0.clk; sp += x.spesa;
         const d = (B / D.adset[k].budget_test - 1) * 100;
-        $(`.dec-riga[data-as="${k}"] output`, el).innerHTML = `<b>${ni(B)} €</b> <i class="${d > 0.5 ? 'su' : d < -0.5 ? 'giu' : ''}">${d > 0 ? '+' : ''}${ni(d)}%</i>
-          <span>CPM ${nf(x.cpm)} € · click ${nf(x.cpc)} € · ${ni(x.clk)} click al giorno · frequenza ${nf(x.freq)}</span>`;
+        $('.dec-b', riga).innerHTML = `${ni(B)} € <i class="${d > 0.5 ? 'su' : d < -0.5 ? 'giu' : ''}">${d > 0 ? '+' : ''}${ni(d)}%</i>`;
+        $('.dec-d', riga).textContent = `CPM ${nf(x.cpm)} € · ${nf(x.cpc)} € a click · ${ni(x.clk)} click al giorno · frequenza ${nf(x.freq)}`;
       });
       const dc = (ck / ck0 - 1) * 100, db = tot - piano;
-      $('#dec-totale').innerHTML = `<div><span>Budget al giorno</span><b>${ni(tot)} €</b> <i class="${Math.abs(db) < 1 ? '' : db > 0 ? 'su' : 'giu'}">${Math.abs(db) < 1 ? 'come il piano' : (db > 0 ? '+' : '') + ni(db) + ' € sul piano'}</i></div>
-        <div><span>Click al giorno</span><b>${ni(ck)}</b> <i class="${dc > 0.05 ? 'su' : dc < -0.05 ? 'giu' : ''}">${dc >= 0 ? '+' : ''}${nf(dc, 1)}% sul piano</i></div>
-        <div><span>Costo per click</span><b>${nf(sp / ck)} €</b></div>`;
+      $('#dec-totale').innerHTML = `<div><dd>${ni(tot)} €</dd><dt>Budget al giorno</dt><small class="${Math.abs(db) < 1 ? '' : db > 0 ? 'su' : 'giu'}">${Math.abs(db) < 1 ? 'come il piano' : (db > 0 ? '+' : '') + ni(db) + ' € sul piano'}</small></div>
+        <div><dd>${ni(ck)}</dd><dt>Click al giorno</dt><small class="${dc > 0.05 ? 'su' : dc < -0.05 ? 'giu' : ''}">${dc >= 0 ? '+' : ''}${nf(dc, 1)}% sul piano</small></div>
+        <div><dd>${nf(sp / ck)} €</dd><dt>Costo per click</dt></div>`;
+      if (palco) palco.aggiorna(1);
+      return dc;
     };
     $$('.dec-riga input', el).forEach(i => i.addEventListener('input', () => { S.budget[i.closest('.dec-riga').dataset.as] = +i.value; agg(); }));
-    const metti = f => { c.adset.forEach(k => { S.budget[k] = f(k); $('#b-' + k).value = S.budget[k]; }); agg(); };
-    $('#dec-piano').addEventListener('click', () => metti(k => D.adset[k].budget_test));
-    $('#dec-proposta').addEventListener('click', () => metti(k => D.adset[k].budget_proposto));
+    const metti = (f, nome) => { c.adset.forEach(k => { S.budget[k] = f(k); $('#b-' + k).value = S.budget[k]; }); const dc = agg(); registra(`${nome}: ${dc >= 0 ? '+' : ''}${nf(dc, 1)}% click sul piano`); };
+    $('#dec-piano').addEventListener('click', () => metti(k => D.adset[k].budget_test, 'Piano attuale'));
+    $('#dec-proposta').addEventListener('click', () => metti(k => D.adset[k].budget_proposto, 'Proposta applicata'));
     agg();
   }
 
-  /* ------------------------------------------------------------ laboratorio */
+  /* ---- 05 laboratorio */
   function leggiTesto(t) {
     const s = t.toLowerCase(), f = {};
     Object.entries(D.par.feat_regole).forEach(([k, rx]) => { f[k] = new RegExp(rx).test(s) ? 1 : 0; });
@@ -366,120 +455,85 @@
   }
   function rLaboratorio(el) {
     const c = camp();
-    if (!S.lab) S.lab = Object.assign({ testo: '', lancio: D.meta.giorni[0] }, leggiTesto(''));
+    if (!S.lab) { const t = S.testoConsole || ESEMPIO; S.lab = Object.assign({ testo: t, lancio: D.meta.giorni[0] }, leggiTesto(t)); }
     const L = S.lab;
-    el.innerHTML = `
-      <div class="griglia due larga">
-        <section class="blocco">
-          <h3>Descrivi l’annuncio</h3>
-          <label class="nascosta" for="lab-testo">Descrizione dell’annuncio</label>
-          <textarea id="lab-testo" rows="4" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI">${esc(L.testo)}</textarea>
-          <button class="bottone piccolo" id="lab-leggi">Leggi la descrizione</button>
-          <p class="nota">Flockets riconosce le caratteristiche che nello storico spostano il CTR. Puoi correggerle a mano.</p>
-          <div class="campi">
-            <label>Formato <select id="lab-formato">${['immagine', 'video', 'carosello'].map(v => `<option${v === L.formato ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
-            <label>Leva <select id="lab-leva">${Object.entries(LEVE).map(([v, n]) => `<option value="${v}"${v === L.leva ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
-            <label>Lancio <select id="lab-lancio">${D.meta.giorni.slice(0, 12).map(d => `<option value="${d}"${d === L.lancio ? ' selected' : ''}>${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('')}</select></label>
-          </div>
-          <div class="spunte">${Object.entries(CARATT).map(([k, n]) => `<label><input type="checkbox" data-f="${k}"${L.f[k] ? ' checked' : ''}> ${n}</label>`).join('')}</div>
-        </section>
-        <section class="blocco" id="lab-esito"></section>
-      </div>`;
-    const esito = () => {
-      const r = stima(c, L), sd = D.par.cold_sd, su = Math.exp(1.28 * sd), max = Math.max(...r.righe.map(x => x.per100));
+    el.innerHTML = scheda('01', 'Descrivi l’annuncio', ['Interattivo', 'neutro'], `
+        <label class="nascosta" for="lab-testo">Descrizione dell’annuncio</label>
+        <textarea id="lab-testo" class="mono" rows="3">${esc(L.testo)}</textarea>
+        <p><button class="pulsante nero" id="lab-leggi">Leggi la descrizione</button></p>
+        <p class="nota">Flockets riconosce le caratteristiche che nello storico spostano il CTR. Puoi correggerle a mano.</p>
+        <div class="campi">
+          <label>Formato <select id="lab-formato">${['immagine', 'video', 'carosello'].map(v => `<option${v === L.formato ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
+          <label>Leva <select id="lab-leva">${Object.entries(LEVE).map(([v, n]) => `<option value="${v}"${v === L.leva ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+          <label>Lancio <select id="lab-lancio">${D.meta.giorni.slice(0, 12).map(d => `<option value="${d}"${d === L.lancio ? ' selected' : ''}>${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('')}</select></label>
+        </div>
+        <div class="spunte">${Object.entries(CARATT).map(([k, n]) => `<label><input type="checkbox" data-f="${k}"${L.f[k] ? ' checked' : ''}> ${n}</label>`).join('')}</div>`, 'descrizione → caratteristiche → qualità stimata')
+      + `<div id="lab-esito"></div>`
+      + scheda('03', 'Tutto pronto', null, `<p>Strumento, previsioni e ragionamento: le tre consegne della sfida.</p>${avanti('consegne', 'Vedi le consegne')}`);
+    const esito = (scrivi) => {
+      const r = stima(c, L), su = Math.exp(1.28 * D.par.cold_sd), max = Math.max(...r.righe.map(x => x.per100));
       const top = r.righe.slice().sort((a, b) => b.per100 - a.per100)[0];
-      $('#lab-esito').innerHTML = `
-        <h3>Come reagisce il pubblico di ${esc(c.nome)}</h3>
-        <p class="verdetto">Qualità stimata: meglio di <b>${r.sotto} creatività su ${r.tot}</b> già viste in questa campagna.</p>
-        <div class="lab-righe">${r.righe.map(x => `
+      $('#lab-esito').innerHTML = scheda('02', `Come reagisce il pubblico di ${esc(c.nome)}`, ['Stima a freddo', 'corso'], `
+        <p class="verdetto">Meglio di <b>${r.sotto} creatività su ${r.tot}</b> già viste in questa campagna.</p>
+        ${r.righe.map(x => `
           <div class="lab-riga${x.k === top.k ? ' top' : ''}">
-            <div class="lab-nome"><b>${TIPI[D.adset[x.k].tipo]}</b> <span>${breve(x.k)}</span></div>
-            <div class="barra-o"><i style="width:${(x.per100 / max * 100).toFixed(1)}%"></i></div>
+            <div class="lab-nome"><b>${TIPI[D.adset[x.k].tipo]}</b><span class="sigla mono">${breve(x.k)}</span></div>
             <div class="lab-num"><b>${ni(x.per100)}</b> click ogni 100 €</div>
-            <div class="lab-det">CTR ${nf(x.ctr)}% <span>(tra ${nf(x.ctr / su)} e ${nf(x.ctr * su)})</span> · CPM ${nf(x.cpm)} € · ${nf(x.cpc)} € a click</div>
-          </div>`).join('')}</div>
-        <p class="nota">Media dei primi ${r.giorni} giorni dal lancio, con il budget previsto per quei giorni. È una stima a freddo: l’annuncio non ha storico, quindi la forchetta è larga. Rende di più su <b>${TIPI[D.adset[top.k].tipo]}</b>.</p>`;
+            <div class="barra-o"><i style="width:${(x.per100 / max * 100).toFixed(1)}%"></i></div>
+            <div class="lab-det mono">CTR ${nf(x.ctr)}% (tra ${nf(x.ctr / su)} e ${nf(x.ctr * su)}) · CPM ${nf(x.cpm)} € · ${nf(x.cpc)} € a click</div>
+          </div>`).join('')}
+        <p class="nota">Media dei primi ${r.giorni} giorni dal lancio. L’annuncio non ha storico, quindi la forchetta è larga. Rende di più su <b>${TIPI[D.adset[top.k].tipo]}</b>.</p>`);
+      palco.prova(r, L);
+      if (scrivi) registra(`Annuncio provato (${LEVE[L.leva]}, ${L.formato}): rende di più su ${TIPI[D.adset[top.k].tipo]}, ${ni(top.per100)} click ogni 100 €`);
     };
     const campi = () => {
       $('#lab-formato').value = L.formato; $('#lab-leva').value = L.leva;
       $$('.spunte input', el).forEach(i => { i.checked = !!L.f[i.dataset.f]; });
     };
-    $('#lab-leggi').addEventListener('click', () => { L.testo = $('#lab-testo').value; Object.assign(L, leggiTesto(L.testo)); campi(); esito(); });
-    $('#lab-formato').addEventListener('change', e => { L.formato = e.target.value; esito(); });
-    $('#lab-leva').addEventListener('change', e => { L.leva = e.target.value; esito(); });
-    $('#lab-lancio').addEventListener('change', e => { L.lancio = e.target.value; esito(); });
-    $$('.spunte input', el).forEach(i => i.addEventListener('change', () => { L.f[i.dataset.f] = i.checked ? 1 : 0; esito(); }));
-    esito();
+    $('#lab-leggi').addEventListener('click', () => { L.testo = $('#lab-testo').value; Object.assign(L, leggiTesto(L.testo)); campi(); esito(true); });
+    $('#lab-formato').addEventListener('change', e => { L.formato = e.target.value; esito(true); });
+    $('#lab-leva').addEventListener('change', e => { L.leva = e.target.value; esito(true); });
+    $('#lab-lancio').addEventListener('change', e => { L.lancio = e.target.value; esito(true); });
+    $$('.spunte input', el).forEach(i => i.addEventListener('change', () => { L.f[i.dataset.f] = i.checked ? 1 : 0; esito(true); }));
+    esito(true);
   }
 
-  /* --------------------------------------------------------------- consegne */
+  /* ---- consegne */
   function rConsegne(el) {
     const v = (g, m) => D.validazione.find(x => x.gruppo === g && x.modello === m) || {};
     const riga = (n, g, f) => `<tr><td>${n}</td><td><b>${nf(v(g, 'strutturale')[f], 1)}%</b></td><td>${nf(v(g, 'ultimi 7 giorni')[f], 1)}%</td></tr>`;
-    const P = D.par;
-    el.innerHTML = `
-      <p class="intro">La sfida chiede tre cose. Eccole.</p>
-      <div class="consegne">
-        <section class="blocco">
-          <span class="numero">1</span><h3>Lo strumento</h3>
-          <p>È questo sito, più il motore di previsione che gli sta dietro. Il motore è scritto in Python e si rilancia con un comando: rifà da zero stima, validazione e previsioni in pochi secondi.</p>
-          <p><a class="bottone piccolo" href="${REPO}" target="_blank" rel="noopener">Apri il codice</a></p>
-          <ul class="punti"><li><b>Piazza</b>: i pubblici e come reagiscono, giorno per giorno.</li><li><b>Previsioni</b>: CTR e CPM di ogni annuncio con il margine di errore.</li><li><b>Decisioni</b>: dove spostare il budget e quale creatività cambiare.</li><li><b>Laboratorio</b>: un annuncio nuovo provato sul pubblico prima del lancio.</li></ul>
-        </section>
-        <section class="blocco">
-          <span class="numero">2</span><h3>Le previsioni</h3>
-          <p><b>${ni(D.meta.righe_previste)} righe</b>: ${D.meta.annunci_previsti} annunci, ogni giorno dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}. Per ogni riga CTR e CPM con la loro forchetta, più costo per click, spesa, impression e click.</p>
-          <p>${D.meta.righe_cold} righe riguardano creatività mai viste nello storico: sono stimate dalle caratteristiche dell’annuncio.</p>
-          <p><a class="bottone piccolo" href="data/previsioni_16-30_nov.csv" download>Scarica il file (CSV)</a></p>
-        </section>
-        <section class="blocco largo">
-          <span class="numero">3</span><h3>Il ragionamento</h3>
-          <p>Lo storico segue una struttura a fattori che si moltiplicano. Ogni fattore è stimato dai dati.</p>
-          <pre class="formula">CTR = qualità dell’asset × pubblico × fatica della creatività × stagione × giorno della settimana
-CPM = livello del pubblico × stagione × giorno × (budget ÷ budget iniziale)<sup>${nf(P.elasticita)}</sup> × apprendimento × qualità</pre>
-          <div class="griglia due larga">
-            <ol class="scoperte">
-              <li><b>Il mercato 2025 anticipa il 2026.</b> Il CPM segue l’indice dell’anno prima spostato di 52 settimane, in rapporto 1 a 1.</li>
-              <li><b>La creatività si stanca.</b> L’urgenza perde un quarto della forza in ${tempoPerdita('urgency', 0.75)} giorni, la scarsità in ${tempoPerdita('scarcity', 0.75)}.</li>
-              <li><b>Più budget, CPM più alto.</b> Un solo ad set ha avuto il budget raddoppiato per una settimana: da lì si legge quanto sale il CPM.</li>
-              <li><b>Fase di apprendimento.</b> Un annuncio nuovo paga il CPM il ${ni((Math.exp(P.cpm_new3) - 1) * 100)}% in più per tre giorni.</li>
-              <li><b>Cosa rende forte una creatività.</b> Un aggancio nei primi due secondi vale circa +${ni((Math.exp(P.feat_w[P.feat_cols.indexOf('hook') + 1]) - 1) * 100)}% di CTR, una grafica piena di testo circa ${ni((Math.exp(P.feat_w[P.feat_cols.indexOf('testo_pesante') + 1]) - 1) * 100)}%.</li>
-              <li><b>Annunci migliori costano meno.</b> Il CPM scende quando la qualità sale e risale quando l’annuncio si stanca.</li>
-            </ol>
-            <div>
-              <h4>Quanto ci fidiamo</h4>
-              <p>Abbiamo nascosto al modello 14 giorni di storico, li abbiamo fatti prevedere e confrontato con i valori veri. Quattro volte, su date diverse.</p>
-              <table class="stretta"><thead><tr><th>Errore medio</th><th>Flockets</th><th>«Resta come gli ultimi 7 giorni»</th></tr></thead><tbody>
-                ${riga('CPM, tutti gli annunci', 'tutti', 'cpm')}${riga('CPM, annunci nuovi', 'annunci nuovi', 'cpm')}${riga('CTR, tutti gli annunci', 'tutti', 'ctr')}${riga('CTR, annunci nuovi', 'annunci nuovi', 'ctr')}
-              </tbody></table>
-              <h4>Anomalie trovate nei dati</h4>
-              <ul class="punti">${D.anomalie.map(a => `<li><b>${gm(a.data)}</b>, ${esc(a.dove.replace('_', ' '))}: ${esc(a.cosa)}.</li>`).join('')}</ul>
-              <h4>Dove siamo più incerti</h4>
-              <ul class="punti"><li>Nello storico non c’è un Black Friday, né un aumento di budget su più ad set insieme.</li><li>L’effetto del budget sul CPM viene da un solo ad set.</li><li>Le creatività mai viste hanno una forchetta larga.</li></ul>
-            </div>
-          </div>
-          <p>I pubblici immaginati, con i numeri che li motivano, sono nella scheda <a href="#/analisi/pubblici">Pubblici</a>.</p>
-        </section>
-      </div>`;
+    const P = D.par, peso = k => (Math.exp(P.feat_w[P.feat_cols.indexOf(k) + 1]) - 1) * 100;
+    el.innerHTML = scheda('01', 'Lo strumento', FATTO, `
+        <p>È questo sito, più il motore di previsione che gli sta dietro. Il motore è scritto in Python e si rilancia con un comando: rifà da zero stima, validazione e previsioni in pochi secondi.</p>
+        <p><a class="pulsante nero" href="${REPO}" target="_blank" rel="noopener">Apri il codice ↗</a></p>`, 'python3 modello/run.py')
+      + scheda('02', 'Le previsioni', FATTO, `
+        <p><b>${ni(D.meta.righe_previste)} righe</b>: ${D.meta.annunci_previsti} annunci, ogni giorno dal ${gm(D.meta.giorni[0])} al ${gm(D.meta.giorni[D.meta.giorni.length - 1])}. Per ogni riga CTR e CPM con la loro forchetta, più costo per click, spesa, impression e click.</p>
+        <p>${D.meta.righe_cold} righe riguardano creatività mai viste nello storico: sono stimate dalle caratteristiche dell’annuncio.</p>
+        <p><a class="pulsante nero" href="data/previsioni_16-30_nov.csv" download>Scarica il file (CSV)</a></p>`, 'previsioni_16-30_nov.csv')
+      + scheda('03', 'Il ragionamento', FATTO, `
+        <p>Lo storico segue una struttura a fattori che si moltiplicano. Ogni fattore è stimato dai dati.</p>
+        <pre class="formula">CTR = qualità dell’asset × pubblico × fatica × stagione × giorno
+CPM = livello del pubblico × stagione × giorno
+      × (budget ÷ budget iniziale)^${nf(P.elasticita)} × apprendimento × qualità</pre>
+        <ol class="scoperte">
+          <li><b>Il mercato 2025 anticipa il 2026.</b> Il CPM segue l’indice dell’anno prima spostato di 52 settimane, in rapporto 1 a 1.</li>
+          <li><b>La creatività si stanca.</b> L’urgenza perde un quarto della forza in ${tempoPerdita('urgency', 0.75)} giorni, la scarsità in ${tempoPerdita('scarcity', 0.75)}.</li>
+          <li><b>Più budget, CPM più alto.</b> Un solo ad set ha avuto il budget raddoppiato per una settimana: da lì si legge quanto sale il CPM.</li>
+          <li><b>Fase di apprendimento.</b> Un annuncio nuovo paga il CPM il ${ni((Math.exp(P.cpm_new3) - 1) * 100)}% in più per tre giorni.</li>
+          <li><b>Cosa rende forte una creatività.</b> Un aggancio nei primi due secondi vale circa +${ni(peso('hook'))}% di CTR, una grafica piena di testo circa ${ni(peso('testo_pesante'))}%.</li>
+          <li><b>Annunci migliori costano meno.</b> Il CPM scende quando la qualità sale e risale quando l’annuncio si stanca.</li>
+        </ol>
+        <h4>Quanto ci fidiamo</h4>
+        <p>Abbiamo nascosto al modello 14 giorni di storico, li abbiamo fatti prevedere e confrontato con i valori veri. Quattro volte, su date diverse.</p>
+        <div class="scorri"><table><thead><tr><th>Errore medio</th><th>Flockets</th><th>«Come gli ultimi 7 giorni»</th></tr></thead><tbody>
+          ${riga('CPM, tutti gli annunci', 'tutti', 'cpm')}${riga('CPM, annunci nuovi', 'annunci nuovi', 'cpm')}${riga('CTR, tutti gli annunci', 'tutti', 'ctr')}${riga('CTR, annunci nuovi', 'annunci nuovi', 'ctr')}
+        </tbody></table></div>
+        <h4>Dove siamo più incerti</h4>
+        <ul class="punti"><li>Nello storico non c’è un Black Friday, né un aumento di budget su più ad set insieme.</li><li>L’effetto del budget sul CPM viene da un solo ad set.</li><li>Le creatività mai viste hanno una forchetta larga.</li></ul>
+        <p>I pubblici immaginati, con i numeri che li motivano, sono al <a href="#/sim/pubblici">passo 2</a>.</p>`, 'README · video di 3 minuti');
   }
 
-  /* ------------------------------------------------------------------ avvio */
-  function velo(poi) {
-    const passi = ['Leggo i dati', 'Cerco le anomalie', 'Immagino i pubblici', 'Leggo le creatività', 'Calcolo le previsioni'];
-    const v = $('#velo'), ol = $('#velo-passi');
-    ol.innerHTML = passi.map(p => `<li>${p}</li>`).join('');
-    v.hidden = false;
-    Flock.carica().then(() => {
-      const sc = new Flock.Scena($('#velo-omino'), { scala: 2, altezza: 96, suolo: 4 }).popola(1);
-      const o = sc.omini[0]; o.vel = 0; o.x = 48; o.dir = 1; o.dy = 0; o.pausa = 1e9; o.imposta('corsa');
-    });
-    let i = 0;
-    const t = setInterval(() => {
-      if (i < passi.length) ol.children[i].classList.add('fatto');
-      i++;
-      if (i > passi.length) { clearInterval(t); dati().then(() => { v.hidden = true; poi(); }); }
-    }, 330);
-  }
+  /* ---------------------------------------------------------------- console */
   function leggiCSV(t) {
     const righe = []; let r = [], c = '', q = false;
     for (let i = 0; i < t.length; i++) {
@@ -495,7 +549,7 @@ CPM = livello del pubblico × stagione × giorno × (budget ÷ budget iniziale)<
   }
   function controllaStorico(righe) {
     const h = righe[0].map(x => x.trim()), ix = n => h.indexOf(n);
-    const serve = ['data', 'ad_id', 'adset_id', 'spesa', 'impression', 'click'], manca = serve.filter(n => ix(n) < 0);
+    const manca = ['data', 'ad_id', 'adset_id', 'spesa', 'impression', 'click'].filter(n => ix(n) < 0);
     if (manca.length) return { ok: false, manca };
     const iv = ix('vertical'), ib = ix('budget_giornaliero_adset');
     const ads = new Set(), vd = {}, sd = {}; let min = '9', max = '0', n = 0;
@@ -508,51 +562,47 @@ CPM = livello del pubblico × stagione × giorno × (budget ÷ budget iniziale)<
       if (ib >= 0) { const ks = r[ix('adset_id')] + '|' + d; const b = (sd[ks] = sd[ks] || { s: 0, b: +r[ib] }); b.s += +r[ix('spesa')]; }
     }
     const note = [];
-    Object.entries(vd).forEach(([k, a]) => { if (a.c === 0 && a.i > 5000) note.push(`${gm(k.split('|')[1])}: zero click su ${a.n} annunci (${k.split('|')[0].replace('_', ' ')}). Sembra un problema di tracciamento.`); });
+    Object.entries(vd).forEach(([k, a]) => { if (a.c === 0 && a.i > 5000) note.push(`${gm(k.split('|')[1])}: zero click su ${a.n} annunci (${k.split('|')[0].replace('_', ' ')}).`); });
     Object.entries(sd).forEach(([k, b]) => { if (b.s > 1.15 * b.b) note.push(`${gm(k.split('|')[1])}, ${k.split('|')[0]}: spesa ${ni(b.s)} € con budget ${ni(b.b)} €.`); });
     return { ok: true, n, ads: ads.size, min, max, note, lista: Array.from(ads) };
   }
   function suFile(files) {
     const out = $('#esito-file');
     const lista = Array.from(files).filter(f => /\.csv$/i.test(f.name) || f.type === 'text/csv');
-    if (!lista.length) { out.innerHTML = '<p class="errore">Serve un file CSV.</p>'; return; }
-    out.innerHTML = '<p>Leggo…</p>';
-    Promise.all(lista.map(f => f.text().then(t => ({ nome: f.name, righe: leggiCSV(t) })))).then(letti => {
+    if (!lista.length) { out.innerHTML = '<p class="errore mono">Serve un file CSV.</p>'; return; }
+    out.innerHTML = '<p class="tenue mono">Leggo…</p>';
+    Promise.all([dati(), ...lista.map(f => f.text().then(t => ({ nome: f.name, righe: leggiCSV(t) })))]).then(([, ...letti]) => {
       const st = letti.map(x => Object.assign({ nome: x.nome }, controllaStorico(x.righe))).filter(x => x.ok).sort((a, b) => b.n - a.n)[0];
-      if (!st) { out.innerHTML = '<p class="errore">Non trovo lo storico giornaliero. Servono le colonne: data, ad_id, adset_id, spesa, impression, click.</p>'; return; }
-      dati().then(() => {
-        const noti = st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length;
-        const kit = noti > 0.9 && st.n > 1000;
-        out.innerHTML = `<ul class="controlli">
-            <li class="si">${esc(st.nome)}: ${ni(st.n)} righe, ${st.ads} annunci, dal ${gm(st.min)} al ${gm(st.max)}.</li>
-            ${st.note.map(x => `<li class="attento">${esc(x)}</li>`).join('') || '<li class="si">Nessuna anomalia evidente.</li>'}
-            <li class="${kit ? 'si' : 'attento'}">${kit ? 'È il kit della sfida: apro l’analisi già calcolata dal motore.' : 'Non è il kit della sfida. Il file è leggibile, ma per calcolare previsioni su dati nuovi va lanciato il motore dal codice.'}</li>
-          </ul>${kit ? '<button class="bottone" id="apri-da-file">Apri l’analisi</button>' : `<a class="bottone chiaro" href="${REPO}" target="_blank" rel="noopener">Vedi il motore</a>`}`;
-        const b = $('#apri-da-file'); if (b) b.addEventListener('click', () => velo(() => { location.hash = '#/analisi/piazza'; }));
-      });
+      if (!st) { out.innerHTML = '<p class="errore mono">Non trovo lo storico giornaliero. Servono le colonne: data, ad_id, adset_id, spesa, impression, click.</p>'; return; }
+      const kit = st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000;
+      $('#file-nome').textContent = st.nome;
+      out.innerHTML = `<ul class="controlli mono">
+          <li class="si">${ni(st.n)} righe · ${st.ads} annunci · dal ${gm(st.min)} al ${gm(st.max)}</li>
+          ${st.note.map(x => `<li class="attento">${esc(x)}</li>`).join('') || '<li class="si">Nessuna anomalia evidente</li>'}
+          <li class="${kit ? 'si' : 'attento'}">${kit ? 'È il kit della sfida: pronto per la simulazione' : 'Non è il kit della sfida: per calcolare previsioni su dati nuovi va lanciato il motore dal codice. La demo continua sui dati della sfida.'}</li>
+        </ul>`;
     });
   }
 
-  /* ------------------------------------------------------------------ avvio pagina */
+  /* ------------------------------------------------------------------ avvio */
   function inizio() {
-    Flock.carica().then(() => {
-      const cv = $('#striscia');
-      const n = stringe(Math.round((cv.clientWidth || window.innerWidth) / 52), 8, 40);
-      new Flock.Scena(cv, { scala: 3, altezza: 200, avvolgi: true, suolo: 26 }).popola(n, { profondita: 16 });
-    });
-    $('#avvio-kit').addEventListener('click', () => velo(() => { location.hash = '#/analisi/piazza'; }));
-    $('#avvio-prompt').addEventListener('click', () => {
-      const t = $('#avvio-testo').value.trim() || $('#avvio-testo').placeholder;
-      velo(() => { S.lab = Object.assign({ testo: t, lancio: D.meta.giorni[0] }, leggiTesto(t)); location.hash = '#/analisi/laboratorio'; });
-    });
+    Flock.carica().then(() => { new Flock.Scena($('#folla'), { scala: 4, altezza: 390, contorno: true, ombra: false, linea: false, suolo: 0 }).folla(); });
+    $('#avvia').addEventListener('click', () => { S.testoConsole = $('#richiesta').value.trim(); S.lab = null; S.visti = {}; $('#registro').innerHTML = ''; location.hash = '#/sim/dati'; });
     $('#file-ingresso').addEventListener('change', e => suFile(e.target.files));
     const z = $('#zona-file');
     ['dragenter', 'dragover'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); z.classList.add('sopra'); }));
     ['dragleave', 'drop'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); z.classList.remove('sopra'); }));
     z.addEventListener('drop', e => suFile(e.dataTransfer.files));
+    $('#pz-play').addEventListener('click', () => play(!S.play));
+    $('#pz-slider').addEventListener('input', e => { if (S.play) play(false); S.giorno = +e.target.value; if (palco) palco.aggiorna(1); });
+    $$('.viste button').forEach(b => b.addEventListener('click', () => {
+      $('.lavoro').dataset.disp = b.dataset.v;
+      $$('.viste button').forEach(x => x.setAttribute('aria-selected', x === b));
+      setTimeout(() => { if (D && S.passo === 'simulazione' && b.dataset.v !== 'pubblico') { const y = $('#pannello').scrollTop; rSimulazione($('#pannello')); $('#pannello').scrollTop = y; palco.numeri(S.play ? 0 : 1); } }, 60);
+    }));
     window.addEventListener('hashchange', instrada);
     let rt = null;
-    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (document.body.dataset.vista === 'analisi' && S.tab === 'previsioni' && D) rAnalisi(); }, 250); });
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (document.body.dataset.vista === 'sim' && S.passo === 'simulazione' && D) { rSimulazione($('#pannello')); palco.numeri(S.play ? 0 : 1); } }, 250); });
     instrada();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inizio); else inizio();

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flockets · proposte di logo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #EDEDEA; color: #111; font: 14px/1.45 Inter, system-ui, sans-serif; padding: 22px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font: 700 20px "Inter Tight", sans-serif; margin: 0; } header p { margin: 0; color: #666; font-size: 12.5px; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .carta { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .carta > header { padding: 10px 14px; margin: 0; border-bottom: 1px solid #ECECE8; } .carta b { font-weight: 600; } .carta code { font: 11.5px "JetBrains Mono", monospace; color: #999; }
+  .due { display: grid; grid-template-columns: 1fr 1fr; } .due div { display: grid; place-items: center; height: 150px; }
+  .scuro { background: #111; color: #fff; } svg { fill: currentColor; display: block; }
+  .riga { display: flex; align-items: center; gap: 18px; padding: 12px 16px; border-top: 1px solid #ECECE8; }
+  .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; flex: 1; }
+  .scheda-b { display: inline-flex; align-items: center; gap: 6px; background: #E4E4E0; border-radius: 6px 6px 0 0; padding: 5px 10px; font-size: 11.5px; color: #333; }
+  .riga.scuro .scheda-b { background: #2A2A2A; color: #ddd; }
+  .carta p { margin: 0; padding: 12px 16px 14px; border-top: 1px solid #ECECE8; color: #444; font-size: 13px; }
+  .scelto > header { background: #FFF3EC; } .scelto code::after { content: " · in uso sul sito"; color: #F2551D; }
+</style>
+</head>
+<body>
+<header><h1>Proposte di logo</h1><p>Marchi geometrici a un solo colore. Ognuno è mostrato grande, da 48 a 16 pixel, accanto al nome e come icona della scheda del browser.</p></header>
+<div class="griglia" id="g"></div>
+<script>
+const c = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}"/>`;
+const q = (x, y, l, r) => `<rect x="${x}" y="${y}" width="${l}" height="${l}" rx="${r}"/>`;
+const LOGHI = [
+  { id: 'stormo', nome: 'Stormo', d: c(37, 24, 5.5) + c(25.5, 15.5, 4.6) + c(25.5, 32.5, 4.6) + c(14, 7.5, 3.8) + c(14, 40.5, 3.8), t: 'Cinque punti in formazione a V: uno stormo che segue chi sta davanti.', scelto: true },
+  { id: 'stormo-mira', nome: 'Stormo sul bersaglio', d: q(31, 18, 12, 3) + c(21, 14.5, 4.2) + c(21, 33.5, 4.2) + c(10.5, 6.5, 3.5) + c(10.5, 41.5, 3.5), t: 'Lo stormo punta verso un quadrato: il pubblico che va verso l’annuncio.' },
+  { id: 'triangolo', nome: 'Triangolo', d: c(11, 9.5, 4.7) + c(11, 24, 4.7) + c(11, 38.5, 4.7) + c(24.5, 16.75, 4.7) + c(24.5, 31.25, 4.7) + c(38, 24, 4.7), t: 'Sei punti che formano una freccia: la folla e il tasto di avvio della simulazione.' },
+  { id: 'effe', nome: 'F di punti', d: [[15, 8], [25, 8], [35, 8], [15, 16], [15, 24], [25, 24], [15, 32], [15, 40]].map(p => c(p[0], p[1], 3.7)).join(''), t: 'La F di Flockets composta da persone, una per punto.' },
+  { id: 'raduno', nome: 'Raduno', d: q(18, 5, 12, 3) + c(7.5, 24.5, 4) + c(16, 33.5, 4) + c(32, 33.5, 4) + c(40.5, 24.5, 4), t: 'Quattro persone ad arco intorno a un annuncio.' },
+  { id: 'scia', nome: 'Scia', d: c(8, 38, 2.6) + c(16, 30.5, 3.5) + c(26, 22.5, 4.6) + c(38, 13, 6), t: 'Punti che crescono lungo una diagonale: il gruppo che avanza e la previsione che sale.' },
+];
+const svg = (d, s) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48">${d}</svg>`;
+document.getElementById('g').innerHTML = LOGHI.map(l => `
+  <article class="carta${l.scelto ? ' scelto' : ''}">
+    <header><b>${l.nome}</b><code>${l.id}</code></header>
+    <div class="due"><div>${svg(l.d, 96)}</div><div class="scuro">${svg(l.d, 96)}</div></div>
+    <div class="riga">${[48, 32, 24, 16].map(s => svg(l.d, s)).join('')}</div>
+    <div class="riga scuro">${[48, 32, 24, 16].map(s => svg(l.d, s)).join('')}</div>
+    <div class="riga"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <div class="riga scuro"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <p>${l.t}</p>
+  </article>`).join('');
+</script>
+</body>
+</html>

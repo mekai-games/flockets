@@ -33,9 +33,6 @@ def main(src):
     atlas.save(OUT / "personaggi.png", optimize=True)
     (OUT / "personaggi.json").write_text(json.dumps({"colonne": COLS, "foglio": [W, H], "fotogramma": 48, "nomi": nomi},
                                                     ensure_ascii=False))
-    # icona del sito: il primo personaggio fermo, ingrandito
-    ico = atlas.crop((0, 0, 48, 48)).resize((192, 192), Image.NEAREST)
-    ico.save(OUT / "icona.png")
     print(len(dirs), "personaggi ->", OUT / "personaggi.png", "%.0f KB" % ((OUT / "personaggi.png").stat().st_size / 1024))
 
 
