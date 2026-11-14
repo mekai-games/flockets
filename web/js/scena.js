@@ -219,5 +219,56 @@
   }
   function avvia() { if (!partito) { partito = true; requestAnimationFrame(ts => { ultimo = ts; giro(ts); }); } }
 
-  window.Flock = { carica, Scena, Omino, ANIM };
+  /* Prato in pixel art: verde a più toni che schiarisce e sfuma verso l'alto (lontano), fili d'erba più fitti
+     e alti davanti, qualche fiore. Disegnato a bassa risoluzione e ingrandito senza sfocare. */
+  function prato(c, altezza, o = {}) {
+    const P = o.pixel || 3, dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const w = c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 800;
+    c.style.height = altezza + 'px';
+    const lw = Math.max(1, Math.ceil(w / P)), lh = Math.max(1, Math.ceil(altezza / P));
+    const off = document.createElement('canvas'); off.width = lw; off.height = lh;
+    const g = off.getContext('2d'), img = g.createImageData(lw, lh), d = img.data;
+    let seme = o.seme || 20261114;
+    const rnd = () => (seme = (seme * 16807) % 2147483647) / 2147483647;
+    const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+    const LONTANO = [236, 247, 228], MEZZO = [196, 230, 168], VICINO = [138, 199, 104];
+    const passo = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+    const alfa = new Float32Array(lh);
+    for (let y = 0; y < lh; y++) {
+      const t = y / Math.max(lh - 1, 1);                 // 0 in alto (lontano), 1 in basso (vicino)
+      const base = t < 0.55 ? mix(LONTANO, MEZZO, t / 0.55) : mix(MEZZO, VICINO, (t - 0.55) / 0.45);
+      alfa[y] = passo(0, 0.42, t);                       // sfuma verso l'alto
+      for (let x = 0; x < lw; x++) {
+        const i = (y * lw + x) * 4, n = (rnd() - 0.5) * (3 + 5 * t);   // grana leggera, più forte davanti
+        d[i] = base[0] + n; d[i + 1] = base[1] + n; d[i + 2] = base[2] + n * 0.6; d[i + 3] = 255 * alfa[y];
+      }
+    }
+    const punto = (x, y, col, a = 1) => {
+      if (x < 0 || y < 0 || x >= lw || y >= lh) return;
+      const i = (y * lw + x) * 4, k = a * alfa[y];
+      d[i] += (col[0] - d[i]) * k; d[i + 1] += (col[1] - d[i + 1]) * k; d[i + 2] += (col[2] - d[i + 2]) * k;
+    };
+    const SCURO = [104, 168, 76], MEDIO = [124, 186, 92], CHIARO = [200, 234, 178];
+    const fili = Math.round(lw * lh * 0.075);
+    for (let k = 0; k < fili; k++) {
+      const t = Math.pow(rnd(), 0.55), y = Math.floor(t * (lh - 1)), x = Math.floor(rnd() * lw);
+      if (t < 0.12) continue;
+      const alto = 1 + Math.round(t * 2.2 + rnd() * (1 + t * 2)), col = rnd() < 0.8 ? (rnd() < 0.5 ? SCURO : MEDIO) : CHIARO;
+      const pend = rnd() < 0.3 ? (rnd() < 0.5 ? -1 : 1) : 0;
+      for (let j = 0; j < alto; j++) punto(x + (j === alto - 1 ? pend : 0), y - j, col, 0.35 + 0.55 * t);
+    }
+    const FIORI = [[255, 255, 255], [255, 226, 122], [247, 168, 196], [196, 186, 255]];
+    const fiori = Math.round(lw * lh / 520);
+    for (let k = 0; k < fiori; k++) {
+      const t = 0.3 + rnd() * 0.62, y = Math.floor(t * (lh - 1)), x = Math.floor(rnd() * lw), col = FIORI[Math.floor(rnd() * FIORI.length)];
+      punto(x, y, col, 0.95); if (t > 0.7 && rnd() < 0.6) { punto(x - 1, y, col, 0.8); punto(x + 1, y, col, 0.8); punto(x, y - 1, col, 0.8); punto(x, y + 1, [120, 170, 80], 0.7); }
+    }
+    g.putImageData(img, 0, 0);
+    c.width = Math.round(w * dpr); c.height = Math.round(altezza * dpr);
+    const ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(off, 0, 0, lw * P * dpr, lh * P * dpr);
+  }
+
+  window.Flock = { carica, Scena, Omino, ANIM, prato };
 })();

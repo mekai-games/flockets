@@ -742,13 +742,34 @@ CPM = livello del pubblico × stagione × giorno
   // omini in fondo alla pagina di partenza: camminano sul prato, escono dai bordi e ne entrano di nuovi;
   // reagiscono solo quando succede qualcosa
   let avvio = null, ultimaReazione = 0;
+  // altezza del prato: dal fondo fino a poco sotto la riga di testo sotto l'allegato (mai sopra il prompt)
+  function misuraPrato() {
+    const sez = $('#v-console'), av = $('#avviso');
+    if (!sez || sez.hidden) return 0;
+    const fondo = sez.getBoundingClientRect().bottom, sotto = av.getBoundingClientRect().bottom + 22;
+    return Math.max(110, Math.min(fondo - sotto, window.innerHeight * (window.innerWidth < 600 ? 0.36 : 0.5)));
+  }
+  function disegnaPrato() {
+    const h = misuraPrato();
+    if (h && window.Flock && Flock.prato) Flock.prato($('#prato'), h, { pixel: window.innerWidth < 600 ? 2 : 3 });
+    return h;
+  }
   function follaAvvio() {
     if (avvio || !window.Flock) return;
     Flock.carica().then(() => {
       if (avvio) return;
-      const c = $('#folla-avvio'), stretto = window.innerWidth < 600;
-      avvio = new Flock.Scena(c, { scala: stretto ? 2 : 3, altezza: stretto ? 96 : 134, suolo: stretto ? 14 : 18, linea: false, testo: '', avvolgi: true, ricambio: true });
-      avvio.popola(Math.max(5, Math.min(14, Math.round(c.clientWidth / (stretto ? 70 : 100)))), { profondita: 10 });
+      const h = disegnaPrato(), c = $('#folla-avvio'), stretto = window.innerWidth < 600;
+      // due file: in fondo piccoli, davanti grandi. Escono dai bordi e ne entrano sempre di nuovi
+      const alto = Math.round(Math.min(h, stretto ? 230 : 230));
+      avvio = new Flock.Scena(c, { scala: stretto ? 2 : 3, altezza: alto, suolo: stretto ? 12 : 16, linea: false, testo: '', avvolgi: true, ricambio: true });
+      const w = c.clientWidth, tot = 100, usati = new Set(), nuovo = () => { let id; do { id = Math.floor(Math.random() * tot); } while (usati.has(id) && usati.size < tot); usati.add(id); return id; };
+      const file = stretto ? [[1, -Math.round(alto * 0.5), 52], [2, 0, 78]] : [[2, -Math.round(alto * 0.45), 120], [3, 0, 110]];
+      avvio.omini = [];
+      file.forEach(([scala, dy, passo]) => {
+        const n = Math.max(3, Math.round(w / passo));
+        for (let k = 0; k < n; k++) avvio.omini.push(new Flock.Omino(nuovo(), (k + Math.random() * 0.8) * (w + 80) / n - 40, { scala, dy: dy + Math.round(Math.random() * 6) - 3 }));
+      });
+      avvio.omini.sort((p, q) => p.dy - q.dy);
     });
   }
   function reazione(quanti, testo) {
@@ -888,7 +909,7 @@ CPM = livello del pubblico × stagione × giorno
     $('#pz-slider').addEventListener('input', e => { if (S.play) play(false); S.giorno = +e.target.value; if (palco) palco.aggiorna(1); });
     window.addEventListener('hashchange', instrada);
     let rt = null;
-    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (document.body.dataset.vista === 'sim' && S.passo === 'simulazione' && D) { rSimulazione($('#pannello')); palco.numeri(S.play ? 0 : 1); } }, 250); });
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (document.body.dataset.vista === 'console') disegnaPrato(); if (document.body.dataset.vista === 'sim' && S.passo === 'simulazione' && D) { rSimulazione($('#pannello')); palco.numeri(S.play ? 0 : 1); } }, 250); });
     instrada();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inizio); else inizio();
