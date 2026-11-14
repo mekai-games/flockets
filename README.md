@@ -31,8 +31,10 @@ sistema, poi la scelta resta nel browser). Bottoni e riquadri sono di vetro (sti
 sfondo, riflesso in alto), su macchie di colore leggere; nel tema scuro anche il prato sfuma verso lo scuro.
 
 1. **Home**: nome, frase e la folla del pubblico simulato.
-2. **Come funziona**: il modello in otto passaggi, un esempio di calcolo, le colonne che servono, quanto ci
-   fidiamo.
+2. **Come funziona**: a riquadri e frecce, poco testo: il percorso in cinque passi (dall'annuncio al consiglio),
+   i due modelli che lavorano insieme (quello di intelligenza artificiale che legge e traduce, quello di previsione
+   con le persone simulate che calcola), cosa decide ogni persona, l'accuratezza in quattro numeri, cosa è stimato
+   e cosa è un'ipotesi, le colonne del file.
 3. **Partenza**: una frase, un riquadro in stile chat dove descrivere l'annuncio e sotto la zona per allegare il
    CSV, con il tasto ⓘ che spiega che file serve. Tutto dentro lo schermo, senza scorrere; in basso un prato in
    pixel art con gli omini che camminano.

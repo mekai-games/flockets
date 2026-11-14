@@ -13,7 +13,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="style.css?v=47">
 </head>
 <body data-vista="benvenuto">
 
@@ -44,76 +44,94 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
     <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
     <nav class="nav-link"><a class="mono-link" href="#/console">Prova la demo →</a></nav>
   </header>
-  <main class="pagina">
-    <p class="mono etichetta-m">■ Come funziona</p>
-    <h2>Dai risultati passati alle previsioni</h2>
-    <p class="intro">Flockets guarda come sono andati gli annunci nelle ultime settimane, capisce cosa ha fatto salire o scendere i risultati e prevede, giorno per giorno, quanto renderà e quanto costerà ogni annuncio, con il suo margine di errore.</p>
-    <dl class="glossario-grande">
-      <div><dt>CTR</dt><dd>Quante persone cliccano ogni 100 che vedono l’annuncio.</dd></div>
-      <div><dt>CPM</dt><dd>Quanto costa far vedere l’annuncio 1.000 volte.</dd></div>
-      <div><dt>Ad set</dt><dd>Un gruppo di annunci mostrato a un pubblico preciso.</dd></div>
-    </dl>
+  <main class="come">
+    <header class="come-testa">
+      <p class="a-etichetta">Come funziona</p>
+      <h2>Prova un annuncio su 50 milioni di persone, prima di pagarlo</h2>
+      <p class="come-sotto">Scrivi l’annuncio, allega una foto, un video o lo storico delle campagne. Flockets prevede click, costi e acquisti, giorno per giorno, e ti dice a chi mostrarlo.</p>
+    </header>
 
-    <h3>I passaggi</h3>
-    <ol class="otto">
-      <li><span>01</span><div><b>Legge lo storico</b><p>Per ogni annuncio, giorno per giorno: quanto si è speso, quante volte è stato visto, quanti click ha fatto. Da qui ricava CTR e CPM.</p></div></li>
-      <li><span>02</span><div><b>Toglie i dati sbagliati</b><p>Giorni senza click su un intero settore (tracciamento rotto) o con spesa molto sopra il budget: non vengono usati per imparare.</p></div></li>
-      <li><span>03</span><div><b>Cerca le cause</b><p>Un annuncio va bene o male per più motivi insieme: la creatività, il pubblico, da quanto è in onda, il giorno, il periodo dell’anno. Confrontando tutti gli annunci di tutti i giorni il modello li separa. La stessa creatività in due pubblici diversi mostra quanto conta il pubblico; lo stesso annuncio seguito nel tempo mostra quanto si stanca.</p></div></li>
-      <li><span>04</span><div><b>Ne ricava dei moltiplicatori</b><p>Una tabella di numeri: per esempio pubblico di retargeting ×1,7 sui click, aggancio nei primi 2 secondi ×1,2, annuncio in onda da tre settimane ×0,65, settimana del Black Friday ×1,3 sul costo.</p></div></li>
-      <li><span>05</span><div><b>Rimonta i pezzi per il giorno futuro</b><p>Per un annuncio e un giorno moltiplica i suoi fattori. Se negli ultimi giorni i livelli si sono spostati, una prova interna decide quanto seguirli.</p></div></li>
-      <li><span>06</span><div><b>Stima le creatività mai viste</b><p>Senza storico, la qualità viene dalla descrizione: è un video? parla una persona? c’è tanto testo?</p></div></li>
-      <li><span>07</span><div><b>Passa dai soldi ai click</b><p>Budget del giorno → spesa; spesa diviso costo → visualizzazioni; visualizzazioni per CTR → click.</p></div></li>
-      <li><span>08</span><div><b>Dice quanto può sbagliare</b><p>Ripete il calcolo 2.000 volte con piccole variazioni casuali: ne esce una forchetta, come il meteo che dà la probabilità di pioggia.</p></div></li>
-    </ol>
+    <section class="come-blocco" aria-labelledby="cf-t1">
+      <h3 id="cf-t1">Il percorso</h3>
+      <div class="cf-flusso">
+        <div class="cf-passo"><span class="cf-n">1</span><b>Mandi l’annuncio</b><p>Testo, foto, video o storico. Basta uno, si possono unire.</p>
+          <div class="cf-tag"><i>testo</i><i>foto</i><i>video</i><i>CSV</i></div></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-passo cf-ia"><span class="cf-n">2</span><b>Un modello di intelligenza artificiale lo legge</b><p>Capisce prodotto, canale, budget, pubblico e offerta. Guarda la creatività: volto, prodotto, scritte, stile.</p></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-passo"><span class="cf-n">3</span><b>50 milioni di persone simulate lo vedono</b><p>14.434 tipi di persona adulta in Italia, ognuno descritto da 41 numeri.</p></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-passo"><span class="cf-n">4</span><b>Giorno per giorno: vede, clicca, compra</b><p>Costi e click partono da dati reali di settore, o dal tuo storico se c’è.</p></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-passo cf-fine"><span class="cf-n">5</span><b>Ti dice cosa fare</b><p>Il pubblico migliore, i numeri con la forchetta, cosa cambiare nel testo e nella creatività.</p></div>
+      </div>
+    </section>
 
-    <h3>Un esempio, con numeri arrotondati</h3>
-    <p>Un video per un prodotto beauty, mostrato a chi conosce già il marchio, venerdì 27 novembre.</p>
-    <div class="esempio">
-      <table><caption>CTR</caption><tbody>
-        <tr><td>Livello di base del marchio</td><td>1,0%</td></tr><tr><td>× pubblico che conosce già il marchio</td><td>1,7</td></tr>
-        <tr><td>× video con aggancio</td><td>1,2</td></tr><tr><td>× in onda da 20 giorni</td><td>0,65</td></tr>
-        <tr><td>× settimana del Black Friday</td><td>1,2</td></tr><tr class="tot"><td>CTR previsto</td><td>circa 1,6%</td></tr>
-      </tbody></table>
-      <table><caption>CPM</caption><tbody>
-        <tr><td>Costo di base del pubblico</td><td>7 €</td></tr><tr><td>× Black Friday</td><td>1,3</td></tr>
-        <tr><td>× budget alzato del 50%</td><td>1,1</td></tr><tr class="tot"><td>CPM previsto</td><td>circa 10 €</td></tr>
-      </tbody></table>
-    </div>
-    <p class="risultato">Con 100 € al giorno: 100 ÷ 10 × 1.000 = <b>10.000 visualizzazioni</b>. L’1,6% fa <b>circa 160 click</b>, tra 130 e 190.</p>
+    <section class="come-blocco" aria-labelledby="cf-t2">
+      <h3 id="cf-t2">Due modelli che lavorano insieme</h3>
+      <div class="cf-due">
+        <div class="cf-scheda cf-ia">
+          <p class="cf-chi">Modello di intelligenza artificiale</p>
+          <b>Legge e traduce</b>
+          <ul><li>dal testo: prodotto, canale, budget, durata, prezzo, sconto, a chi è rivolto</li><li>da foto e video: cosa si vede, le scritte, come è presentato il prodotto</li><li>un voto al messaggio, da 0 a 10, con i consigli per migliorarlo</li></ul>
+          <p class="cf-nota">Non inventa numeri: trasforma le parole e le immagini nei parametri del modello.</p>
+        </div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-scheda">
+          <p class="cf-chi">Modello di previsione e persone simulate</p>
+          <b>Calcola</b>
+          <ul><li>impara dallo storico cosa fa salire o scendere i risultati: creatività, pubblico, stanchezza dell’annuncio, giorno, stagione, budget</li><li>simula ogni tipo di persona, ogni giorno</li><li>prova lo stesso annuncio su ogni tipo di pubblico e sceglie il migliore</li></ul>
+          <p class="cf-nota">Dai pixel misura anche luce, contrasto, colori e formato: piccole differenze cambiano un po’ i numeri.</p>
+        </div>
+      </div>
+    </section>
 
-    <h3>Cosa serve</h3>
-    <p>Basta un CSV con una riga per annuncio e giorno. Va bene l’export di Meta Ads Manager (report giornaliero, livello inserzione), con le colonne in italiano, inglese, spagnolo, francese o tedesco.</p>
-    <div class="scorri" id="colonne-come"></div>
+    <section class="come-blocco" aria-labelledby="cf-t3">
+      <h3 id="cf-t3">Cosa decide ogni persona</h3>
+      <div class="cf-imbuto">
+        <div class="cf-tappa"><b>Vede</b><div class="cf-tag"><i>canale</i><i>budget</i><i>pubblico</i><i>giorno</i></div></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-tappa"><b>Clicca</b><div class="cf-tag"><i>interesse</i><i>creatività</i><i>messaggio</i><i>sconto</i></div></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-tappa"><b>Va sul sito</b><div class="cf-tag"><i>telefono o computer</i><i>sito</i></div></div>
+        <div class="cf-freccia" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+        <div class="cf-tappa cf-fine"><b>Compra</b><div class="cf-tag"><i>prezzo</i><i>reddito</i><i>fiducia nel marchio</i><i>vantaggi</i></div></div>
+      </div>
+    </section>
 
-    <h3>Funziona anche per altri prodotti?</h3>
-    <p>Sì, se ha lo storico di quella campagna: il metodo è lo stesso per tutti, i numeri li impara ogni volta dai dati caricati.</p>
-    <div class="scorri"><table class="semplice"><thead><tr><th>Cosa carichi</th><th>Cosa fa</th><th>Quanto è affidabile</th></tr></thead><tbody>
-      <tr><td>Una campagna attiva da 2-3 settimane</td><td>Prevede i giorni successivi di ogni annuncio</td><td>Buono</td></tr>
-      <tr><td>Solo campagne passate del tuo account</td><td>Usa i livelli medi del tuo account</td><td>Basso: forchetta larga</td></tr>
-      <tr><td>Nessuno storico</td><td>Non prevede</td><td>Servono almeno 30 righe</td></tr>
-    </tbody></table></div>
-    <p class="nota">Fuori dalla sfida non sa nulla della stagione di quel settore (saldi, uscite, festività): se non gli dai un andamento di mercato la considera piatta e allarga la forchetta.</p>
+    <section class="come-blocco" aria-labelledby="cf-t4">
+      <h3 id="cf-t4">Quanto è accurato</h3>
+      <dl class="cf-numeri">
+        <div><dd>6%</dd><dt>errore sul costo, con lo storico</dt><small>«Come la settimana scorsa»: 8%. Il minimo possibile è 5,8%.</small></div>
+        <div><dd>14%</dd><dt>errore sui click, con lo storico</dt><small>«Come la settimana scorsa»: 18%. Il minimo possibile è 11%.</small></div>
+        <div><dd>13%</dd><dt>errore sul costo, senza storico</dt><small>Un valore tipico fisso: 22%. L’ordine dei pubblici è giusto.</small></div>
+        <div><dd>8 su 10</dd><dt>volte il valore vero cade nella forchetta</dt><small>Su 7 prove sul passato: dall’81% all’89%.</small></div>
+      </dl>
+      <div class="cf-prove">
+        <p><b>Come lo sappiamo.</b> Abbiamo nascosto al modello due settimane di storico, le abbiamo fatte prevedere e confrontate con i valori veri, su sette date diverse.</p>
+        <p><b>Su dati veri.</b> Su 79 marche reali (dati pubblici) è alla pari con «come la settimana scorsa»; fa meglio quando c’è un evento noto, come il Black Friday.</p>
+        <p><b>Sul testo.</b> Sedici annunci quasi uguali: ogni modifica sposta i numeri nella direzione attesa. Differenze sotto il 5% stanno nel rumore della lettura.</p>
+      </div>
+    </section>
 
-    <h3>Le persone simulate</h3>
-    <p>Sotto le previsioni c’è una popolazione virtuale: tutti i tipi di persona adulta in Italia. Serve a due cose: dire <b>chi</b> c’è dietro i numeri di ogni pubblico, e prevedere una campagna <b>nuova, senza nessun dato</b>.</p>
-    <ol class="otto">
-      <li><span>A</span><div><b>8 tag per persona</b><p>Età (6 fasce), genere, area (5), tipo di comune (3), istruzione (3), lavoro (4), reddito (3), famiglia (4): 25.920 combinazioni. Tolte quelle impossibili, restano 14.434 tipi di persona, ognuno con il suo peso: quante persone in Italia gli somigliano, 50,1 milioni in tutto.</p></div></li>
-      <li><span>B</span><div><b>Dai tag ai numeri</b><p>Ogni tipo diventa 41 numeri: quanto usa ognuno dei 7 canali, quanto è interessato a ognuna delle 15 categorie di prodotto, quanto reagisce a 7 leve (sconto, urgenza, scarsità, recensioni, novità, esperto, valori), quale formato preferisce, quanto compra online, quanto naviga dal telefono, quanto si fida di un marchio nuovo, quanto può spendere, quanto costa raggiungerlo. La regola è leggibile: un valore di base, e ogni tag lo sposta di una quantità fissa.</p></div></li>
-      <li><span>C</span><div><b>La campagna, persona per persona</b><p>Ogni giorno il budget viene diviso tra le persone raggiungibili: la piattaforma preferisce chi risponde meglio all’obiettivo e costa meno, con un tetto di frequenza. Per ognuna: probabilità di click, di arrivare sul sito, di comprare.</p></div></li>
-      <li><span>D</span><div><b>Tarata su dati veri</b><p>Le costanti di ogni canale e settore sono scelte perché una campagna normale dia i valori tipici di 79 marche vere (dataset Conjura): CTR e CPM per canale, acquisti ogni 100 visite e valore dell’ordine per settore, andamento nei mesi. Stanchezza delle creatività, effetto del budget e peso delle caratteristiche creative vengono dal modello di previsione.</p></div></li>
-      <li><span>E</span><div><b>Con lo storico, si allinea</b><p>Quando ci sono dati, le persone di ogni pubblico vengono tarate finché click e costi tornano con le previsioni del modello. Le previsioni restano quelle; le persone aggiungono chi clicca e chi compra.</p></div></li>
-      <li><span>F</span><div><b>Il pubblico migliore viene fuori dall’analisi</b><p>Non lo scegli tu prima. In una campagna nuova la stessa campagna, con lo stesso budget, viene provata su ogni tipo di pubblico: tutti, chi segue la categoria, chi somiglia ai clienti, chi ha già visitato il sito. Vince quello che porta più acquisti (o click, o persone raggiunte, secondo l’obiettivo).</p></div></li>
-    </ol>
-    <p><b>Prova a freddo.</b> Sui dati della sfida abbiamo previsto i 12 pubblici senza usare lo storico: solo categoria, tipo di pubblico, budget, creatività e date. Errore sul CPM 13% (un valore tipico fisso sbaglia del 22%), sul CTR 25% (un valore fisso del 23%). L’ordine dei pubblici è quello giusto: correlazione 0,94 sul CTR e 0,81 sul CPM, che un valore fisso non sa dare.</p>
-    <p class="nota">Le quote della popolazione sono approssimazioni ragionate dei dati ISTAT ed Eurostat, non tabelle ufficiali; le sensibilità alle leve sono ipotesi dichiarate. Stanno tutte in un file (flockets/persone.py) e si possono sostituire. Il database completo è in output/persone.csv.gz.</p>
-    <p><a class="pulsante bordo" href="#/nuova">Prova una campagna nuova</a></p>
+    <section class="come-blocco" aria-labelledby="cf-t5">
+      <h3 id="cf-t5">Cosa è misurato e cosa è un’ipotesi</h3>
+      <div class="cf-due cf-onesto">
+        <div class="cf-scheda"><p class="cf-chi">Stimato sui dati</p>
+          <ul><li>costi e click tipici di ogni canale e settore</li><li>quanto si stanca un annuncio</li><li>effetto di giorno, stagione e budget</li><li>peso delle caratteristiche creative nello storico</li></ul></div>
+        <div class="cf-scheda cf-ipotesi"><p class="cf-chi">Ipotesi da regole generali</p>
+          <ul><li>effetto di colori, formato, volto, sottotitoli</li><li>vantaggi dell’offerta (spedizione gratuita, reso)</li><li>quale stile piace a quale età</li></ul>
+          <p class="cf-nota">Ogni ipotesi usata è scritta nell’analisi.</p></div>
+      </div>
+    </section>
 
-    <h3>Quanto ci fidiamo</h3>
-    <ul class="punti">
-      <li><b>Prova sul passato.</b> Sui dati della sfida abbiamo nascosto al modello due settimane già avvenute, sette volte. Errore medio sul CPM 6,1% (contro 8,1% di «come la settimana scorsa»; il minimo possibile è 5,8%), sul CTR 13,7% (contro 18,0%; minimo 11,0%).</li>
-      <li><b>Dati veri.</b> Su 79 marche reali (dataset pubblico Conjura) è alla pari con «come la settimana scorsa»; fa meglio dove c’è un evento noto: nel 2023 il Black Friday dell’anno prima ha anticipato quello vero in rapporto 1 a 1.</li>
-    </ul>
-    <p><a class="pulsante nero grande" href="#/console">Prova la demo</a></p>
+    <details class="come-blocco cf-file">
+      <summary><h3>Che file serve</h3><span>colonne riconosciute</span></summary>
+      <p>Un CSV con una riga per annuncio e per giorno: bastano data, annuncio, spesa, visualizzazioni e click. Va bene l’export di Meta Ads Manager. Il file resta sul tuo computer: il calcolo avviene nel browser.</p>
+      <div class="scorri" id="colonne-come"></div>
+    </details>
+
+    <p class="cf-vai"><a class="pulsante nero grande" href="#/console">Prova con il tuo annuncio →</a></p>
   </main>
 </section>
 
@@ -262,13 +280,13 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 </div>
 
 
-<script src="js/scena.js?v=45"></script>
-<script src="js/motore.js?v=45"></script>
-<script src="js/nuova.js?v=45"></script>
-<script src="js/esplora.js?v=45"></script>
-<script src="js/analisi.js?v=45"></script>
-<script src="js/app.js?v=45"></script>
+<script src="js/scena.js?v=47"></script>
+<script src="js/motore.js?v=47"></script>
+<script src="js/nuova.js?v=47"></script>
+<script src="js/esplora.js?v=47"></script>
+<script src="js/analisi.js?v=47"></script>
+<script src="js/app.js?v=47"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
-<script src="js/account.js?v=46"></script>
+<script src="js/account.js?v=47"></script>
 </body>
 </html>

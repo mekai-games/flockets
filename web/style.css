@@ -800,3 +800,63 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 }
 .dc-legale { font-size: 12px; color: var(--tenue); margin: 14px 0 0; } .dc-legale a, .pr-legale a { color: inherit; }
 .pr-legale { font-size: 13px; }
+/* ===================================================================== come funziona */
+.come { max-width: 1120px; margin: 0 auto; padding: 36px 20px 80px; display: grid; gap: 34px; }
+.come-testa h2 { font: 800 clamp(28px, 4vw, 44px)/1.1 var(--titoli); letter-spacing: -.03em; margin: 4px 0 12px; max-width: 18em; }
+.come-sotto { font-size: clamp(15px, 1.6vw, 18px); color: var(--testo2); max-width: 44em; margin: 0; }
+.come-blocco h3 { font: 700 19px var(--titoli); margin: 0 0 14px; letter-spacing: -.01em; }
+/* riquadri e frecce */
+.cf-flusso { display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr) 30px minmax(0, 1fr) 30px minmax(0, 1fr) 30px minmax(0, 1fr); align-items: stretch; }
+.cf-passo, .cf-scheda, .cf-tappa { position: relative; padding: 16px 16px 14px; border-radius: 20px;
+  background-color: var(--vetro-f); background-image: var(--vetro-riflesso); -webkit-backdrop-filter: var(--vetro-sfuocato); backdrop-filter: var(--vetro-sfuocato);
+  border: 1px solid var(--vetro-bordo); box-shadow: inset 0 1px 0 var(--vetro-luce), var(--vetro-ombra); animation: a-sale .55s cubic-bezier(.2, .7, .2, 1) both; }
+.cf-flusso > :nth-child(3) { animation-delay: .08s; } .cf-flusso > :nth-child(5) { animation-delay: .16s; } .cf-flusso > :nth-child(7) { animation-delay: .24s; } .cf-flusso > :nth-child(9) { animation-delay: .32s; }
+.cf-passo b, .cf-scheda b, .cf-tappa b { display: block; font: 700 15.5px/1.25 var(--titoli); letter-spacing: -.01em; margin: 6px 0 6px; }
+.cf-passo p, .cf-scheda li, .cf-scheda p { font-size: 13.5px; color: var(--testo2); margin: 0; }
+.cf-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font: 700 13px var(--mono); background: var(--inchiostro); color: var(--su-scuro); }
+.cf-ia { background-image: var(--vetro-riflesso), linear-gradient(160deg, rgba(59, 75, 224, .16), rgba(139, 92, 246, .10) 60%, transparent); }
+.cf-ia .cf-n { background: linear-gradient(135deg, var(--blu), #8B5CF6); color: #fff; }
+.cf-fine { background-image: var(--vetro-riflesso), linear-gradient(160deg, rgba(21, 128, 61, .16), transparent 70%); }
+.cf-freccia { display: grid; place-items: center; color: var(--tenue); }
+.cf-freccia svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: cf-spinta 1.6s ease-in-out infinite; }
+@keyframes cf-spinta { 0%, 100% { transform: translateX(-2px); opacity: .55; } 50% { transform: translateX(3px); opacity: 1; } }
+.cf-tag { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.cf-tag i { font: 500 11.5px var(--testo); font-style: normal; padding: 3px 9px; border-radius: 999px; background: rgba(127, 127, 127, .12); color: var(--testo2); }
+/* due modelli */
+.cf-due { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); align-items: stretch; }
+.cf-due.cf-onesto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.cf-scheda { padding: 18px 20px; }
+.cf-chi { font: 600 11.5px var(--testo) !important; text-transform: uppercase; letter-spacing: .07em; color: var(--blu) !important; }
+.cf-scheda ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 5px; }
+.cf-nota { margin-top: 10px !important; font-size: 12.5px !important; color: var(--tenue) !important; }
+.cf-ipotesi { background-image: var(--vetro-riflesso), linear-gradient(160deg, rgba(242, 85, 29, .12), transparent 70%); }
+.cf-ipotesi .cf-chi { color: var(--arancio) !important; }
+/* imbuto */
+.cf-imbuto { display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr) 30px minmax(0, 1fr) 30px minmax(0, 1fr); align-items: stretch; }
+.cf-tappa b { font-size: 18px; margin-top: 0; }
+/* numeri di accuratezza */
+.cf-numeri { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.cf-numeri > div { padding: 16px 16px 14px; border-radius: 20px; background-color: var(--vetro-f); background-image: var(--vetro-riflesso);
+  -webkit-backdrop-filter: var(--vetro-sfuocato); backdrop-filter: var(--vetro-sfuocato); border: 1px solid var(--vetro-bordo); box-shadow: inset 0 1px 0 var(--vetro-luce), var(--vetro-ombra); }
+.cf-numeri dd { margin: 0; font: 800 36px/1 var(--titoli); letter-spacing: -.03em; background: linear-gradient(135deg, var(--inchiostro), var(--blu)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cf-numeri dt { font: 600 13.5px var(--testo); margin: 6px 0 4px; }
+.cf-numeri small { font-size: 12.5px; color: var(--tenue); display: block; }
+.cf-prove { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+.cf-prove p { font-size: 13.5px; color: var(--testo2); margin: 0; }
+/* che file serve */
+.cf-file { border: 1px solid var(--vetro-bordo); border-radius: 20px; padding: 4px 18px; background-color: var(--vetro-f); }
+.cf-file summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; padding: 12px 0; font: inherit; }
+.cf-file summary::-webkit-details-marker { display: none; }
+.cf-file summary h3 { margin: 0; } .cf-file summary span { font-size: 12.5px; color: var(--tenue); }
+.cf-file summary::after { content: "+"; margin-left: auto; font: 600 20px var(--testo); color: var(--tenue); }
+.cf-file[open] summary::after { content: "−"; }
+.cf-file p { font-size: 14px; color: var(--testo2); }
+.cf-vai { text-align: center; margin: 0; }
+.cf-vai .pulsante { border-radius: 999px; padding: 14px 26px; font-size: 15px; background-image: var(--vetro-riflesso); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 10px 26px rgba(17, 17, 19, .2); }
+@media (max-width: 1000px) {
+  .cf-flusso, .cf-imbuto, .cf-due { grid-template-columns: minmax(0, 1fr); }
+  .cf-freccia { height: 34px; } .cf-freccia svg { transform: rotate(90deg); animation-name: cf-giu; }
+  @keyframes cf-giu { 0%, 100% { transform: rotate(90deg) translateX(-2px); opacity: .55; } 50% { transform: rotate(90deg) translateX(3px); opacity: 1; } }
+  .cf-numeri { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cf-prove { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) { .cf-due.cf-onesto { grid-template-columns: minmax(0, 1fr); } .cf-numeri dd { font-size: 30px; } .come { padding: 24px 16px 60px; gap: 28px; } }
