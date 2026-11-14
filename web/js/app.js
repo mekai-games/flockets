@@ -724,22 +724,31 @@ CPM = livello del pubblico × stagione × giorno
     nuova: 'Descrivi prodotto e annuncio: «Siero viso alla vitamina C, video di 15 secondi, -20% solo oggi»',
     altro: 'Descrivi un annuncio da provare (facoltativo): «Video di 15 secondi, una ragazza parla in camera, -30% solo oggi»',
   };
+  // niente menu: con un file allegato si analizza il file, altrimenti i dati della sfida.
+  // L'esempio del gioco e la campagna senza dati si aprono dai due link della riga sotto.
   function sorgente(v) {
-    $('#sorgente').value = v;
+    S.scelta = v;
     $('#file-chip').hidden = !(v === 'file' && S.file);
     if (v !== 'file') $('#esito-file').innerHTML = '';
-    $('#richiesta').placeholder = v === 'nuova' ? SEGNAPOSTO.nuova : SEGNAPOSTO.altro;
-    $('#avviso').textContent = v === 'file' && !S.file ? 'Allega il file qui sotto.' : v === 'file' && S.fileKit ? AVVISI.kit : AVVISI[v];
+    $('#richiesta').placeholder = SEGNAPOSTO.altro;
+    const av = $('#avviso');
+    if (v === 'file' && S.file) { av.textContent = S.fileKit ? AVVISI.kit : AVVISI.file; return; }
+    av.innerHTML = 'Senza file analizzo i dati della sfida. Oppure prova <button type="button" class="testo-link" data-vai="esempio">l’esempio di un gioco</button> o <button type="button" class="testo-link" data-vai="nuova">una campagna nuova, senza dati</button>.';
+    $$('[data-vai]', av).forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.vai === 'nuova') { S.testoConsole = $('#richiesta').value.trim(); location.hash = '#/nuova'; return; }
+      avvia('esempio');
+    }));
   }
-  // omini in fondo alla pagina di partenza: camminano piano, reagiscono solo quando succede qualcosa
+  // omini in fondo alla pagina di partenza: camminano sul prato, escono dai bordi e ne entrano di nuovi;
+  // reagiscono solo quando succede qualcosa
   let avvio = null, ultimaReazione = 0;
   function follaAvvio() {
     if (avvio || !window.Flock) return;
     Flock.carica().then(() => {
       if (avvio) return;
       const c = $('#folla-avvio'), stretto = window.innerWidth < 600;
-      avvio = new Flock.Scena(c, { scala: stretto ? 2 : 3, altezza: stretto ? 92 : 128, suolo: 6, linea: false, testo: '' });
-      avvio.popola(Math.max(5, Math.min(16, Math.round(c.clientWidth / (stretto ? 64 : 92)))), { profondita: 10 });
+      avvio = new Flock.Scena(c, { scala: stretto ? 2 : 3, altezza: stretto ? 96 : 134, suolo: stretto ? 14 : 18, linea: false, testo: '', avvolgi: true, ricambio: true });
+      avvio.popola(Math.max(5, Math.min(14, Math.round(c.clientWidth / (stretto ? 70 : 100)))), { profondita: 10 });
     });
   }
   function reazione(quanti, testo) {
@@ -805,11 +814,10 @@ CPM = livello del pubblico × stagione × giorno
     }));
   }
   // «Analizza»: i dati della sfida sono già calcolati; per l'esempio e per i file il motore gira nel browser
-  function avvia() {
-    const b = $('#avvia'), out = $('#esito-file'), scelta = $('#sorgente').value;
+  function avvia(forzata) {
+    const b = $('#avvia'), out = $('#esito-file'), scelta = typeof forzata === 'string' ? forzata : S.file ? 'file' : 'kit';
     S.testoConsole = $('#richiesta').value.trim();
     const budget = $('#br-budget') ? +$('#br-budget').value || null : null, lancio = $('#br-lancio') ? $('#br-lancio').value : null;
-    if (scelta === 'file' && !S.file) { $('#file-ingresso').click(); return; }
     if (document.body.dataset.vista === 'console') reazione(6, 'via!');
     if (scelta === 'nuova') { location.hash = '#/nuova'; return; }
     // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
@@ -844,16 +852,15 @@ CPM = livello del pubblico × stagione × giorno
       return lettura.then(parti);
     })).catch(err => {
       out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`);
-    }).finally(() => { b.disabled = false; sorgente($('#sorgente').value); });
+    }).finally(() => { b.disabled = false; sorgente(S.file ? 'file' : 'kit'); });
   }
 
   /* ------------------------------------------------------------------ avvio */
   function inizio() {
     Flock.carica().then(() => { new Flock.Scena($('#folla'), { scala: 4, altezza: 390, contorno: true, ombra: false, linea: false, suolo: 0 }).folla(); });
-    $('#avvia').addEventListener('click', avvia);
+    $('#avvia').addEventListener('click', () => avvia());
     $('#colonne-console').innerHTML = tabellaColonne();
     $('#colonne-come').innerHTML = tabellaColonne();
-    $('#sorgente').addEventListener('change', e => { sorgente(e.target.value); if (e.target.value === 'file' && !S.file) $('#file-ingresso').click(); });
     sorgente('kit');
     $('#togli-file').addEventListener('click', togliFile);
     // invio = analizza, maiuscolo + invio = a capo (come nelle chat)

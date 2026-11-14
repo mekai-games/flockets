@@ -63,8 +63,11 @@
       if (this.anim === 'camminata' || this.anim === 'corsa') {
         this.x += this.dir * (this.anim === 'corsa' ? this.vel * 2.4 : this.vel) * dt;
         if (sc.avvolgi) {
-          if (this.x < -40) this.x = sc.w + 40;
-          if (this.x > sc.w + 40) this.x = -40;
+          const m = 24 * (this.s || sc.S) + 8;   // mezzo personaggio oltre il bordo: è uscito del tutto
+          if (this.x < -m || this.x > sc.w + m) {
+            if (sc.ricambio) sc.ricambia(this, m);
+            else this.x = this.x < -m ? sc.w + m : -m;
+          }
         } else {
           if (this.x < sc.margine) { this.x = sc.margine; this.dir = 1; }
           if (this.x > sc.w - sc.margine) { this.x = sc.w - sc.margine; this.dir = -1; }
@@ -108,7 +111,7 @@
       this.S = o.scala || 2; this.h = o.altezza || 120;
       this.avvolgi = !!o.avvolgi; this.margine = o.margine || 26; this.suoloGiu = o.suolo || 12;
       this.omini = []; this.scritte = []; this.ritmo = 0; this.acc = 0; this.w = 0;
-      this.suClick = o.suClick || null; this.testo = o.testo || 'click';
+      this.suClick = o.suClick || null; this.testo = o.testo == null ? 'click' : o.testo; this.ricambio = !!o.ricambio;
       this.contorno = !!o.contorno; this.ombra = o.ombra !== false; this.linea = o.linea !== false; this.colore = o.colore || '#F2551D';
       this.ridimensiona();
       scene.add(this); avvia();
@@ -150,6 +153,18 @@
         }
       });
       return this;
+    }
+    // un omino uscito dallo schermo viene sostituito da un personaggio che non è già in scena, che entra camminando
+    ricambia(o, m) {
+      const tot = meta ? meta.nomi.length : 100, usati = new Set(this.omini.map(x => x.id));
+      let id, giri = 0;
+      do { id = Math.floor(Math.random() * tot); giri++; } while (usati.has(id) && giri < 50);
+      o.id = id;
+      o.dir = Math.random() < 0.5 ? -1 : 1;
+      o.x = o.dir > 0 ? -m : this.w + m;
+      o.vel = 16 + Math.random() * 22;
+      o.pausa = 3 + Math.random() * 8;
+      o.imposta('camminata');
     }
     dormienti(frazione) {
       const n = Math.min(Math.round(this.omini.length * frazione), this.omini.length - 1);

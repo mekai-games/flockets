@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body data-vista="benvenuto">
 
@@ -122,7 +122,7 @@
     <nav class="nav-link"><a class="mono-link" href="#/come">Come funziona</a><a class="mono-link" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub ↗</a></nav>
   </header>
   <main class="avvio" id="zona-file">
-    <p class="avvio-frase">Descrivi l’annuncio e scegli i dati: Flockets prevede click, costi e acquisti, giorno per giorno.</p>
+    <p class="avvio-frase">Descrivi l’annuncio e allega lo storico: Flockets prevede click, costi e acquisti, giorno per giorno.</p>
 
     <div class="composer">
       <label class="nascosta" for="richiesta">Annuncio o campagna da prevedere</label>
@@ -133,13 +133,6 @@
         <p class="capito-motivo" id="capito-motivo" hidden></p>
       </div>
       <div class="composer-barra">
-        <label class="fonte-dati"><span class="nascosta">Dati da analizzare</span>
-          <select id="sorgente">
-            <option value="kit">Dati della sfida</option>
-            <option value="esempio">Esempio: gioco per telefono</option>
-            <option value="file">Il mio file CSV</option>
-            <option value="nuova">Nessun dato: campagna nuova</option>
-          </select></label>
         <span class="file-chip" id="file-chip" hidden><span id="file-nome"></span><button type="button" id="togli-file" aria-label="Togli il file">✕</button></span>
         <button class="invia" id="avvia" type="button" aria-label="Analizza"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
@@ -164,6 +157,7 @@
     <div id="esito-file" aria-live="polite"></div>
     <p class="avviso mono" id="avviso"></p>
   </main>
+  <div class="prato" aria-hidden="true"></div>
   <canvas id="folla-avvio" aria-hidden="true"></canvas>
 </section>
 
@@ -261,10 +255,10 @@
   </div>
 </section>
 
-<script src="js/scena.js?v=20"></script>
-<script src="js/motore.js?v=20"></script>
-<script src="js/grafici.js?v=20"></script>
-<script src="js/nuova.js?v=20"></script>
-<script src="js/app.js?v=20"></script>
+<script src="js/scena.js?v=22"></script>
+<script src="js/motore.js?v=22"></script>
+<script src="js/grafici.js?v=22"></script>
+<script src="js/nuova.js?v=22"></script>
+<script src="js/app.js?v=22"></script>
 </body>
 </html>
