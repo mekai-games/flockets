@@ -763,12 +763,22 @@ CPM = livello del pubblico × stagione × giorno
       const alto = Math.round(Math.min(h, stretto ? 230 : 230));
       avvio = new Flock.Scena(c, { scala: stretto ? 2 : 3, altezza: alto, suolo: stretto ? 12 : 16, linea: false, testo: '', avvolgi: true, ricambio: true });
       const w = c.clientWidth, tot = 100, usati = new Set(), nuovo = () => { let id; do { id = Math.floor(Math.random() * tot); } while (usati.has(id) && usati.size < tot); usati.add(id); return id; };
-      const file = stretto ? [[1, -Math.round(alto * 0.5), 52], [2, 0, 78]] : [[2, -Math.round(alto * 0.45), 120], [3, 0, 110]];
+      // profondità continua: ognuno a una distanza sua sul prato. Lontano = più in alto, più piccolo, più lento.
+      // Le scale restano intere (pixel netti): piccola oltre metà prato, grande davanti, con una zona in cui si mescolano.
+      const fondo = Math.round(alto * (stretto ? 0.6 : 0.58)), [piccola, grande] = stretto ? [1, 2] : [2, 3];
+      avvio.profondita = o => {
+        const t = Math.pow(Math.random(), 0.85);   // 0 davanti, 1 in fondo
+        o.dy = -Math.round(t * fondo);
+        o.s = t > 0.62 || (t > 0.42 && Math.random() < (t - 0.42) / 0.2) ? piccola : grande;
+        o.vel = (14 + Math.random() * 20) * (1 - 0.45 * t);
+      };
+      const n = Math.max(6, Math.min(26, Math.round(w / (stretto ? 34 : 62))));
       avvio.omini = [];
-      file.forEach(([scala, dy, passo]) => {
-        const n = Math.max(3, Math.round(w / passo));
-        for (let k = 0; k < n; k++) avvio.omini.push(new Flock.Omino(nuovo(), (k + Math.random() * 0.8) * (w + 80) / n - 40, { scala, dy: dy + Math.round(Math.random() * 6) - 3 }));
-      });
+      for (let k = 0; k < n; k++) {
+        const o = new Flock.Omino(nuovo(), Math.random() * (w + 80) - 40, {});
+        avvio.profondita(o);
+        avvio.omini.push(o);
+      }
       avvio.omini.sort((p, q) => p.dy - q.dy);
     });
   }

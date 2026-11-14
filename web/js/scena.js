@@ -165,6 +165,8 @@
       o.vel = 16 + Math.random() * 22;
       o.pausa = 3 + Math.random() * 8;
       o.imposta('camminata');
+      // chi entra prende una profondità nuova: la folla si rimescola e non si formano file
+      if (this.profondita) { this.profondita(o); o.x = o.dir > 0 ? -(24 * (o.s || this.S) + 8) : this.w + 24 * (o.s || this.S) + 8; this.omini.sort((p, q) => p.dy - q.dy); }
     }
     dormienti(frazione) {
       const n = Math.min(Math.round(this.omini.length * frazione), this.omini.length - 1);

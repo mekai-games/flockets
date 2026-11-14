@@ -34,7 +34,7 @@ Il percorso è in cinque schermate.
 3. **Partenza**: una frase, un riquadro in stile chat dove descrivere l'annuncio e sotto la zona per allegare il
    CSV, con il tasto ⓘ che spiega che file serve. Con un file si analizza il file, senza i dati della sfida; due link
    aprono l'esempio inventato di un gioco per telefono e la campagna nuova senza dati. Invio per analizzare. Tutto
-   dentro lo schermo, senza scorrere; in basso un prato in pixel art sale fino a poco sotto il prompt; gli omini ci camminano su due file, escono dai bordi e ne arrivano di nuovi.
+   dentro lo schermo, senza scorrere; in basso un prato in pixel art sale fino a poco sotto il prompt; gli omini ci camminano sparsi a distanze diverse (più piccoli e lenti quelli lontani), escono dai bordi e ne arrivano di nuovi.
 4. **Campagna nuova**: nessun dato; si descrivono prodotto, annuncio, budget e pubblico, e Flockets la simula
    su tutti i tipi di persona: risultati con la forchetta, chi risponde, i tipi di persona migliori, alcune persone
    simulate con il loro motivo, e il consiglio su canale, formato, pubblico e leva.
