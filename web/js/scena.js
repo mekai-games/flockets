@@ -270,7 +270,9 @@
     let seme = o.seme || 20261114;
     const rnd = () => (seme = (seme * 16807) % 2147483647) / 2147483647;
     const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
-    const LONTANO = [236, 247, 228], MEZZO = [196, 230, 168], VICINO = [138, 199, 104];
+    // colori secondo il tema: nel tema scuro il prato sfuma verso lo scuro, non verso il bianco
+    const scuro = document.documentElement.dataset.tema === 'scuro';
+    const [LONTANO, MEZZO, VICINO] = scuro ? [[20, 24, 21], [34, 58, 32], [52, 96, 44]] : [[236, 247, 228], [196, 230, 168], [138, 199, 104]];
     const passo = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
     const alfa = new Float32Array(lh);
     for (let y = 0; y < lh; y++) {
@@ -287,7 +289,7 @@
       const i = (y * lw + x) * 4, k = a * alfa[y];
       d[i] += (col[0] - d[i]) * k; d[i + 1] += (col[1] - d[i + 1]) * k; d[i + 2] += (col[2] - d[i + 2]) * k;
     };
-    const SCURO = [104, 168, 76], MEDIO = [124, 186, 92], CHIARO = [200, 234, 178];
+    const [SCURO, MEDIO, CHIARO] = scuro ? [[30, 66, 28], [46, 90, 40], [86, 140, 70]] : [[104, 168, 76], [124, 186, 92], [200, 234, 178]];
     const fili = Math.round(lw * lh * 0.075);
     for (let k = 0; k < fili; k++) {
       const t = Math.pow(rnd(), 0.55), y = Math.floor(t * (lh - 1)), x = Math.floor(rnd() * lw);
@@ -296,11 +298,11 @@
       const pend = rnd() < 0.3 ? (rnd() < 0.5 ? -1 : 1) : 0;
       for (let j = 0; j < alto; j++) punto(x + (j === alto - 1 ? pend : 0), y - j, col, 0.35 + 0.55 * t);
     }
-    const FIORI = [[255, 255, 255], [255, 226, 122], [247, 168, 196], [196, 186, 255]];
+    const FIORI = scuro ? [[190, 190, 186], [214, 186, 92], [200, 130, 156], [150, 142, 210]] : [[255, 255, 255], [255, 226, 122], [247, 168, 196], [196, 186, 255]];
     const fiori = Math.round(lw * lh / 520);
     for (let k = 0; k < fiori; k++) {
       const t = 0.3 + rnd() * 0.62, y = Math.floor(t * (lh - 1)), x = Math.floor(rnd() * lw), col = FIORI[Math.floor(rnd() * FIORI.length)];
-      punto(x, y, col, 0.95); if (t > 0.7 && rnd() < 0.6) { punto(x - 1, y, col, 0.8); punto(x + 1, y, col, 0.8); punto(x, y - 1, col, 0.8); punto(x, y + 1, [120, 170, 80], 0.7); }
+      punto(x, y, col, 0.95); if (t > 0.7 && rnd() < 0.6) { punto(x - 1, y, col, 0.8); punto(x + 1, y, col, 0.8); punto(x, y - 1, col, 0.8); punto(x, y + 1, scuro ? [50, 92, 40] : [120, 170, 80], 0.7); }
     }
     g.putImageData(img, 0, 0);
     c.width = Math.round(w * dpr); c.height = Math.round(altezza * dpr);

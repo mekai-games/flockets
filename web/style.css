@@ -596,7 +596,6 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 :root[data-tema="scuro"] .a-scheda { box-shadow: 0 18px 44px rgba(0, 0, 0, .55); }
 :root[data-tema="scuro"] .a-luce::before { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(125, 139, 255, .10), transparent 45%); }
 :root[data-tema="scuro"] .interruttore::before { box-shadow: 0 2px 10px rgba(0, 0, 0, .5); }
-:root[data-tema="scuro"] #prato { filter: brightness(.6) saturate(1.15); }
 
 /* il tuo messaggio: voto, criteri, suggerimenti */
 .a-msg-corpo { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.3fr); gap: 24px; align-items: start; }
@@ -611,3 +610,92 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 .a-fonte { flex: none; }
 .a-tarato { color: var(--blu) !important; }
 @media (max-width: 760px) { .a-msg-corpo { grid-template-columns: auto minmax(0, 1fr); } .a-msg-sugg { grid-column: 1 / -1; } }
+
+/* foto o video dell'annuncio: anteprima nel riquadro del prompt e in testa all'analisi */
+#file-anteprima { width: 22px; height: 22px; border-radius: 5px; object-fit: cover; flex: none; }
+.file-chip { display: inline-flex; align-items: center; gap: 6px; }
+.a-intesta.con-anteprima { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: start; }
+.a-anteprima { margin: 0; position: relative; width: 132px; border-radius: 14px; overflow: hidden; border: 1px solid var(--riga); box-shadow: 0 10px 30px rgba(0, 0, 0, .12); }
+.a-anteprima.verticale { width: 104px; }
+.a-anteprima img { display: block; width: 100%; height: auto; }
+.a-anteprima figcaption { position: absolute; left: 6px; bottom: 6px; font: 600 11px var(--testo); color: #fff; background: rgba(0, 0, 0, .55); padding: 2px 7px; border-radius: 999px; }
+.a-scritte { font-size: 13px; color: var(--tenue); margin: 0 0 6px; }
+@media (max-width: 600px) { .a-anteprima { width: 92px; } .a-anteprima.verticale { width: 76px; } .a-intesta.con-anteprima { gap: 12px; } }
+
+/* ===================================================================== liquid glass
+   Superfici di vetro: traslucide, sfocano e saturano ciò che sta dietro, con un riflesso in alto,
+   un filo di luce sul bordo e un'ombra morbida. Sotto, macchie di colore leggere perché il vetro si veda. */
+:root {
+  --vetro-f: rgba(255, 255, 255, .56); --vetro-forte: rgba(255, 255, 255, .8); --vetro-bordo: rgba(255, 255, 255, .78);
+  --vetro-filo: rgba(17, 17, 19, .07); --vetro-luce: rgba(255, 255, 255, .95);
+  --vetro-riflesso: linear-gradient(180deg, rgba(255, 255, 255, .6) 0%, rgba(255, 255, 255, .14) 42%, rgba(255, 255, 255, 0) 64%);
+  --vetro-ombra: 0 1px 2px rgba(17, 17, 19, .04), 0 12px 32px rgba(17, 17, 19, .08);
+  --vetro-sfuocato: blur(22px) saturate(180%);
+  --aurora: radial-gradient(48% 42% at 12% 6%, rgba(59, 75, 224, .14), transparent 70%), radial-gradient(42% 38% at 88% 14%, rgba(242, 85, 29, .10), transparent 70%),
+    radial-gradient(52% 46% at 70% 96%, rgba(21, 128, 61, .10), transparent 70%), radial-gradient(40% 40% at 6% 80%, rgba(139, 92, 246, .09), transparent 70%);
+}
+:root[data-tema="scuro"] {
+  --vetro-f: rgba(36, 36, 42, .5); --vetro-forte: rgba(46, 46, 54, .74); --vetro-bordo: rgba(255, 255, 255, .13);
+  --vetro-filo: rgba(255, 255, 255, .06); --vetro-luce: rgba(255, 255, 255, .2);
+  --vetro-riflesso: linear-gradient(180deg, rgba(255, 255, 255, .11) 0%, rgba(255, 255, 255, .03) 42%, rgba(255, 255, 255, 0) 64%);
+  --vetro-ombra: 0 1px 2px rgba(0, 0, 0, .35), 0 14px 38px rgba(0, 0, 0, .45);
+  --aurora: radial-gradient(48% 42% at 12% 6%, rgba(125, 139, 255, .16), transparent 70%), radial-gradient(42% 38% at 88% 14%, rgba(255, 107, 53, .09), transparent 70%),
+    radial-gradient(52% 46% at 70% 96%, rgba(52, 196, 110, .08), transparent 70%), radial-gradient(40% 40% at 6% 80%, rgba(139, 92, 246, .12), transparent 70%);
+}
+/* sfondi con un po' di colore dietro il vetro */
+#v-console, #v-nuova, #v-come { background-image: var(--aurora); background-attachment: fixed; }
+#v-analisi:not([hidden]) { background: var(--aurora), var(--fondo); }
+.modo-analisi { background: transparent; }
+.modo-persone { background: transparent; }
+
+/* zone di vetro */
+.composer, .allega-zona, .info-box, .a-card, .a-kpi > div, .a-bud-num > div, .a-scheda, .a-filtro-pub, .a-segni, .interruttore,
+.a-tab, .a-seg, .file-chip, .a-capito span:not(.a-capito-t), .tema, .info, .a-msg-voto small {
+  background-color: var(--vetro-f); background-image: var(--vetro-riflesso);
+  -webkit-backdrop-filter: var(--vetro-sfuocato); backdrop-filter: var(--vetro-sfuocato);
+  border: 1px solid var(--vetro-bordo);
+  box-shadow: inset 0 1px 0 var(--vetro-luce), inset 0 0 0 .5px var(--vetro-filo), var(--vetro-ombra);
+}
+.a-card, .a-kpi > div { border-radius: 22px; }
+.a-kpi > div { border-radius: 18px; }
+.a-bud-num > div { box-shadow: inset 0 1px 0 var(--vetro-luce), inset 0 0 0 .5px var(--vetro-filo); }
+.a-capito span:not(.a-capito-t), .file-chip { box-shadow: inset 0 1px 0 var(--vetro-luce), inset 0 0 0 .5px var(--vetro-filo); }
+.a-card.evidenza { background-image: var(--vetro-riflesso), linear-gradient(180deg, rgba(21, 128, 61, .12), rgba(21, 128, 61, 0) 70%); border-color: var(--vetro-bordo); }
+.a-card.evidenza-blu { background-image: var(--vetro-riflesso), linear-gradient(180deg, rgba(59, 75, 224, .12), rgba(59, 75, 224, 0) 70%); border-color: var(--vetro-bordo); }
+.composer { border-radius: 26px; }
+.composer:focus-within { border-color: var(--vetro-bordo); box-shadow: inset 0 1px 0 var(--vetro-luce), inset 0 0 0 1px rgba(59, 75, 224, .35), 0 16px 44px rgba(17, 17, 19, .12); }
+.allega-zona { border-style: solid; border-radius: 18px; }
+.allega-zona:hover, .avvio.sopra .allega-zona { background-color: var(--vetro-forte); border-color: var(--vetro-bordo); }
+.info-box { background-color: var(--vetro-forte); border-radius: 24px; }
+.a-scheda { background-color: var(--vetro-forte); border-radius: 22px; }
+.a-scheda::after { background: var(--vetro-forte); border-color: var(--vetro-bordo); -webkit-backdrop-filter: var(--vetro-sfuocato); backdrop-filter: var(--vetro-sfuocato); }
+.a-scheda .tre-n { background: rgba(127, 127, 127, .08); }
+.barra-a, .riga-a { background: var(--vetro-f); -webkit-backdrop-filter: var(--vetro-sfuocato); backdrop-filter: var(--vetro-sfuocato); border-bottom-color: var(--vetro-filo); }
+
+/* bottoni di vetro: la pillola scelta è un vetro scuro (chiaro nel tema scuro) con il suo riflesso */
+.interruttore::before, .a-filtro-pub button.si, .a-seg button[aria-pressed="true"], .invia {
+  background-color: var(--inchiostro); background-image: var(--vetro-riflesso);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 4px 14px rgba(17, 17, 19, .22);
+}
+.a-tab button[aria-selected="true"] { background: var(--vetro-forte); box-shadow: inset 0 1px 0 var(--vetro-luce), 0 2px 8px rgba(17, 17, 19, .1); }
+.invia { border-radius: 14px; transition: transform .15s, box-shadow .2s; }
+.invia:hover { background-color: var(--inchiostro); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 8px 20px rgba(17, 17, 19, .28); }
+.tema, .info { transition: transform .3s cubic-bezier(.2, .8, .2, 1.3), background-color .2s; }
+.info:hover, .tema:hover { background-color: var(--vetro-forte); }
+.a-filtro-pub button:hover, .a-seg button:hover, .a-tab button:hover { background-color: rgba(127, 127, 127, .1); }
+.a-filtro-pub button.si:hover, .a-seg button[aria-pressed="true"]:hover { background-color: var(--inchiostro); }
+/* home (sempre scura): bottoni di vetro sopra la folla */
+.scura .pulsante.metallo, .scura .pulsante.scuro, .scura .pulsante.bianco {
+  -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); border-radius: 999px;
+}
+.scura .pulsante.metallo { color: #0B0B0C; background: rgba(255, 255, 255, .86) linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, .5));
+  border: 1px solid rgba(255, 255, 255, .9); box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(0, 0, 0, .45); }
+.scura .pulsante.metallo:hover { background: rgba(255, 255, 255, .95); }
+.scura .pulsante.scuro, .scura .pulsante.bianco { color: #fff; background: rgba(255, 255, 255, .1) linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 60%);
+  border: 1px solid rgba(255, 255, 255, .22); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 10px 30px rgba(0, 0, 0, .45); }
+.scura .pulsante.scuro:hover, .scura .pulsante.bianco:hover { background-color: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .35); }
+/* campi del modulo «campagna nuova» */
+#v-nuova input, #v-nuova select, #v-nuova textarea { background-color: var(--vetro-f); -webkit-backdrop-filter: var(--vetro-sfuocato); backdrop-filter: var(--vetro-sfuocato); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --vetro-f: rgba(255, 255, 255, .92); } :root[data-tema="scuro"] { --vetro-f: rgba(34, 34, 40, .95); }
+}

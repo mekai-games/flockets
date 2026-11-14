@@ -28,7 +28,7 @@
   const tabellaColonne = () => `<table class="semplice"><thead><tr><th>Colonna</th><th>Nomi riconosciuti</th><th>Esempio</th><th>Serve</th></tr></thead><tbody>${
     COLONNE.map(([n, alias, es, obbl, serve]) => `<tr><td><b>${n}</b></td><td>${alias}</td><td class="mono">${es}</td><td>${obbl ? '<span class="obbl">obbligatoria</span>' : 'facoltativa: ' + serve}</td></tr>`).join('')}</tbody></table>`;
 
-  const S = { lab: null, visti: {}, testoConsole: '', file: null, fileKit: true, brief: null, sorgente: 'kit', etichetta: 'Dati della sfida Wevion (simulati)' };
+  const S = { lab: null, visti: {}, testoConsole: '', file: null, fileKit: true, creativa: null, brief: null, sorgente: 'kit', etichetta: 'Dati della sfida Wevion (simulati)' };
   let D = null, datiP = null;
 
   /* ------------------------------------------------------------------ dati */
@@ -84,23 +84,26 @@
     return fetch('api/leggi').then(r => (r.ok ? r.json() : { attiva: false })).then(j => (LETTURA.attiva = !!j.attiva)).catch(() => (LETTURA.attiva = false));
   }
   function chiediLettura(testo) {
-    if (LETTURA.ultimo && LETTURA.ultimo.testo === testo) return LETTURA.ultimo.p;
+    const cr = S.creativa, chiave = testo + '|' + (cr ? cr.id : '');
+    if (LETTURA.ultimo && LETTURA.ultimo.chiave === chiave) return LETTURA.ultimo.p;
     const p = letturaPronta().then(ok => {
-      if (!ok || testo.length < 8) return null;
+      if (!ok || (testo.length < 8 && !cr)) return null;
       return fetch('api/leggi', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ testo: testo.slice(0, 800), formati: D.par.formati, leve: D.par.leve }) })
+        body: JSON.stringify({ testo: testo.slice(0, 800), formati: D.par.formati, leve: D.par.leve,
+          immagini: cr ? cr.immagini : [], video: !!cr && cr.tipo === 'video' }) })
         .then(r => (r.ok ? r.json() : null))
         .then(j => {
           if (!j) return null;
           // la campagna (canale, budget, durata…) serve anche senza file; formato e leva solo se il modello li conosce
-          const extra = { campagna: j.campagna || null, messaggio: j.messaggio || null, suggerimenti: j.suggerimenti || [], motivo: j.motivo || '', fonte: 'ia' };
+          const extra = { campagna: j.campagna || null, messaggio: j.messaggio || null, suggerimenti: j.suggerimenti || [], motivo: j.motivo || '',
+            vista: j.creativita_vista || null, fonte: 'ia' };
           if (!D.par.formati.includes(j.formato) || !D.par.leve.includes(j.leva)) return Object.assign(leggiTesto(testo), extra);
           const f = {};
           Object.keys(D.par.feat_regole).forEach(k => { f[k] = j.caratteristiche && j.caratteristiche[k] ? 1 : 0; });
           return Object.assign({ f, formato: j.formato, leva: j.leva }, extra);
         });
     }).catch(() => null);
-    LETTURA.ultimo = { testo, p };
+    LETTURA.ultimo = { chiave, p };
     return p;
   }
   function logFatica(eta, leva) {
@@ -172,8 +175,8 @@
   // senza file l'annuncio scritto diventa una campagna nuova, simulata sulle persone
   function sorgente(v) {
     S.scelta = v;
-    $('#file-chip').hidden = !(v === 'file' && S.file);
-    if (v !== 'file') $('#esito-file').innerHTML = '';
+    if (v !== 'file' && !S.creativa) $('#esito-file').innerHTML = '';
+    mostraAllegati();
     $('#richiesta').placeholder = SEGNAPOSTO;
   }
   let avvio = null, ultimaReazione = 0;
@@ -223,61 +226,149 @@
     for (let i = 0; i < quanti; i++) setTimeout(() => avvio.esulta(), i * 140);
   }
   function togliFile() {
-    S.file = null; S.fileKit = true; $('#file-ingresso').value = '';
+    S.file = null; S.fileKit = true; S.creativa = null; $('#file-ingresso').value = '';
     sorgente('kit');
+    leggiInSottofondo();
   }
-  // file allegato: resta solo il suo nome nel riquadro; sotto compare qualcosa solo se il file non va bene
+  /* ---------------------------------------------------------- foto e video dell'annuncio */
+  // un'immagine (foto o fotogramma) rimpicciolita e in JPEG: è questa che parte per la lettura, non il file
+  function inJpeg(sorgente, w0, h0, lato) {
+    const k = Math.min(1, lato / Math.max(w0, h0, 1)), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w0 * k)); c.height = Math.max(1, Math.round(h0 * k));
+    c.getContext('2d').drawImage(sorgente, 0, 0, c.width, c.height);
+    const url = c.toDataURL('image/jpeg', 0.82);
+    return { tipo: 'image/jpeg', dati: url.split(',')[1], url };
+  }
+  function leggiFoto(file) {
+    return new Promise((ok, ko) => {
+      const u = URL.createObjectURL(file), im = new Image();
+      im.onload = () => {
+        const x = inJpeg(im, im.naturalWidth, im.naturalHeight, 1024);
+        ok({ id: file.name + file.size, nome: file.name, tipo: 'foto', immagini: [{ tipo: x.tipo, dati: x.dati }],
+          anteprima: inJpeg(im, im.naturalWidth, im.naturalHeight, 320).url, verticale: im.naturalHeight > im.naturalWidth });
+        URL.revokeObjectURL(u);
+      };
+      im.onerror = () => { URL.revokeObjectURL(u); ko(new Error('Non riesco ad aprire questa immagine.')); };
+      im.src = u;
+    });
+  }
+  // dal video alcuni fotogrammi: fitti nei primi secondi (l'aggancio), poi distribuiti fino alla fine
+  function leggiVideo(file) {
+    return new Promise((ok, ko) => {
+      const u = URL.createObjectURL(file), v = document.createElement('video');
+      const fine = e => { URL.revokeObjectURL(u); v.removeAttribute('src'); v.load(); if (e) ko(e); };
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      v.onerror = () => fine(new Error('Non riesco ad aprire questo video: prova un MP4 o un MOV.'));
+      v.onloadeddata = async () => {
+        try {
+          const d = isFinite(v.duration) && v.duration > 0 ? v.duration : 10, ultimo = Math.max(0, d - 0.15);
+          const tempi = [...new Set([0.1, 1, 2.2, d * 0.4, d * 0.7, d - 0.5].map(s => Math.round(Math.min(Math.max(0, s), ultimo) * 10) / 10))].sort((a, b) => a - b).slice(0, 6);
+          const immagini = []; let anteprima = '';
+          for (const s of tempi) {
+            await new Promise(r => { const tm = setTimeout(r, 3000); v.onseeked = () => { clearTimeout(tm); r(); }; v.currentTime = s; });
+            const x = inJpeg(v, v.videoWidth, v.videoHeight, 768);
+            immagini.push({ tipo: x.tipo, dati: x.dati, secondo: s });
+            if (!anteprima) anteprima = inJpeg(v, v.videoWidth, v.videoHeight, 320).url;
+          }
+          ok({ id: file.name + file.size, nome: file.name, tipo: 'video', durata: d, immagini, anteprima, verticale: v.videoHeight > v.videoWidth });
+          fine();
+        } catch (e) { fine(new Error('Non riesco a leggere i fotogrammi di questo video.')); }
+      };
+      v.src = u;
+    });
+  }
+  function mostraAllegati() {
+    const nomi = [...(S.file || []).map(f => f.nome), ...(S.creativa ? [S.creativa.nome] : [])];
+    $('#file-nome').textContent = nomi.length > 2 ? nomi.length + ' file' : nomi.join(' · ');
+    const im = $('#file-anteprima');
+    im.hidden = !S.creativa; if (S.creativa) im.src = S.creativa.anteprima;
+    $('#file-chip').hidden = !nomi.length;
+  }
+  // file allegati: lo storico (CSV) e/o l'annuncio (una foto o un video). Resta solo il nome nel riquadro;
+  // sotto compare qualcosa solo se un file non va bene
   function suFile(files) {
     const out = $('#esito-file');
-    const lista = Array.from(files).filter(f => /\.csv$/i.test(f.name) || f.type === 'text/csv');
-    if (!lista.length) { out.innerHTML = '<p class="errore mono">Serve un file CSV.</p>'; return; }
+    const tutti = Array.from(files);
+    const csv = tutti.filter(f => /\.csv$/i.test(f.name) || f.type === 'text/csv');
+    const media = tutti.find(f => /^image\//.test(f.type) || /^video\//.test(f.type) || /\.(jpe?g|png|webp|heic|mp4|mov|webm|m4v)$/i.test(f.name));
+    if (!csv.length && !media) { out.innerHTML = '<p class="errore mono">Serve un CSV, una foto o un video.</p>'; return; }
     out.innerHTML = '';
-    Promise.all([dati(), ...lista.map(f => f.text().then(t => ({ nome: f.webkitRelativePath || f.name, testo: t })))]).then(([, ...letti]) => {
+    if (media) {
+      const video = /^video\//.test(media.type) || /\.(mp4|mov|webm|m4v)$/i.test(media.name);
+      (video ? leggiVideo(media) : leggiFoto(media)).then(cr => {
+        S.creativa = cr; mostraAllegati(); reazione(3, '');
+        (D ? Promise.resolve() : dati()).then(leggiInSottofondo);   // la lettura parte subito, così all'invio è pronta
+      }).catch(e => { out.innerHTML = `<p class="errore mono">${esc(e.message)}</p>`; });
+    }
+    if (!csv.length) return;
+    Promise.all([dati(), ...csv.map(f => f.text().then(t => ({ nome: f.webkitRelativePath || f.name, testo: t })))]).then(([, ...letti]) => {
       const st = letti.map(x => Object.assign({ nome: x.nome }, controllaStorico(leggiCSV(x.testo)))).filter(x => x.ok).sort((a, b) => b.n - a.n)[0];
       S.file = letti;
       S.fileKit = !!st && st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000 && kit();
-      $('#file-nome').textContent = letti.length === 1 ? letti[0].nome : letti.length + ' file';
       sorgente('file');
       reazione(3, '');
     });
   }
+  // il testo dell'annuncio per il motore: quello scritto, più cosa si vede e cosa c'è scritto nella foto o nel video
+  function testoAnnuncio() {
+    const v = S.brief && S.brief.vista;
+    return [S.testoConsole, v && v.descrizione, v && v.testo_visibile ? 'Scritte: ' + v.testo_visibile : ''].filter(Boolean).join('. ');
+  }
   // mentre si scrive: il testo viene letto in sottofondo, senza mostrare niente
   function leggiInSottofondo() {
     if (!D) return;
-    const testo = $('#richiesta').value.trim();
-    if (!testo) { S.brief = null; clearTimeout(LETTURA.t); return; }
+    const testo = $('#richiesta').value.trim(), cr = S.creativa;
+    if (!testo && !cr) { S.brief = null; clearTimeout(LETTURA.t); return; }
     S.brief = Object.assign(leggiTesto(testo), { attesa: true });
     clearTimeout(LETTURA.t);
     LETTURA.t = setTimeout(() => chiediLettura(testo).then(b => {
-      if (!S.brief || $('#richiesta').value.trim() !== testo) return;
+      if (!S.brief || $('#richiesta').value.trim() !== testo || S.creativa !== cr) return;
       if (b) S.brief = b; else S.brief.attesa = false;
-    }), 700);
+    }), cr && !testo ? 0 : 700);
+  }
+  // con una foto o un video il formato si sa già, se il testo non lo dice
+  function formatoDalFile(spec) {
+    const cr = S.creativa;
+    if (cr && !spec.formato) spec.formato = cr.tipo === 'foto' ? 'immagine' : cr.durata <= 60 ? 'video_breve' : 'video';
+  }
+  function contestoAnnuncio(L) {
+    const cr = S.creativa, v = S.brief && S.brief.vista;
+    const prodotto = L.prodotto ? L.prodotto.charAt(0).toUpperCase() + L.prodotto.slice(1) : '';
+    return { prompt: S.testoConsole || prodotto || (v && v.descrizione) || (cr ? cr.nome : ''), unita: L.unita, gratis: L.gratis, ia: L.ia, messaggio: L.messaggio,
+      suggerimenti: L.suggerimenti, creativa: cr ? { tipo: cr.tipo, nome: cr.nome, durata: cr.durata, anteprima: cr.anteprima, verticale: cr.verticale, vista: v } : null };
   }
   function avvia(forzata, origine) {
     const b = $('#avvia'), out = $('#esito-file'), scelta = typeof forzata === 'string' ? forzata : S.file ? 'file' : 'annuncio';
     S.testoConsole = $('#richiesta').value.trim();
     const budget = null, lancio = null;
     if (scelta === 'nuova') { location.hash = '#/nuova'; return; }
-    if (scelta === 'annuncio' && !S.testoConsole) {   // niente da analizzare: il riquadro si scuote e aspetta il testo
+    if (scelta === 'annuncio' && !S.testoConsole && !S.creativa) {   // niente da analizzare: il riquadro si scuote e aspetta il testo
       const c = $('.composer'); c.classList.remove('scuoti'); void c.offsetWidth; c.classList.add('scuoti'); $('#richiesta').focus(); return;
     }
     if (document.body.dataset.vista === 'console') reazione(6, '');
     const r = (origine || b).getBoundingClientRect(), da = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    // se la lettura del testo è ancora in corso la si aspetta, al massimo cinque secondi (intanto parte la transizione)
+    // se la lettura è ancora in corso la si aspetta (intanto parte la transizione): cinque secondi, venti con foto o video
+    if (!S.brief && S.creativa) S.brief = Object.assign(leggiTesto(S.testoConsole), { attesa: true });
     const b0 = S.brief;
     const lettura = b0 && b0.attesa && LETTURA.attiva !== false
-      ? (clearTimeout(LETTURA.t), Promise.race([chiediLettura(S.testoConsole), new Promise(r => setTimeout(() => r(null), 5000))])
+      ? (clearTimeout(LETTURA.t), Promise.race([chiediLettura(S.testoConsole), new Promise(r => setTimeout(() => r(null), S.creativa ? 20000 : 5000))])
         .then(b => { if (S.brief === b0) { if (b && !b0.manuale) S.brief = b; else b0.attesa = false; } }))
       : Promise.resolve();
     b.disabled = true;
     const errore = err => { out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`); };
     const libera = () => { b.disabled = false; sorgente(S.file ? 'file' : 'kit'); };
-    // solo il testo: l'annuncio diventa una campagna nuova, provata su ogni tipo di pubblico
+    // senza storico: l'annuncio (scritto, in foto o in video) diventa una campagna nuova, provata su ogni tipo di pubblico
     if (scelta === 'annuncio') {
       let L = null;
-      const lavoro = lettura.then(() => { L = window.Analisi.leggiPrompt(S.testoConsole, S.brief); return MotoreFlockets.campagna(L.spec, () => {}); });
+      const lavoro = lettura.then(() => {
+        const testo = testoAnnuncio();
+        if (!testo) throw new Error('Non riesco a leggere la foto o il video: aggiungi due righe di descrizione.');
+        L = window.Analisi.leggiPrompt(testo, S.brief);
+        formatoDalFile(L.spec);
+        return MotoreFlockets.campagna(L.spec, () => {});
+      });
       window.Analisi.transizione(lavoro, da)
-        .then(d => window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis, ia: L.ia, messaggio: L.messaggio, suggerimenti: L.suggerimenti }))
+        .then(d => window.Analisi.apri('nuova', d, contestoAnnuncio(L)))
         .catch(errore).finally(libera);
       return;
     }
@@ -285,18 +376,20 @@
     const parti = d => {
       const brief = S.brief;
       S.visti = {};
-      S.lab = S.testoConsole ? Object.assign({ testo: S.testoConsole, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
-        brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(S.testoConsole)) : null;
-      if (d && L) window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis, ia: L.ia, messaggio: L.messaggio,
-        suggerimenti: L.suggerimenti, storico: true, fonte, marca: L.marca });
+      const testo = testoAnnuncio();
+      S.lab = testo ? Object.assign({ testo, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
+        brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(testo)) : null;
+      if (d && L) window.Analisi.apri('nuova', d, Object.assign(contestoAnnuncio(L), { storico: true, fonte, marca: L.marca }));
       else window.Analisi.apri('storico', null, { prompt: S.testoConsole, fonte });
     };
     // con un annuncio scritto: la stessa campagna simulata sulle persone, con i livelli veri della marca presi dallo storico
     const provaAnnuncio = () => {
-      if (!S.testoConsole) return null;
-      const L0 = window.Analisi.leggiPrompt(S.testoConsole, S.brief), r = riservaDaStorico(S.testoConsole, L0.spec.categoria_ia);
-      L = window.Analisi.leggiPrompt(S.testoConsole, S.brief, r);
+      const testo = testoAnnuncio();
+      if (!testo) return null;
+      const L0 = window.Analisi.leggiPrompt(testo, S.brief), r = riservaDaStorico(testo, L0.spec.categoria_ia);
+      L = window.Analisi.leggiPrompt(testo, S.brief, r);
       L.marca = r ? r.marca : '';
+      formatoDalFile(L.spec);
       return MotoreFlockets.campagna(L.spec, () => {});
     };
     const sfida = scelta === 'kit' || (scelta === 'file' && S.fileKit);
@@ -373,6 +466,7 @@
       const r = document.documentElement, nuovo = scuro() ? 'chiaro' : 'scuro';
       r.classList.add('cambio-tema'); r.dataset.tema = nuovo;
       setTimeout(() => r.classList.remove('cambio-tema'), 400);
+      if (document.body.dataset.vista === 'console') disegnaPrato();   // il prato ha colori diversi nei due temi
       try { localStorage.setItem('flockets-tema', nuovo); } catch (x) { /* senza memoria vale fino alla chiusura */ }
       etichette();
     });

@@ -450,7 +450,8 @@ window.Analisi = (function () {
       ...Object.entries(C.filtri || {}).map(([k, v]) => (k === 'eta' ? 'per ' + etaInBreve(v) : 'per ' + v.map(x => VALORI[x] || x).join(' o '))),
       C.forza != null ? `messaggio ${ni(C.forza)}/10` : '',
     ].filter(Boolean);
-    return `<div class="a-capito"><span class="a-capito-t">Dal tuo testo</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
+    const cr = contesto.creativa, fonte = cr ? (contesto.prompt && contesto.prompt !== (cr.vista && cr.vista.descrizione) ? `Dal testo e ${cr.tipo === 'video' ? 'dal video' : 'dalla foto'}` : cr.tipo === 'video' ? 'Dal video' : 'Dalla foto') : 'Dal tuo testo';
+    return `<div class="a-capito"><span class="a-capito-t">${fonte}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
       ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
       ${m.nuova.taratura ? `<p class="a-nota a-tarato">Tarato su ${esc(contesto.fonte || 'il tuo storico')}${contesto.marca ? ' (' + esc(contesto.marca) + ')' : ''}: per questa marca i click partono da ×${nf(Math.exp(m.nuova.taratura.ctr), 2)} e il costo da ×${nf(Math.exp(m.nuova.taratura.cpm), 2)} rispetto al tipico del settore.</p>` : ''}`;
   }
@@ -499,8 +500,13 @@ window.Analisi = (function () {
     let i = 0;
     el.innerHTML = `
       <div class="a-testa a-entra" style="--i:${i++}">
-        <p class="a-etichetta">${etichetta}</p>
-        <h2 class="a-titolo2">${titolo}</h2>
+        <div class="a-intesta${contesto.creativa && nuova ? ' con-anteprima' : ''}">
+          ${contesto.creativa && nuova ? `<figure class="a-anteprima${contesto.creativa.verticale ? ' verticale' : ''}"><img src="${contesto.creativa.anteprima}" alt="${contesto.creativa.tipo === 'video' ? 'Primo fotogramma del video' : 'La foto dell’annuncio'}">${contesto.creativa.tipo === 'video' ? `<figcaption>▶ ${ni(contesto.creativa.durata)} s</figcaption>` : ''}</figure>` : ''}
+          <div><p class="a-etichetta">${etichetta}</p>
+          <h2 class="a-titolo2">${titolo}</h2>
+          ${contesto.creativa && nuova && contesto.creativa.vista && contesto.creativa.vista.descrizione && contesto.creativa.vista.descrizione !== contesto.prompt ? `<p class="a-scritte">Si vede: ${esc(contesto.creativa.vista.descrizione)}</p>` : ''}
+          ${contesto.creativa && nuova && contesto.creativa.vista && contesto.creativa.vista.testo_visibile ? `<p class="a-scritte">Scritte: «${esc(contesto.creativa.vista.testo_visibile)}»</p>` : ''}</div>
+        </div>
         ${capito(m)}
         ${!nuova && contesto.prompt ? `<p class="a-nota">Il tuo annuncio: «${esc(contesto.prompt)}» · come andrebbe su queste campagne è più sotto.</p>` : ''}
         <p class="a-frase">${frase}</p>

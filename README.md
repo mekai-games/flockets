@@ -27,7 +27,8 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 ### Il sito
 
 Il percorso è in cinque schermate, in tema chiaro o scuro (bottone sole / luna in alto; la prima volta segue il
-sistema, poi la scelta resta nel browser).
+sistema, poi la scelta resta nel browser). Bottoni e riquadri sono di vetro (stile «liquid glass»: traslucidi, sfocano lo
+sfondo, riflesso in alto), su macchie di colore leggere; nel tema scuro anche il prato sfuma verso lo scuro.
 
 1. **Home**: nome, frase e la folla del pubblico simulato.
 2. **Come funziona**: il modello in otto passaggi, un esempio di calcolo, le colonne che servono, quanto ci
@@ -86,7 +87,17 @@ link per correggerlo; mentre si scrive il prompt non compare niente. Sul sito no
 variabile d'ambiente `ANTHROPIC_API_KEY` del progetto Vercel, mai nel codice; senza chiave il sito continua
 con le regole.
 
-**Prompt e storico: due ingressi facoltativi e complementari.** Serve almeno uno dei due.
+**Foto e video dell'annuncio.** Nella zona degli allegati si può mettere anche la creatività: una foto o un video
+(MP4, MOV). Dal video il browser prende fino a sei fotogrammi, fitti nei primi secondi; foto e fotogrammi partono
+rimpiccioliti (al massimo 1024 o 768 pixel), mai il file intero. La stessa funzione `/api/leggi` li guarda insieme al
+testo: descrive cosa si vede, trascrive le scritte, riconosce aggancio, ritmo, persona in camera, prezzo barrato, e
+compila la stessa campagna del prompt. Il testo per il motore diventa: quello scritto, più la descrizione e le scritte
+della creatività; il formato viene dal file se il testo non lo dice. Funziona anche con il solo video o la sola foto.
+Nell'analisi la creatività compare accanto al titolo, con quello che si vede e le scritte lette. Prove in
+[`strumenti/prove_media/`](strumenti/prove_media/): dal video di prova legge l'aggancio «Pelle spenta?», il prodotto e
+«-30% solo oggi · Compra ora» (voto del messaggio 7/10); dalla foto anche «Spedizione gratuita».
+
+**Prompt e storico: due ingressi facoltativi e complementari.** Serve almeno uno dei due (il prompt, una foto o un video, o un CSV).
 
 | Cosa mandi | Cosa succede |
 |---|---|
