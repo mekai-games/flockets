@@ -13,7 +13,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=45">
+<link rel="stylesheet" href="style.css?v=46">
 </head>
 <body data-vista="benvenuto">
 
@@ -245,6 +245,15 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
   <div class="modo-analisi" id="a-analisi" hidden><div class="a-contenuto" id="a-contenuto"></div></div>
 </section>
 
+<!-- PROFILO: account e progetti salvati (l’account serve solo a ritrovare i progetti) -->
+<section class="vista" id="v-profilo" hidden>
+  <header class="nav chiara">
+    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
+    <nav class="nav-link"><a class="mono-link" href="#/console">Nuova analisi</a></nav>
+  </header>
+  <main class="pagina pagina-account" id="profilo-corpo"></main>
+</section>
+
 <!-- transizione a schermo intero: gli omini reagiscono alla campagna mentre il motore calcola -->
 <div class="transizione" id="transizione" role="status" aria-label="Simulazione in corso" hidden>
   <canvas id="tr-pixel" aria-hidden="true"></canvas>
@@ -259,5 +268,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <script src="js/esplora.js?v=45"></script>
 <script src="js/analisi.js?v=45"></script>
 <script src="js/app.js?v=45"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="js/account.js?v=46"></script>
 </body>
 </html>

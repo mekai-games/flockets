@@ -9,14 +9,14 @@ Sotto le previsioni c'è una **popolazione virtuale**: tutti i 14.434 tipi di pe
 convertito in 41 numeri. Su questa popolazione Flockets simula anche una **campagna nuova, senza nessun dato**:
 chi la vede, chi clicca, chi visita il sito, chi compra, e quale pubblico, canale e formato rendono di più.
 
-Sito: **https://flockets.vercel.app**
+Sito: **https://www.flockets.site**
 
 Progetto per The Big Hack 2026 (Napoli, 14-15 novembre), sfida Wevion «Clienti che non esistono».
 Questa pagina segue le tre consegne chieste dalla sfida.
 
 | Consegna | Dove sta |
 |---|---|
-| 1. Lo strumento | il [sito](https://flockets.vercel.app) (cartella [`web/`](web/)) e il motore di previsione ([`flockets/`](flockets/)) |
+| 1. Lo strumento | il [sito](https://www.flockets.site) (cartella [`web/`](web/)) e il motore di previsione ([`flockets/`](flockets/)) |
 | 2. Le previsioni | [`output/previsioni_16-30_nov.csv`](output/previsioni_16-30_nov.csv): 699 righe, 51 annunci |
 | 3. Il ragionamento | questa pagina, la pagina «Come funziona» del sito e il video di 3 minuti |
 
@@ -188,6 +188,24 @@ python3 -m http.server 4173 --directory web
 ```
 
 Il logo è in [`design/logo.svg`](design/logo.svg); le proposte scartate sono nelle altre pagine di `design/`.
+
+### Account e progetti salvati
+
+Il sito funziona tutto senza account. Con un account (bottone **Accedi** in alto) ogni analisi aperta viene
+salvata da sola e si ritrova in **Profilo → I tuoi progetti**, da qualsiasi dispositivo; si può riaprire identica,
+rinominare o cancellare. Se si apre un'analisi prima di entrare, viene salvata appena si accede.
+
+- Database: Supabase, progetto `flockets` (Francoforte). Tabelle `profili` e `progetti` con RLS: ognuno legge e
+  modifica solo le sue righe. Lo schema sta in [`supabase/migrations/`](supabase/migrations/).
+- Accesso con email e password già attivo. Google, Apple, GitHub e Microsoft compaiono da soli nella finestra di
+  accesso appena vengono attivati in Supabase (Authentication → Sign In / Providers), con le credenziali create
+  sul sito di ogni provider. L'indirizzo di ritorno da dare al provider è
+  `https://zfjofmbyzxulejornexe.supabase.co/auth/v1/callback`.
+- Le email (conferma, password dimenticata) per ora passano dal server di prova di Supabase, che scrive solo ai
+  membri del team: per il pubblico serve un SMTP vero (Authentication → Emails → SMTP). Finché non c'è, la
+  conferma dell'email alla registrazione è spenta.
+- In locale il sito va servito su `localhost:3000` (è tra gli indirizzi di ritorno ammessi):
+  `python3 -m http.server 3000 --directory web`.
 
 ### Il motore
 
@@ -397,6 +415,8 @@ simulazione.consiglia({...})           # le combinazioni migliori con lo stesso 
 | [`esegui.py`](esegui.py) | esegue tutto da riga di comando |
 | [`web/`](web/) | il sito: `js/scena.js` (omini), `js/grafici.js` (grafici), `js/motore.js` (il motore nel browser), `js/app.js` |
 | [`web/api/leggi.js`](web/api/leggi.js) | la funzione che legge la descrizione di un annuncio con Claude Haiku |
+| [`web/js/account.js`](web/js/account.js) | account (email o Google, Apple, GitHub, Microsoft), profilo e progetti salvati, su Supabase |
+| [`supabase/`](supabase/) | configurazione e migrazioni del database (profili e progetti, ognuno vede solo i suoi) |
 | [`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) | prova il motore su uno storico qualsiasi: nasconde gli ultimi giorni e confronta |
 | [`strumenti/benchmark_conjura.py`](strumenti/benchmark_conjura.py) | ricava dal dataset Conjura i valori reali di partenza del simulatore |
 | [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) | la prova sulle 79 marche vere del dataset Conjura |

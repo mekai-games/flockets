@@ -30,6 +30,7 @@
 
   const S = { lab: null, visti: {}, testoConsole: '', file: null, fileKit: true, creativa: null, brief: null, sorgente: 'kit', etichetta: 'Dati della sfida Wevion (simulati)' };
   let D = null, datiP = null;
+  let grezzo = null;   // l'analisi così come esce dal motore, prima di prepara(): serve per salvarla nei progetti
 
   /* ------------------------------------------------------------------ dati */
   function dati() {
@@ -40,6 +41,7 @@
   }
   // cambia l'insieme di dati su cui lavora il sito (il kit, oppure un'analisi calcolata sui file caricati)
   function usa(d) {
+    grezzo = d.meta && d.meta.origine === 'kit' ? 'kit' : JSON.stringify(d);
     D = d;
     Object.assign(S, { lab: null, visti: {} });
     prepara();
@@ -50,6 +52,16 @@
   window.Flk = {
     get D() { return D; }, get S() { return S; }, kit: () => !!D && kit(), dati: () => dati(),
     stima: (c, L) => stima(c, L), scarico: () => scarico(),
+    // per i progetti salvati: cosa c'è adesso sotto l'analisi, e come rimetterlo
+    istantanea: () => ({ storico: grezzo, sorgente: S.sorgente, etichetta: S.etichetta, lab: S.lab }),
+    ripristina(ist) {
+      const fatto = () => { Object.assign(S, { sorgente: ist.sorgente || S.sorgente, etichetta: ist.etichetta || S.etichetta, lab: ist.lab || null }); return D; };
+      if (!ist.storico || ist.storico === 'kit') {
+        if (D && !kit()) { datiP = null; D = null; }
+        return dati().then(fatto);
+      }
+      return Flock.carica().then(() => { usa(JSON.parse(ist.storico)); datiP = Promise.resolve(D); return fatto(); });
+    },
   };
   function prepara() {
     const ogg = (cols, r) => Object.fromEntries(cols.map((k, i) => [k, r[i]]));
@@ -499,6 +511,7 @@
     const p = location.hash.replace(/^#\/?/, '').split('/');
     if (p[0] === 'console') { mostra('console'); follaAvvio(); if (!D) dati(); return; }
     if (p[0] === 'come') { mostra('come'); return; }
+    if (p[0] === 'profilo') { mostra('profilo'); window.Account.mostraProfilo(); return; }
     if (p[0] === 'sim') { location.replace('#/analisi'); return; }   // indirizzi della vecchia interfaccia
     if (p[0] === 'analisi') {
       (D || window.Analisi.haDati() ? Promise.resolve() : dati()).then(() => { mostra('analisi'); window.Analisi.mostra(p[1] === 'numeri' ? 'analisi' : 'persone'); });
