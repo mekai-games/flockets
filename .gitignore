@@ -1,0 +1,13 @@
+# sistema
+.DS_Store
+__pycache__/
+*.pyc
+
+# kit della sfida (materiale Wevion, non nostro: non va nel repository)
+dati/
+Wevion-BigHack-sfida.pdf
+LEGGIMI.md
+
+# segreti: mai nel repository
+.env
+.env.*

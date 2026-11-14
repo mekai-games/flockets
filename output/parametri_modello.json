@@ -1,0 +1,55 @@
+{
+  "fatica_ctr": {
+    "scarcity": {
+      "pavimento": 0.6,
+      "tau_giorni": 30.0
+    },
+    "urgency": {
+      "pavimento": 0.5,
+      "tau_giorni": 16.0
+    }
+  },
+  "ctr_giorno_settimana_%": [
+    0.0,
+    0.8,
+    0.8,
+    3.8,
+    4.0,
+    5.0,
+    6.6
+  ],
+  "ctr_primi_3_giorni_%": -5.6,
+  "ctr_rumore_extra_poisson": 0.067,
+  "peso_caratteristiche_creativita": {
+    "costante": -0.02,
+    "ugc": 0.035,
+    "hook": 0.165,
+    "ritmo": 0.018,
+    "testo_pesante": -0.226,
+    "brand_lento": -0.108,
+    "timer": -0.024,
+    "video": 0.057,
+    "carosello": -0.007,
+    "urgency": 0.012,
+    "black_friday": -0.067
+  },
+  "errore_cold_start_log": 0.139,
+  "cpm_elasticita_budget": 0.262,
+  "cpm_elasticita_errore_std": 0.029,
+  "cpm_primi_3_giorni_annuncio_%": 13.2,
+  "cpm_3_giorni_dopo_cambio_budget_%": 5.8,
+  "cpm_giorno_settimana_%": [
+    0.0,
+    0.5,
+    -0.4,
+    -1.4,
+    -2.4,
+    -3.9,
+    -3.7
+  ],
+  "cpm_sensibilita_alla_fatica": -0.109,
+  "cpm_rumore_giornaliero_log": 0.072,
+  "quota_spesa_esponente_qualita": 1.44,
+  "quota_spesa_spinta_primi_4_giorni": 1.6,
+  "spesa_su_budget": 0.971
+}
