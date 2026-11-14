@@ -26,30 +26,48 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 
 ### Il sito
 
-Il percorso è in cinque schermate.
+Il percorso è in cinque schermate, in tema chiaro o scuro (bottone sole / luna in alto; la prima volta segue il
+sistema, poi la scelta resta nel browser).
 
 1. **Home**: nome, frase e la folla del pubblico simulato.
 2. **Come funziona**: il modello in otto passaggi, un esempio di calcolo, le colonne che servono, quanto ci
    fidiamo.
 3. **Partenza**: una frase, un riquadro in stile chat dove descrivere l'annuncio e sotto la zona per allegare il
-   CSV, con il tasto ⓘ che spiega che file serve. Con un file si analizza il file, senza i dati della sfida; due link
-   aprono l'esempio inventato di un gioco per telefono e la campagna nuova senza dati. Invio per analizzare. Tutto
-   dentro lo schermo, senza scorrere; in basso un prato in pixel art sale fino a poco sotto il prompt; gli omini ci
-   camminano sparsi a distanze diverse (più piccoli e lenti quelli lontani), escono dai bordi e ne arrivano di nuovi.
-4. **Campagna nuova**: nessun dato; si descrivono prodotto, annuncio, budget, canale e obiettivo. Il pubblico non
-   si sceglie: Flockets prova la stessa campagna, con lo stesso budget, su ogni tipo di pubblico (ampio, interessi,
+   CSV, con il tasto ⓘ che spiega che file serve. Tutto dentro lo schermo, senza scorrere; in basso un prato in
+   pixel art con gli omini che camminano.
+   - **Solo il testo**: l'annuncio diventa una campagna nuova. Dal testo si leggono canale (TikTok, Instagram,
+     Google…), budget al giorno o totale, durata, prezzo, sconto, marchio nuovo o famoso, obiettivo, e se il
+     risultato sono acquisti, download o iscrizioni; categoria, formato, leve e creatività li legge il motore (e
+     Claude, se la chiave è attiva). Quello che manca prende un valore prudente e viene detto.
+   - **Con un file**: si analizza il file; l'annuncio scritto, se c'è, viene provato sulle sue campagne.
+   - Tre link aprono i dati della sfida, l'esempio inventato di un gioco per telefono e il modulo completo.
+4. **Campagna nuova** (modulo completo): prodotto, annuncio, budget, canale e obiettivo. Il pubblico non si
+   sceglie: Flockets prova la stessa campagna, con lo stesso budget, su ogni tipo di pubblico (ampio, interessi,
    sosia dei clienti e, se il marchio è già noto, chi ha visitato il sito) e il migliore è un risultato dell'analisi.
-5. **Analisi**: mentre il motore calcola, una transizione a schermo intero mostra gli omini che reagiscono
-   all'annuncio. Poi due viste, con un interruttore in alto e un filtro per campagna («Tutto il progetto» o una
-   marca):
-   - **Persone**: solo omini su un prato. Ognuno è una persona simulata di uno dei pubblici; il segnalino sopra
-     la testa dice se ha comprato (verde) o cliccato (arancio). Toccandolo si apre una scheda sopra la sua testa:
-     chi è, dove vive, cosa ha fatto, probabilità di click e di acquisto, quanto rende ogni euro speso su di lei,
-     perché, e quante persone come lei ci sono in Italia. I bottoni in basso evidenziano un tipo di pubblico.
-   - **Analisi**: una frase con il risultato, i numeri principali (spesa, visualizzazioni, click, acquisti e
-     ricavi con la forchetta, ritorno per euro), il pubblico migliore, cosa fare adesso, i grafici giorno per
-     giorno, tutti i pubblici dal migliore al meno conveniente (ognuno si apre e dice chi c'è dentro), i gruppi
-     di persone che rispondono di più e, se si è descritto un annuncio, come reagirebbe ogni campagna.
+5. **Analisi**: mentre il motore calcola, una transizione senza scritte: un cerchio si apre dal punto di invio,
+   gli omini corrono su una griglia di pallini e ne arrivano sempre di più; alla fine fanno festa insieme e la
+   scena si dissolve nella vista Persone. Poi due viste, con un interruttore in alto:
+   - **Persone**: solo omini su una griglia di pallini, come una dashboard. Ognuno è una persona simulata di uno
+     dei pubblici; un perimetro di 1 pixel dice cosa ha fatto (verde ha comprato, arancio ha cliccato,
+     grigio niente) e chi ha comprato ogni tanto fa festa. I pallini si spostano e si colorano vicino al puntatore e
+     si accendono sotto i piedi degli omini. Toccando un omino si apre la sua scheda, sempre dentro lo schermo
+     (sopra la testa, se non c'è posto sotto i piedi o di fianco): chi è, dove vive, cosa ha fatto, probabilità di
+     click e di acquisto, quanto rende ogni euro speso su di lei, perché, e quante persone come lei ci sono in
+     Italia. I bottoni in basso evidenziano un tipo di pubblico.
+   - **Analisi**: parte da quello che hai mandato (l'annuncio tra virgolette con «Ho capito» e il link per
+     correggere, oppure il nome del file). Poi una frase con il risultato e i numeri principali che salgono da
+     zero; il pubblico migliore con il confronto con gli altri; cosa fare adesso (pubblico, canale e leve
+     provati alla pari, chi risponde meglio, creatività stanche); **Studia i numeri**, un grafico da esplorare
+     (visualizzazioni, click, acquisti, ricavi, spesa, costo per acquisto; giorno per giorno o totale che cresce;
+     tutto insieme o pubblico per pubblico; forchetta 8 volte su 10; passando il dito si leggono i valori del
+     giorno); **E se cambi budget?**, un cursore che ricalcola risultati, costo e ritorno (con l'elasticità del
+     motore: raddoppiando il budget ogni visualizzazione costa circa il 20% in più); **Dal vedere al comprare**,
+     l'imbuto da visualizzazioni a click, visite e acquisti; **Quando si ripaga**, spesa e ricavi cumulati;
+     tutti i pubblici dal migliore al meno conveniente; i gruppi di persone che rispondono di più.
+
+Le animazioni (griglia di pallini, numeri che salgono, luce che segue il puntatore sulle schede) sono scritte da
+zero in JavaScript, ispirate ai componenti Dot Grid, Count Up e Spotlight Card di
+[React Bits](https://reactbits.dev): il sito resta senza React e senza librerie.
 
 Le schermate tecniche di prima restano, sotto «Dettagli tecnici e consegne» in fondo all'analisi:
 

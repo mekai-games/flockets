@@ -57,9 +57,20 @@ window.Nuova = (function () {
     const b = $('#nc-avvia'), testo = b.firstElementChild;
     b.disabled = true;
     // il pubblico non si sceglie: l'analisi prova ogni tipo di pubblico e dice qual è il migliore
-    window.Analisi.transizione(MotoreFlockets.campagna(spec(), m => window.Analisi.avvisa(m))).then(d => window.Analisi.apri('nuova', d))
+    const s = spec(), L = window.Analisi.leggiPrompt([s.testo_annuncio, s.descrizione_prodotto].join(' '), null), r = b.getBoundingClientRect();
+    window.Analisi.transizione(MotoreFlockets.campagna(s, () => {}), { x: r.left + r.width / 2, y: r.top + r.height / 2 })
+      .then(d => window.Analisi.apri('nuova', d, { prompt: s.descrizione_prodotto || s.testo_annuncio, unita: L.unita, gratis: L.gratis }))
       .catch(err => { $('#nc-esito').innerHTML = `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`; })
       .finally(() => { b.disabled = false; testo.textContent = 'Simula e trova il pubblico migliore'; });
   }
-  return { apri };
+  // dall'analisi: «Modifica» riapre il modulo con la campagna letta dal prompt
+  function riempi(c) {
+    prepara();
+    const metti = (id, v) => { if (v != null && $(id)) $(id).value = v; };
+    metti('#nc-prodotto', c.descrizione_prodotto); metti('#nc-categoria', c.categoria === 'generica' ? '' : c.categoria);
+    metti('#nc-prezzo', c.prezzo); metti('#nc-sconto', Math.round((c.sconto || 0) * 100)); metti('#nc-marchio', c.marchio);
+    metti('#nc-obiettivo', c.obiettivo); metti('#nc-canale', c.canale); formati(); metti('#nc-formato', c.formato);
+    metti('#nc-annuncio', c.testo_annuncio); metti('#nc-budget', Math.round(c.budget_giorno)); metti('#nc-giorni', c.giorni); metti('#nc-inizio', c.inizio);
+  }
+  return { apri, riempi };
 })();

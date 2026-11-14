@@ -13,6 +13,17 @@
     sonno: { r: 7, ms: [650, 750] },
   };
   let atlante = null, sagome = null, meta = null, pronto = null, cima = [];
+  // sagome dei personaggi tinte di un colore, una volta sola per colore: servono per il perimetro degli omini
+  const tinte = new Map();
+  function tinta(colore) {
+    if (!tinte.has(colore)) {
+      const c = document.createElement('canvas'); c.width = atlante.width; c.height = atlante.height;
+      const g = c.getContext('2d');
+      g.drawImage(atlante, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = colore; g.fillRect(0, 0, c.width, c.height);
+      tinte.set(colore, c);
+    }
+    return tinte.get(colore);
+  }
   const fermaTutto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function carica() {
@@ -87,7 +98,8 @@
         if (this.pausa <= 0) {
           this.pausa = 4 + Math.random() * 10;
           const r = Math.random();
-          if (r < 0.4) this.imposta('fermo', 1 + Math.random() * 1.6);
+          if (this.allegro && r < 0.45) this.imposta('festa', 1.15);
+          else if (r < 0.4) this.imposta('fermo', 1 + Math.random() * 1.6);
           else if (r < 0.7) this.imposta('chiacchiere', 1.2 + Math.random() * 1.5);
           else if (!sc.avvolgi) this.dir *= -1;
         }
@@ -110,16 +122,12 @@
         const o = Math.max(1, Math.round(S * 0.67));
         [[o, 0], [-o, 0], [0, o], [0, -o]].forEach(([dx, dy]) => ctx.drawImage(sagome, sx, sy, F, F, x0 + dx, y + dy, F * S, F * S));
       }
+      if (this.bordo) {   // perimetro colorato di 1 pixel del disegno (verde ha comprato, arancio ha cliccato, grigio niente)
+        const t = tinta(this.bordo);
+        [[S, 0], [-S, 0], [0, S], [0, -S]].forEach(([dx, dy]) => ctx.drawImage(t, sx, sy, F, F, x0 + dx, y + dy, F * S, F * S));
+      }
       ctx.drawImage(atlante, sx, sy, F, F, x0, y, F * S, F * S);
       if (giro) ctx.restore();
-      if (this.segno) {   // segnalino sopra la testa (la testa sta a 19 pixel dal bordo alto del fotogramma)
-        // quadratino colorato con bordo bianco e punta verso la testa: si stacca dal prato (nero se la persona è aperta)
-        const p = Math.max(3, Math.round(S * 2)), u = Math.max(1, Math.round(S * 0.6)), ty = Math.round(y + ((cima[this.id] || 19) - 6) * S);
-        ctx.fillStyle = this.scelto ? '#111113' : '#FFFFFF';
-        ctx.fillRect(x - p - u, ty - p - u, 2 * p + 2 * u, 2 * p + 2 * u);
-        ctx.fillRect(x - u, ty + p + u, 2 * u, 2 * u);
-        ctx.fillStyle = this.segno; ctx.fillRect(x - p, ty - p, 2 * p, 2 * p);
-      }
       ctx.globalAlpha = 1;
     }
   }
@@ -329,5 +337,82 @@
   }
   function nomiPersonaggi() { return meta ? meta.nomi : []; }
 
-  window.Flock = { carica, Scena, Omino, ANIM, prato, campo, nomiPersonaggi };
+  /* Griglia di pallini (ispirata a «Dot Grid» di React Bits, riscritta in canvas 2D):
+     i pallini vicini al puntatore si spostano e si colorano, quelli sotto i piedi degli omini si accendono appena,
+     un'onda li spinge via dal punto indicato. o.sorgenti() = [{x, y}] dei piedi degli omini. */
+  function puntini(c, o = {}) {
+    const passo = o.passo || 22, r0 = o.raggio || 1.5, base0 = o.base || [205, 205, 198], acc0 = o.accento || [59, 75, 224];
+    const vicino = o.vicino || 120, ctx = c.getContext('2d'), area = o.area || c.parentNode;
+    let W = 0, H = 0, nx = 0, ny = 0, ox = 0, oy = 0, P = [], mx = -1e4, my = -1e4, onde = [], fermo = false;
+    function misura() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = c.clientWidth; H = c.clientHeight;
+      c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      nx = Math.max(1, Math.floor(W / passo)); ny = Math.max(1, Math.floor(H / passo));
+      ox = (W - (nx - 1) * passo) / 2; oy = (H - (ny - 1) * passo) / 2;
+      P = new Float32Array(nx * ny * 4);   // spostamento x, y e velocità x, y di ogni pallino
+    }
+    const muovi = e => { const b = c.getBoundingClientRect(); mx = e.clientX - b.left; my = e.clientY - b.top; };
+    const via = () => { mx = my = -1e4; };
+    area.addEventListener('pointermove', muovi); area.addEventListener('pointerleave', via);
+    function onda(x, y, forza = 1) { onde.push({ x, y, t: performance.now(), f: forza }); }
+    function giro(now) {
+      if (fermo || !c.isConnected) { area.removeEventListener('pointermove', muovi); area.removeEventListener('pointerleave', via); return; }
+      if (c.clientWidth !== W || c.clientHeight !== H) misura();
+      const n = nx * ny, k = new Float32Array(n);
+      const tx = new Float32Array(n), ty = new Float32Array(n);
+      // vicino al puntatore: spinta verso l'esterno e colore pieno
+      const spingi = (x, y, rag, forza, colore) => {
+        const i0 = Math.max(0, Math.floor((x - rag - ox) / passo)), i1 = Math.min(nx - 1, Math.ceil((x + rag - ox) / passo));
+        const j0 = Math.max(0, Math.floor((y - rag - oy) / passo)), j1 = Math.min(ny - 1, Math.ceil((y + rag - oy) / passo));
+        for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+          const px = ox + i * passo, py = oy + j * passo, dx = px - x, dy = py - y, d = Math.hypot(dx, dy);
+          if (d >= rag) continue;
+          const q = (1 - d / rag) * (1 - d / rag), id = j * nx + i;
+          if (forza && d > 0.01) { tx[id] += dx / d * q * forza; ty[id] += dy / d * q * forza; }
+          k[id] = Math.max(k[id], q * colore);
+        }
+      };
+      if (mx > -1e3) spingi(mx, my, vicino, 9, 1);
+      if (o.sorgenti) o.sorgenti().forEach(s => spingi(s.x, s.y, 44, 0, 0.45));
+      // onde: un anello che si allarga e spinge i pallini
+      onde = onde.filter(w => (now - w.t) < 1400);
+      onde.forEach(w => {
+        const fronte = (now - w.t) / 1000 * 620, largo = 70, amp = 10 * w.f * Math.max(0, 1 - fronte / Math.max(W, H));
+        for (let id = 0; id < n; id++) {
+          const px = ox + (id % nx) * passo, py = oy + Math.floor(id / nx) * passo, dx = px - w.x, dy = py - w.y, d = Math.hypot(dx, dy) || 1;
+          const u = (d - fronte) / largo;
+          if (u < -1 || u > 1) continue;
+          const q = Math.cos(u * Math.PI / 2) * amp;
+          tx[id] += dx / d * q; ty[id] += dy / d * q; k[id] = Math.max(k[id], 0.6 * Math.abs(q) / (10 * w.f));
+        }
+      });
+      // molla: ogni pallino torna al suo posto
+      ctx.clearRect(0, 0, W, H);
+      // colori secondo il tema della pagina (si aggiornano da soli se cambia)
+      const scuro = document.documentElement.dataset.tema === 'scuro';
+      const base = scuro ? [58, 58, 66] : base0, acc = scuro ? [125, 139, 255] : acc0;
+      ctx.fillStyle = `rgb(${base[0]},${base[1]},${base[2]})`;
+      ctx.beginPath();
+      const accesi = [];
+      for (let id = 0; id < n; id++) {
+        const b = id * 4;
+        P[b + 2] = (P[b + 2] + (tx[id] - P[b]) * 0.16) * 0.72; P[b + 3] = (P[b + 3] + (ty[id] - P[b + 1]) * 0.16) * 0.72;
+        P[b] += P[b + 2]; P[b + 1] += P[b + 3];
+        const x = ox + (id % nx) * passo + P[b], y = oy + Math.floor(id / nx) * passo + P[b + 1];
+        if (k[id] > 0.04) accesi.push([x, y, k[id]]); else ctx.rect(x - r0, y - r0, 2 * r0, 2 * r0);
+      }
+      ctx.fill();
+      accesi.forEach(([x, y, q]) => {
+        const r = r0 * (1 + q * 0.9);
+        ctx.fillStyle = `rgb(${Math.round(base[0] + (acc[0] - base[0]) * q)},${Math.round(base[1] + (acc[1] - base[1]) * q)},${Math.round(base[2] + (acc[2] - base[2]) * q)})`;
+        ctx.fillRect(x - r, y - r, 2 * r, 2 * r);
+      });
+      requestAnimationFrame(giro);
+    }
+    misura(); requestAnimationFrame(giro);
+    return { onda, ferma: () => { fermo = true; } };
+  }
+
+  window.Flock = { carica, Scena, Omino, ANIM, prato, campo, nomiPersonaggi, puntini };
 })();

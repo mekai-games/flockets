@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* tema chiaro o scuro prima di disegnare la pagina: quello scelto l'ultima volta, se no quello del sistema */
+try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.dataset.tema = tm || (matchMedia('(prefers-color-scheme: dark)').matches ? 'scuro' : 'chiaro'); } catch (e) {}</script>
 <title>Flockets · prevedi le campagne di marketing prima di lanciarle</title>
 <meta name="description" content="Prevedi le campagne di marketing prima di lanciarle: CTR, CPM e budget, simulati su un pubblico virtuale.">
 <meta property="og:title" content="Flockets">
@@ -11,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=27">
+<link rel="stylesheet" href="style.css?v=30">
 </head>
 <body data-vista="benvenuto">
 
@@ -123,7 +125,7 @@
     <nav class="nav-link"><a class="mono-link" href="#/come">Come funziona</a><a class="mono-link" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub ↗</a></nav>
   </header>
   <main class="avvio" id="zona-file">
-    <p class="avvio-frase">Descrivi l’annuncio e allega lo storico: Flockets prevede click, costi e acquisti, giorno per giorno.</p>
+    <p class="avvio-frase">Descrivi l’annuncio, e se vuoi allega lo storico: Flockets prevede click, costi e acquisti, giorno per giorno.</p>
 
     <div class="composer">
       <label class="nascosta" for="richiesta">Annuncio o campagna da prevedere</label>
@@ -230,11 +232,10 @@
       <button type="button" role="tab" data-modo="persone" aria-selected="true">Persone</button>
       <button type="button" role="tab" data-modo="analisi" aria-selected="false">Analisi</button>
     </div>
-    <a class="mono-link come-link" href="#/come">Come funziona</a>
+    <div class="barra-dx"><a class="mono-link come-link" href="#/come">Come funziona</a></div>
   </header>
   <div class="riga-a">
     <div class="a-nome"><b id="a-titolo"></b><span id="a-periodo"></span></div>
-    <div class="a-campagne" id="a-filtro"></div>
   </div>
   <div class="modo-persone" id="a-persone">
     <canvas id="a-prato" aria-hidden="true"></canvas>
@@ -247,10 +248,9 @@
 </section>
 
 <!-- transizione a schermo intero: gli omini reagiscono alla campagna mentre il motore calcola -->
-<div class="transizione" id="transizione" hidden>
+<div class="transizione" id="transizione" role="status" aria-label="Simulazione in corso" hidden>
   <canvas id="tr-prato" aria-hidden="true"></canvas>
   <canvas id="tr-folla" aria-hidden="true"></canvas>
-  <p class="tr-testo" id="tr-testo" aria-live="polite"></p>
 </div>
 
 <!-- 6. DETTAGLI TECNICI -->
@@ -282,11 +282,12 @@
   </div>
 </section>
 
-<script src="js/scena.js?v=27"></script>
-<script src="js/motore.js?v=27"></script>
-<script src="js/grafici.js?v=27"></script>
-<script src="js/nuova.js?v=27"></script>
-<script src="js/analisi.js?v=27"></script>
-<script src="js/app.js?v=27"></script>
+<script src="js/scena.js?v=30"></script>
+<script src="js/motore.js?v=30"></script>
+<script src="js/grafici.js?v=30"></script>
+<script src="js/nuova.js?v=30"></script>
+<script src="js/esplora.js?v=30"></script>
+<script src="js/analisi.js?v=30"></script>
+<script src="js/app.js?v=30"></script>
 </body>
 </html>

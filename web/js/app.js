@@ -732,10 +732,11 @@ CPM = livello del pubblico × stagione × giorno
   };
   const SEGNAPOSTO = {
     nuova: 'Descrivi prodotto e annuncio: «Siero viso alla vitamina C, video di 15 secondi, -20% solo oggi»',
-    altro: 'Descrivi un annuncio da provare (facoltativo): «Video di 15 secondi, una ragazza parla in camera, -30% solo oggi»',
+    altro: 'Descrivi l’annuncio: «Video su TikTok, una ragazza parla in camera, -30% sulla crema viso, 50 € al giorno per 2 settimane»',
   };
-  // niente menu: con un file allegato si analizza il file, altrimenti i dati della sfida.
-  // L'esempio del gioco e la campagna senza dati si aprono dai due link della riga sotto.
+  // niente menu: con un file allegato si analizza il file (e l'annuncio scritto si prova sulle sue campagne);
+  // senza file l'annuncio scritto diventa una campagna nuova, simulata sulle persone. I dati della sfida,
+  // l'esempio del gioco e il modulo completo si aprono dai link della riga sotto.
   function sorgente(v) {
     S.scelta = v;
     $('#file-chip').hidden = !(v === 'file' && S.file);
@@ -743,10 +744,10 @@ CPM = livello del pubblico × stagione × giorno
     $('#richiesta').placeholder = SEGNAPOSTO.altro;
     const av = $('#avviso');
     if (v === 'file' && S.file) { av.textContent = S.fileKit ? AVVISI.kit : AVVISI.file; return; }
-    av.innerHTML = 'Senza file analizzo i dati della sfida. Oppure prova <button type="button" class="testo-link" data-vai="esempio">l’esempio di un gioco</button> o <button type="button" class="testo-link" data-vai="nuova">una campagna nuova, senza dati</button>.';
+    av.innerHTML = 'Senza file provo l’annuncio su migliaia di persone simulate. Oppure apri <button type="button" class="testo-link" data-vai="kit">i dati della sfida</button>, <button type="button" class="testo-link" data-vai="esempio">l’esempio di un gioco</button> o <button type="button" class="testo-link" data-vai="nuova">il modulo completo</button>.';
     $$('[data-vai]', av).forEach(b => b.addEventListener('click', () => {
       if (b.dataset.vai === 'nuova') { S.testoConsole = $('#richiesta').value.trim(); location.hash = '#/nuova'; return; }
-      avvia('esempio');
+      avvia(b.dataset.vai, b);
     }));
   }
   // omini in fondo alla pagina di partenza: camminano sul prato, escono dai bordi e ne entrano di nuovi;
@@ -855,45 +856,78 @@ CPM = livello del pubblico × stagione × giorno
     }));
   }
   // «Analizza»: i dati della sfida sono già calcolati; per l'esempio e per i file il motore gira nel browser
-  function avvia(forzata) {
-    const b = $('#avvia'), out = $('#esito-file'), scelta = typeof forzata === 'string' ? forzata : S.file ? 'file' : 'kit';
+  function avvia(forzata, origine) {
+    const b = $('#avvia'), out = $('#esito-file'), scelta = typeof forzata === 'string' ? forzata : S.file ? 'file' : 'annuncio';
     S.testoConsole = $('#richiesta').value.trim();
     const budget = $('#br-budget') ? +$('#br-budget').value || null : null, lancio = $('#br-lancio') ? $('#br-lancio').value : null;
-    if (document.body.dataset.vista === 'console') reazione(6, 'via!');
     if (scelta === 'nuova') { location.hash = '#/nuova'; return; }
+    if (scelta === 'annuncio' && !S.testoConsole) {   // niente da analizzare: il riquadro si scuote e aspetta il testo
+      const c = $('.composer'); c.classList.remove('scuoti'); void c.offsetWidth; c.classList.add('scuoti'); $('#richiesta').focus(); return;
+    }
+    if (document.body.dataset.vista === 'console') reazione(6, '');
+    const r = (origine || b).getBoundingClientRect(), da = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
     const b0 = S.brief;
     const lettura = b0 && b0.attesa && IA.attiva !== false
       ? (clearTimeout(IA.t), Promise.race([chiediIA(S.testoConsole), new Promise(r => setTimeout(() => r(null), 3000))])
         .then(b => { if (S.brief === b0) { if (b && !b0.manuale) S.brief = b; else b0.attesa = false; } }))
       : Promise.resolve();
+    b.disabled = true;
+    const errore = err => { out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`); };
+    const libera = () => { b.disabled = false; sorgente(S.file ? 'file' : 'kit'); };
+    // solo il testo: l'annuncio diventa una campagna nuova, provata su ogni tipo di pubblico
+    if (scelta === 'annuncio') {
+      let L = null;
+      const lavoro = lettura.then(() => { L = window.Analisi.leggiPrompt(S.testoConsole, S.brief); return MotoreFlockets.campagna(L.spec, () => {}); });
+      window.Analisi.transizione(lavoro, da)
+        .then(d => window.Analisi.apri('nuova', d, { prompt: S.testoConsole, unita: L.unita, gratis: L.gratis }))
+        .catch(errore).finally(libera);
+      return;
+    }
+    let fonte = '';
     const parti = () => {
       const brief = S.brief;
       S.visti = {};
       S.lab = S.testoConsole ? Object.assign({ testo: S.testoConsole, lancio: D.meta.giorni.includes(lancio) ? lancio : D.meta.giorni[0], budget },
         brief && D.par.formati.includes(brief.formato) && D.par.leve.includes(brief.leva) ? brief : leggiTesto(S.testoConsole)) : null;
-      window.Analisi.apri('storico');
+      window.Analisi.apri('storico', null, { prompt: S.testoConsole, fonte });
     };
     const sfida = scelta === 'kit' || (scelta === 'file' && S.fileKit);
-    b.disabled = true;
-    // mentre il motore calcola, gli omini reagiscono alla campagna a schermo intero
+    // mentre il motore calcola, gli omini corrono a schermo intero
     const lavoro = sfida
-      ? (() => { S.sorgente = 'kit'; S.etichetta = 'Dati della sfida Wevion (simulati)'; if (D && !kit()) { datiP = null; D = null; palco = null; } return dati().then(() => lettura); })()
+      ? (() => { S.sorgente = 'kit'; S.etichetta = 'Dati della sfida Wevion (simulati)'; fonte = 'Dati della sfida Wevion'; if (D && !kit()) { datiP = null; D = null; palco = null; } return dati().then(() => lettura); })()
       : (scelta === 'esempio'
         ? fetch('data/esempio_gioco.csv').then(r => r.text()).then(testo => [{ nome: 'esempio_gioco.csv', testo }])
-        : Promise.resolve(S.file)).then(f => MotoreFlockets.analizza(f, m => window.Analisi.avvisa(m)).then(d => {
+        : Promise.resolve(S.file)).then(f => MotoreFlockets.analizza(f, () => {}).then(d => {
           S.sorgente = scelta;
           S.etichetta = scelta === 'esempio' ? 'Esempio inventato: gioco per telefono' : 'Il tuo file: ' + (f.length === 1 ? f[0].nome : f.length + ' file');
+          fonte = scelta === 'esempio' ? 'Esempio: gioco per telefono' : (f.length === 1 ? f[0].nome : f.map(x => x.nome).join(', '));
           usa(d);
           return lettura;
         }));
-    window.Analisi.transizione(lavoro).then(parti).catch(err => {
-      out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`);
-    }).finally(() => { b.disabled = false; sorgente(S.file ? 'file' : 'kit'); });
+    window.Analisi.transizione(lavoro, da).then(parti).catch(errore).finally(libera);
   }
 
   /* ------------------------------------------------------------------ avvio */
+  // tema chiaro o scuro: bottone sole / luna nelle intestazioni, scelta ricordata nel browser
+  function bottoniTema() {
+    const scuro = () => document.documentElement.dataset.tema === 'scuro';
+    const icona = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path class="luna" d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/>'
+      + '<g class="sole"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>';
+    $$('header.nav.chiara .nav-link, .barra-dx').forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.className = 'tema'; b.innerHTML = icona; n.appendChild(b); });
+    const etichette = () => $$('.tema').forEach(b => { const t = scuro() ? 'Passa al tema chiaro' : 'Passa al tema scuro'; b.setAttribute('aria-label', t); b.title = t; });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.tema')) return;
+      const r = document.documentElement, nuovo = scuro() ? 'chiaro' : 'scuro';
+      r.classList.add('cambio-tema'); r.dataset.tema = nuovo;
+      setTimeout(() => r.classList.remove('cambio-tema'), 400);
+      try { localStorage.setItem('flockets-tema', nuovo); } catch (x) { /* senza memoria vale fino alla chiusura */ }
+      etichette();
+    });
+    etichette();
+  }
   function inizio() {
+    bottoniTema();
     Flock.carica().then(() => { new Flock.Scena($('#folla'), { scala: 4, altezza: 390, contorno: true, ombra: false, linea: false, suolo: 0 }).folla(); });
     $('#avvia').addEventListener('click', () => avvia());
     $('#colonne-console').innerHTML = tabellaColonne();
