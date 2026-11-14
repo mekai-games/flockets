@@ -512,6 +512,7 @@
     if (p[0] === 'console') { mostra('console'); follaAvvio(); if (!D) dati(); return; }
     if (p[0] === 'come') { mostra('come'); return; }
     if (p[0] === 'profilo') { mostra('profilo'); window.Account.mostraProfilo(); return; }
+    if (p[0] === 'q') { mostra('qr'); window.Account.mostraQr(p[1] || ''); return; }   // portachiavi
     if (p[0] === 'sim') { location.replace('#/analisi'); return; }   // indirizzi della vecchia interfaccia
     if (p[0] === 'analisi') {
       (D || window.Analisi.haDati() ? Promise.resolve() : dati()).then(() => { mostra('analisi'); window.Analisi.mostra(p[1] === 'numeri' ? 'analisi' : 'persone'); });

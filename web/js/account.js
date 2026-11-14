@@ -25,6 +25,9 @@ window.Account = (function () {
   const TIPI = { annuncio: 'Annuncio', storico: 'Campagne', nuova: 'Campagna nuova' };
 
   let sb = null, utente = null, profilo = null, attivi = [], corrente = null, salvaDopo = false;
+  // le pagine aperte direttamente (#/profilo, #/q/…) aspettano che client e sessione siano pronti
+  let segnalaPronto;
+  const pronto = new Promise(r => { segnalaPronto = r; });
 
   /* ------------------------------------------------------------ errori leggibili */
   function messaggio(err) {
@@ -223,32 +226,100 @@ window.Account = (function () {
     s.hidden = false;
     if (stato === 'salvo') s.innerHTML = 'Salvo…';
     else if (stato === 'errore') s.innerHTML = '<button type="button" class="testo-link">Non salvato · riprova</button>';
+    else if (corrente.condiviso) s.innerHTML = `Dal portachiavi ${esc(corrente.condiviso)}`;
     else if (corrente.id) s.innerHTML = '<a href="#/profilo">✓ Nei tuoi progetti</a>';
     else s.innerHTML = '<button type="button" class="testo-link">Accedi per salvarla</button>';
     const b = $('button', s);
     if (b) b.addEventListener('click', () => (utente ? salva(corrente) : apriAccesso('accedi', { salva: true })));
   }
 
+  // riapre un progetto salvato così com'era, senza ricalcolare e senza salvarne una copia
+  async function apriDati(riga, condiviso) {
+    const p = riga.dati;
+    await window.Flk.ripristina(p.ist || {});
+    corrente = { id: riga.id, riga: null, condiviso: condiviso || null };
+    window.Analisi.apri(p.tipo || riga.tipo, p.risultato, Object.assign({}, p.ctx, { progetto: riga.id }));
+    setTimeout(() => spia(), 400);
+  }
   async function apriProgetto(id, bottone) {
     if (bottone) { bottone.disabled = true; bottone.textContent = 'Apro…'; }
     try {
       const { data, error } = await sb.from('progetti').select('id, tipo, titolo, dati').eq('id', id).single();
       if (error) throw error;
-      const p = data.dati;
-      await window.Flk.ripristina(p.ist || {});
-      corrente = { id: data.id, riga: null };
-      window.Analisi.apri(p.tipo || data.tipo, p.risultato, Object.assign({}, p.ctx, { progetto: data.id }));
-      setTimeout(() => spia(), 400);
+      await apriDati(data);
     } catch (err) {
       if (bottone) { bottone.disabled = false; bottone.textContent = 'Apri'; }
       alert('Non riesco ad aprire il progetto. ' + messaggio(err));
     }
   }
 
+  /* ------------------------------------------------------------ portachiavi (QR) */
+  // #/q/CODICE: se il codice è collegato apre il progetto a chiunque; se è libero, chi ha un account lo collega
+  let qrInCorso = null;
+  async function mostraQr(codice) {
+    const el = $('#qr-corpo');
+    if (!el) return;
+    await pronto;
+    codice = String(codice || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+    qrInCorso = codice;
+    if (!sb) { el.innerHTML = '<p class="tenue">Il servizio non è disponibile in questo momento. Riprova tra poco.</p>'; return; }
+    el.innerHTML = '<p class="tenue qr-attesa">Apro il portachiavi…</p>';
+    const { data, error } = await sb.rpc('apri_qr', { p_codice: codice });
+    if (qrInCorso !== codice) return;   // nel frattempo è stato inquadrato un altro codice
+    if (error) { el.innerHTML = `<p class="errore">${esc(messaggio(error))}</p>`; return; }
+    if (data.stato === 'collegato') {
+      // la pagina del codice non resta nella cronologia: «indietro» non lo riapre all'infinito
+      history.replaceState(null, '', location.pathname + '#/');
+      try { await apriDati(data.progetto, data.mio ? null : codice); }
+      catch (err) { el.innerHTML = `<p class="errore">Non riesco ad aprire il progetto. ${esc(messaggio(err))}</p>`; history.replaceState(null, '', location.pathname + '#/q/' + codice); }
+      return;
+    }
+    if (data.stato !== 'libero') {
+      el.innerHTML = `<p class="mono etichetta-m">■ Portachiavi</p><h2>Codice non trovato</h2>
+        <p class="intro">Il codice <b class="mono">${esc(codice || '—')}</b> non corrisponde a nessun portachiavi Flockets. Controlla di aver inquadrato bene il QR.</p>
+        <p><a class="pulsante bordo" href="#/">Vai a Flockets</a></p>`;
+      return;
+    }
+    const testa = `<p class="mono etichetta-m">■ Portachiavi ${esc(codice)}</p><h2>Collega questo portachiavi a un progetto</h2>
+      <p class="intro">Questo portachiavi non è ancora collegato. Scegli uno dei tuoi progetti: da quel momento chiunque inquadri il QR vedrà quel progetto, anche senza account.</p>`;
+    if (!utente) {
+      el.innerHTML = testa + `<div class="azioni-sx"><button type="button" class="pulsante nero" data-modo="accedi">Accedi per collegarlo</button><button type="button" class="pulsante bordo" data-modo="registrati">Crea un account</button></div>`;
+      $$('[data-modo]', el).forEach(b => b.addEventListener('click', () => apriAccesso(b.dataset.modo)));
+      return;
+    }
+    const { data: lista, error: e2 } = await sb.from('progetti').select('id, tipo, titolo, fonte, riassunto, creato').order('creato', { ascending: false }).limit(200);
+    if (qrInCorso !== codice) return;
+    if (e2) { el.innerHTML = testa + `<p class="errore">${esc(messaggio(e2))}</p>`; return; }
+    if (!lista.length) {
+      el.innerHTML = testa + `<p class="tenue pr-nessuno">Non hai ancora progetti. Fai un’analisi da collegato: si salva da sola. Poi inquadra di nuovo il portachiavi.</p>
+        <p><a class="pulsante nero" href="#/console">Fai un’analisi</a></p>`;
+      return;
+    }
+    const quando = t => new Date(t).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+    el.innerHTML = testa + `<ul class="pr-lista">${lista.map(p => `
+      <li data-id="${p.id}">
+        <div class="pr-info">
+          <span class="pr-tipo mono">${esc(TIPI[p.tipo] || p.tipo)}</span>
+          <b class="pr-titolo">${esc(p.titolo)}</b>
+          <span class="tenue pr-meta">${[p.fonte, p.riassunto && p.riassunto.periodo, quando(p.creato)].filter(Boolean).map(esc).join(' · ')}</span>
+        </div>
+        <div class="pr-bottoni"><button type="button" class="pulsante nero">Collega qui</button></div>
+      </li>`).join('')}</ul>`;
+    $$('.pr-lista button', el).forEach(b => b.addEventListener('click', async () => {
+      const li = b.closest('li'), titolo = $('.pr-titolo', li).textContent;
+      if (!confirm(`Collegare il portachiavi ${codice} a «${titolo}»? Chiunque lo inquadri vedrà questo progetto. Potrai scollegarlo dal tuo profilo.`)) return;
+      b.disabled = true; b.textContent = 'Collego…';
+      const { error: e3 } = await sb.rpc('collega_qr', { p_codice: codice, p_progetto: li.dataset.id });
+      if (e3) { b.disabled = false; b.textContent = 'Collega qui'; alert('Non sono riuscito a collegarlo. ' + messaggio(e3)); return; }
+      mostraQr(codice);   // adesso è collegato: si apre il progetto
+    }));
+  }
+
   /* ------------------------------------------------------------ profilo */
   async function mostraProfilo() {
     const el = $('#profilo-corpo');
     if (!el) return;
+    await pronto;
     if (!sb) { el.innerHTML = '<p class="tenue">L’account non è disponibile in questo momento.</p>'; return; }
     if (!utente) {
       el.innerHTML = `<div class="pr-vuoto">
@@ -323,8 +394,12 @@ window.Account = (function () {
   async function elencoProgetti() {
     const box = $('#pr-progetti');
     if (!box) return;
-    const { data, error } = await sb.from('progetti').select('id, tipo, titolo, fonte, riassunto, creato').order('creato', { ascending: false }).limit(200);
+    const [{ data, error }, { data: codici }] = await Promise.all([
+      sb.from('progetti').select('id, tipo, titolo, fonte, riassunto, creato').order('creato', { ascending: false }).limit(200),
+      sb.from('qr').select('codice, progetto'),
+    ]);
     if (error) { box.innerHTML = `<p class="errore">${esc(messaggio(error))}</p>`; return; }
+    const qrDi = id => (codici || []).filter(q => q.progetto === id).map(q => q.codice);
     if (!data.length) {
       box.innerHTML = '<p class="tenue pr-nessuno">Ancora nessun progetto. Ogni analisi che apri da collegato finisce qui da sola.</p>';
       return;
@@ -336,6 +411,7 @@ window.Account = (function () {
           <span class="pr-tipo mono">${esc(TIPI[p.tipo] || p.tipo)}</span>
           <b class="pr-titolo">${esc(p.titolo)}</b>
           <span class="tenue pr-meta">${[p.fonte, p.riassunto && p.riassunto.periodo, quando(p.creato)].filter(Boolean).map(esc).join(' · ')}</span>
+          ${qrDi(p.id).map(c => `<span class="pr-qr mono">Portachiavi ${esc(c)} <button type="button" class="testo-link" data-fai="scollega" data-codice="${esc(c)}">scollega</button></span>`).join('')}
         </div>
         <div class="pr-bottoni">
           <button type="button" class="pulsante nero" data-fai="apri">Apri</button>
@@ -353,7 +429,14 @@ window.Account = (function () {
         if (error) alert(messaggio(error)); else $('.pr-titolo', li).textContent = t.trim().slice(0, 200);
         return;
       }
-      if (!confirm('Eliminare questo progetto?')) return;
+      if (b.dataset.fai === 'scollega') {
+        if (!confirm(`Scollegare il portachiavi ${b.dataset.codice}? Chi lo inquadra non vedrà più questo progetto, e il portachiavi si potrà collegare a un altro.`)) return;
+        const { error } = await sb.rpc('scollega_qr', { p_codice: b.dataset.codice });
+        if (error) alert(messaggio(error)); else elencoProgetti();
+        return;
+      }
+      const legati = qrDi(id);
+      if (!confirm(legati.length ? `Eliminare questo progetto? È collegato al portachiavi ${legati.join(', ')}: chi lo inquadra non vedrà più niente.` : 'Eliminare questo progetto?')) return;
       const { error } = await sb.from('progetti').delete().eq('id', id);
       if (error) alert(messaggio(error)); else { li.remove(); if (!$('.pr-lista li', box)) elencoProgetti(); }
     }));
@@ -382,6 +465,7 @@ window.Account = (function () {
       if (salvaDopo) finestra().close();
     }
     if (document.body.dataset.vista === 'profilo') mostraProfilo();
+    if (document.body.dataset.vista === 'qr' && utente && evento === 'SIGNED_IN') mostraQr(qrInCorso);
     spia();
   }
   function ritorno() {
@@ -398,7 +482,7 @@ window.Account = (function () {
   }
 
   async function inizia() {
-    if (!window.supabase || !window.supabase.createClient) { posti(); return; }   // senza la libreria il sito va lo stesso
+    if (!window.supabase || !window.supabase.createClient) { posti(); segnalaPronto(); return; }   // senza la libreria il sito va lo stesso
     sb = window.supabase.createClient(URL_SB, CHIAVE, { auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
     posti();
     document.addEventListener('click', e => { if (e.target.closest('.account-accedi')) apriAccesso('accedi'); });
@@ -414,10 +498,12 @@ window.Account = (function () {
       return r;
     };
     sb.auth.onAuthStateChange((evento, sessione) => { setTimeout(() => cambioSessione(evento, sessione), 0); });
-    await sb.auth.getSession();
+    const { data: inizio } = await sb.auth.getSession();
+    utente = inizio && inizio.session ? inizio.session.user : utente;
+    segnalaPronto();
     ritorno();
     window.addEventListener('hashchange', () => { if (!/^#\/analisi/.test(location.hash)) return; setTimeout(() => spia(), 50); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inizia); else inizia();
-  return { apriAccesso, mostraProfilo, apriProgetto, esci, get utente() { return utente; } };
+  return { apriAccesso, mostraProfilo, mostraQr, apriProgetto, esci, get utente() { return utente; } };
 })();

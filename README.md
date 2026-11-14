@@ -213,6 +213,13 @@ rinominare o cancellare. Se si apre un'analisi prima di entrare, viene salvata a
 - In locale il sito va servito su `localhost:3000` (è tra gli indirizzi di ritorno ammessi):
   `python3 -m http.server 3000 --directory web`.
 
+### Portachiavi con QR
+
+Ogni portachiavi stampato ([`stampa3d/`](stampa3d/)) ha un codice; il QR apre `#/q/CODICE`. Se il codice è libero,
+chi ha un account lo collega a uno dei suoi progetti; dopo, il QR apre quel progetto a chiunque, anche senza
+account. I codici stanno nella tabella `qr`; chi non è il proprietario passa solo dalla funzione `apri_qr`, che
+restituisce il progetto di quel codice e nient'altro. I lotti si creano con `stampa3d/lotto.py`.
+
 ### Il motore
 
 Il motore è il pacchetto Python [`flockets/`](flockets/) e usa solo `numpy` e `pandas`.

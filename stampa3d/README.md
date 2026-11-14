@@ -30,6 +30,29 @@ Portachiavi e ciondoli da stampare in 3D, con gli omini del sito, il nome e il l
   è ancora meglio.
 - **QR senza AMS**: stampa il modello di `modelli/` e attacca un adesivo con il QR tra i quattro angoli.
 
+## Portachiavi collegati ai progetti (lotti con codice)
+
+Ogni portachiavi può avere un suo codice: il QR punta a `https://flockets.site/#/q/CODICE`.
+- Il primo che lo inquadra da collegato sceglie uno dei suoi progetti e lo collega.
+- Da quel momento il QR apre quel progetto a chiunque, con o senza account.
+- Solo chi l'ha collegato può scollegarlo (Profilo → I tuoi progetti → scollega); allora il portachiavi torna libero.
+- Se il progetto viene cancellato, il portachiavi torna libero.
+
+Per stampare un lotto:
+
+```bash
+stampa3d/.venv/bin/python stampa3d/lotto.py --modello B_targhetta --quanti 10 --omino 0
+```
+
+Crea i codici, li registra nel database (serve la CLI di Supabase collegata e `web/.env.supabase`) e mette in
+`modelli/lotti/<data>_<modello>_<primo codice>/`:
+- `<modello>_<CODICE>.3mf` (corpo + QR intarsiato, per AMS) e i due STL separati;
+- `adesivi.png`: i QR a 28 mm su un A4 a 300 dpi, con il codice sotto, per chi stampa in un colore e attacca
+  l'adesivo tra i quattro angoli del retro;
+- `codici.txt`: l'elenco.
+
+Con `--solo-adesivi` fa solo codici e adesivi. I lotti non vanno nel repository (i codici sono nel database).
+
 ## Rigenerare (altro omino, altro nome, altro QR)
 
 ```bash
