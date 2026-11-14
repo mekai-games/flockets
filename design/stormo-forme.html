@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flockets · Stormo, altre forme</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #EDEDEA; color: #111; font: 14px/1.45 Inter, system-ui, sans-serif; padding: 22px; }
+  .testa { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font: 700 20px "Inter Tight", sans-serif; margin: 0; } h2 { font: 700 15px "Inter Tight", sans-serif; margin: 26px 0 10px; }
+  .testa p { margin: 0; color: #666; font-size: 12.5px; max-width: 60em; }
+  svg { fill: currentColor; display: block; }
+  .scuro { background: #111; color: #fff; }
+  .confronto { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .confronto .fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .confronto .cella { padding: 16px 14px 12px; border-right: 1px solid rgba(128, 128, 128, .22); }
+  .confronto .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+  .confronto small { display: block; font: 500 11px "JetBrains Mono", monospace; color: #F2551D; margin-top: 8px; } .confronto .scuro small { color: #FF9466; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .carta { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
+  .carta > header { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid #ECECE8; }
+  .carta b { font-weight: 600; } .carta b i { font: 500 12px "JetBrains Mono", monospace; color: #F2551D; margin-right: 8px; font-style: normal; }
+  .carta code { font: 11.5px "JetBrains Mono", monospace; color: #999; }
+  .due { display: grid; grid-template-columns: 1fr 1fr; } .due div { display: grid; place-items: center; height: 150px; }
+  .riga { display: flex; align-items: center; gap: 18px; padding: 12px 16px; border-top: 1px solid #ECECE8; }
+  .riga .nome { font: 700 19px "Inter Tight", sans-serif; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; flex: 1; }
+  .scheda-b { display: inline-flex; align-items: center; gap: 6px; background: #E4E4E0; border-radius: 6px 6px 0 0; padding: 5px 10px; font-size: 11.5px; color: #333; }
+  .riga.scuro .scheda-b { background: #2A2A2A; color: #ddd; }
+  .carta p { margin: 0; padding: 12px 16px 14px; border-top: 1px solid #ECECE8; color: #444; font-size: 13px; }
+  .uso > header { background: #F1F1EE; }
+</style>
+</head>
+<body>
+<div class="testa"><h1>Stormo, altre forme</h1><p>La posizione resta quella di adesso: cinque elementi a V, il primo più grande. Cambia solo la forma di ogni elemento.</p></div>
+<h2>A colpo d’occhio</h2>
+<div class="confronto"><div class="fila" id="chiaro"></div><div class="fila scuro" id="scuro"></div></div>
+<h2>Una per una</h2>
+<div class="griglia" id="g"></div>
+<script>
+// le cinque posizioni del logo di adesso: x, y, mezza grandezza
+const POS = [[37, 24, 5.5], [25.5, 15.5, 4.6], [25.5, 32.5, 4.6], [14, 7.5, 3.8], [14, 40.5, 3.8]];
+const r2 = v => Math.round(v * 100) / 100;
+const pieno = (d, w) => `<path d="${d}" stroke="currentColor" stroke-width="${r2(w)}" stroke-linejoin="round"/>`;
+const tratto = (d, w) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${r2(w)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const FORME = {
+  cerchio: (x, y, s) => `<circle cx="${x}" cy="${y}" r="${s}"/>`,
+  quadrato: (x, y, s) => { const k = .92 * s; return `<rect x="${r2(x - k)}" y="${r2(y - k)}" width="${r2(2 * k)}" height="${r2(2 * k)}" rx="${r2(.5 * k)}"/>`; },
+  rombo: (x, y, s) => { const k = .9 * s; return `<rect x="${r2(x - k)}" y="${r2(y - k)}" width="${r2(2 * k)}" height="${r2(2 * k)}" rx="${r2(.36 * k)}" transform="rotate(45 ${x} ${y})"/>`; },
+  triangolo: (x, y, s) => { const k = 1.02 * s; return pieno(`M${r2(x - .7 * k)} ${r2(y - .9 * k)}L${r2(x + .95 * k)} ${y}L${r2(x - .7 * k)} ${r2(y + .9 * k)}Z`, .42 * k); },
+  dardo: (x, y, s) => { const k = 1.18 * s; return pieno(`M${r2(x + k)} ${y}L${r2(x - .85 * k)} ${r2(y - .85 * k)}L${r2(x - .35 * k)} ${y}L${r2(x - .85 * k)} ${r2(y + .85 * k)}Z`, .26 * k); },
+  ala: (x, y, s) => { const k = 1.08 * s; return tratto(`M${r2(x - .5 * k)} ${r2(y - .9 * k)}L${r2(x + .55 * k)} ${y}L${r2(x - .5 * k)} ${r2(y + .9 * k)}`, .64 * k); },
+  goccia: (x, y, s) => { const k = .98 * s, h = .9 * k; return `<path d="M${r2(x - 1.7 * k)} ${y}Q${r2(x - .35 * k)} ${r2(y - h)} ${r2(x + .25 * k)} ${r2(y - h)}A${r2(h)} ${r2(h)} 0 1 1 ${r2(x + .25 * k)} ${r2(y + h)}Q${r2(x - .35 * k)} ${r2(y + h)} ${r2(x - 1.7 * k)} ${y}Z"/>`; },
+  persona: (x, y, s) => { const k = 1.2 * s; return `<circle cx="${x}" cy="${r2(y - .52 * k)}" r="${r2(.46 * k)}"/><path d="M${r2(x - .9 * k)} ${r2(y + k)}A${r2(.9 * k)} ${r2(.9 * k)} 0 0 1 ${r2(x + .9 * k)} ${r2(y + k)}Z"/>`; },
+  trattino: (x, y, s) => { const k = .95 * s; return `<rect x="${r2(x - 1.3 * k)}" y="${r2(y - .62 * k)}" width="${r2(2.6 * k)}" height="${r2(1.24 * k)}" rx="${r2(.62 * k)}"/>`; },
+  mezzaluna: (x, y, s) => { const k = 1.15 * s; return `<path d="M${r2(x - .5 * k)} ${r2(y - k)}A${r2(k)} ${r2(k)} 0 0 1 ${r2(x - .5 * k)} ${r2(y + k)}Z"/>`; },
+  esagono: (x, y, s) => { const k = .95 * s; return pieno('M' + [0, 60, 120, 180, 240, 300].map(a => `${r2(x + k * Math.cos(a * Math.PI / 180))} ${r2(y + k * Math.sin(a * Math.PI / 180))}`).join('L') + 'Z', .32 * k); },
+  gabbiano: (x, y, s) => { const k = 1.3 * s; return tratto(`M${r2(x - k)} ${r2(y + .3 * k)}Q${r2(x - .5 * k)} ${r2(y - .8 * k)} ${x} ${r2(y + .05 * k)}Q${r2(x + .5 * k)} ${r2(y - .8 * k)} ${r2(x + k)} ${r2(y + .3 * k)}`, .42 * k); },
+  anello: (x, y, s) => `<circle cx="${x}" cy="${y}" r="${r2(.78 * s)}" fill="none" stroke="currentColor" stroke-width="${r2(.6 * s)}"/>`,
+};
+const disegna = f => POS.map(p => FORME[f](p[0], p[1], p[2])).join('');
+const LOGHI = [
+  { id: 'cerchio', nome: 'Adesso', uso: true, t: 'Il logo di oggi, con i cerchi.' },
+  { id: 'dardo', nome: 'Frecce', t: 'La forma con cui si disegnano gli stormi simulati al computer. Dice «stormo» e dice «simulazione», e ha una direzione chiara.' },
+  { id: 'triangolo', nome: 'Triangoli', t: 'Cinque piccoli «play». Semplice, pieno, regge bene da piccolo. Richiama l’avvio della simulazione.' },
+  { id: 'ala', nome: 'Ali', t: 'Ogni elemento è una V, come un uccello visto da sopra. Leggero ed elegante, un po’ sottile nelle icone piccole.' },
+  { id: 'quadrato', nome: 'Quadrati', t: 'Quadrati arrotondati, come riquadri di annunci. Solido e ordinato, ma perde il senso del movimento.' },
+  { id: 'rombo', nome: 'Rombi', t: 'Quadrati girati di 45 gradi. Più dinamico dei quadrati, mantiene la pienezza.' },
+  { id: 'goccia', nome: 'Gocce', t: 'Punti con la coda: si vede che stanno correndo verso destra.' },
+  { id: 'trattino', nome: 'Trattini', t: 'Cinque trattini arrotondati, come scie di velocità. Molto pulito, più astratto.' },
+  { id: 'mezzaluna', nome: 'Mezzelune', t: 'Mezzi cerchi rivolti in avanti. Insolito, si ricorda, ma l’idea di persone si perde.' },
+  { id: 'esagono', nome: 'Esagoni', t: 'Più tecnico dei cerchi, sempre compatto. Da piccolo si distingue poco da un cerchio.' },
+  { id: 'persona', nome: 'Persone', t: 'Testa e spalle: è il pubblico, detto chiaro. Bello in grande; a 16 pixel i dettagli si impastano.' },
+  { id: 'gabbiano', nome: 'Gabbiani', t: 'Cinque uccelli a tratto. Il più letterale. Anche questo soffre nelle icone piccole.' },
+  { id: 'anello', nome: 'Anelli', t: 'Cerchi vuoti: i clienti che non esistono. Leggero, elegante, ma perde forza sugli sfondi scuri e da piccolo.' },
+];
+LOGHI.forEach(l => { l.d = disegna(l.id); });
+const svg = (d, n) => `<svg width="${n}" height="${n}" viewBox="0 0 48 48">${d}</svg>`;
+let n = 0;
+LOGHI.forEach(l => { l.num = l.uso ? '' : String(++n).padStart(2, '0'); });
+const cella = l => `<div class="cella"><span class="nome">${svg(l.d, 28)}Flockets</span><small>${l.num ? l.num + ' · ' : ''}${l.nome}</small></div>`;
+document.getElementById('chiaro').innerHTML = LOGHI.map(cella).join('');
+document.getElementById('scuro').innerHTML = LOGHI.map(cella).join('');
+document.getElementById('g').innerHTML = LOGHI.map(l => `
+  <article class="carta${l.uso ? ' uso' : ''}">
+    <header><b>${l.num ? `<i>${l.num}</i>` : ''}${l.nome}</b><code>${l.id}${l.uso ? ' · in uso sul sito' : ''}</code></header>
+    <div class="due"><div>${svg(l.d, 96)}</div><div class="scuro">${svg(l.d, 96)}</div></div>
+    <div class="riga">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga scuro">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <div class="riga scuro"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
+    <p>${l.t}</p>
+  </article>`).join('');
+</script>
+</body>
+</html>
