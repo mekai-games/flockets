@@ -13,7 +13,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=49">
+<link rel="stylesheet" href="style.css?v=50">
 </head>
 <body data-vista="benvenuto">
 
@@ -246,7 +246,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
       <button type="button" role="tab" data-modo="persone" aria-selected="true">Persone</button>
       <button type="button" role="tab" data-modo="analisi" aria-selected="false">Analisi</button>
     </div>
-    <div class="barra-dx"><a class="mono-link come-link" href="#/come">Come funziona</a></div>
+    <div class="barra-dx"><button type="button" class="condividi solo-app" id="a-condividi" aria-label="Condividi l’analisi" title="Condividi l’analisi"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3.5v11M8 7.2l4-3.7 4 3.7"/><path d="M8.5 10.5H7a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5h-1.5"/></svg></button><a class="mono-link come-link" href="#/come">Come funziona</a></div>
   </header>
   <div class="riga-a">
     <div class="a-nome"><b id="a-titolo"></b><span id="a-periodo"></span></div>
@@ -296,6 +296,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <script src="js/analisi.js?v=48"></script>
 <script src="js/app.js?v=49"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
-<script src="js/account.js?v=49"></script>
+<script src="js/account.js?v=50"></script>
+<script src="js/nativo.js?v=50"></script>
 </body>
 </html>

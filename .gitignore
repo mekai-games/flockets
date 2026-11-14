@@ -17,3 +17,9 @@ AuthKey_*
 # impostazioni locali degli strumenti
 .claude/
 .vercel/
+
+# Xcode: impostazioni personali e build
+xcuserdata/
+*.xcuserstate
+ios/build/
+DerivedData/

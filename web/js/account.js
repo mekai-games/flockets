@@ -179,13 +179,41 @@ window.Account = (function () {
     $('.dc-ok', d).focus();
   }
   // dove tornare dopo il link nell'email o il giro dal provider: la pagina, senza #, il resto lo rimette ritorno()
-  const indirizzo = () => location.origin + location.pathname;
+  // nell'app per iPhone la pagina è flockets://localhost/: i link nelle email portano al sito online
+  const indirizzo = () => (window.FlocketsNativo ? window.FlocketsNativo.sito : location.origin + location.pathname);
   async function conProvider(id, bottone) {
+    if (window.FlocketsNativo) return conProviderNativo(id, bottone);
     // dopo il giro dal provider la pagina si ricarica: l'analisi aperta non c'è più, ma resta da salvare (sessionStorage)
     memoria.scrivi(RITORNO, /^#\/analisi/.test(location.hash) || salvaDopo ? '#/profilo' : location.hash || '#/');
     bottone.disabled = true;
     const { error } = await sb.auth.signInWithOAuth({ provider: id, options: { redirectTo: indirizzo() } });
     if (error) { bottone.disabled = false; errore($('.dc-form', finestra()), messaggio(error)); }
+  }
+  // nell'app la pagina non si ricarica: Apple dal sistema (token con nonce), gli altri in una finestra di Safari
+  // che torna a site.flockets.app://login-callback?code=…; poi la sessione si apre qui e l'analisi resta dov'è
+  async function conProviderNativo(id, bottone) {
+    const N = window.FlocketsNativo;
+    bottone.disabled = true;
+    try {
+      let esito;
+      if (id === 'apple') {
+        const a = await N.chiedi('apple');
+        esito = await sb.auth.signInWithIdToken({ provider: 'apple', token: a.token, nonce: a.nonce });
+        if (!esito.error && a.nome && !(esito.data.user.user_metadata || {}).full_name) await sb.auth.updateUser({ data: { full_name: a.nome } });
+      } else {
+        const { data, error } = await sb.auth.signInWithOAuth({ provider: id, options: { redirectTo: N.ritorno, skipBrowserRedirect: true } });
+        if (error) throw error;
+        const torna = new URL(await N.chiedi('web', { url: data.url }));
+        const codice = torna.searchParams.get('code');
+        if (!codice) throw new Error(torna.searchParams.get('error_description') || 'Accesso non riuscito');
+        esito = await sb.auth.exchangeCodeForSession(codice);
+      }
+      if (esito.error) throw esito.error;
+      finestra().close();
+    } catch (err) {
+      bottone.disabled = false;
+      if (!/annullato/.test(String(err && err.message))) errore($('.dc-form', finestra()), messaggio(err));
+    }
   }
 
   /* ------------------------------------------------------------ salvataggio dei progetti */

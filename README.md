@@ -220,6 +220,27 @@ chi ha un account lo collega a uno dei suoi progetti; dopo, il QR apre quel prog
 account. I codici stanno nella tabella `qr`; chi non è il proprietario passa solo dalla funzione `apri_qr`, che
 restituisce il progetto di quel codice e nient'altro. I lotti si creano con `stampa3d/lotto.py`.
 
+### App per iPhone
+
+[`ios/`](ios/) è un'app nativa (UIKit e WKWebView, iOS 17 o più, solo iPhone, bundle `site.flockets.app`) che porta
+il sito dentro di sé.
+
+- **Il sito è incluso.** Una fase della build copia `web/` (senza `api/` e `node_modules/`) nel pacchetto; l'app lo
+  serve da un indirizzo suo, `flockets://localhost/`, così localStorage e sessione restano tra un'apertura e
+  l'altra. Le chiamate a `/api/…` le inoltra al sito online. Il motore Python e la libreria di Supabase arrivano
+  dalla rete come nel sito: per analizzare serve la connessione.
+- **Parti native.** Accedi con Apple dal foglio di sistema (il token va a Supabase con `signInWithIdToken`);
+  Google in una finestra di Safari che torna a `site.flockets.app://login-callback`; foto, video e fotocamera dal
+  campo degli allegati; il bottone **Condividi** nell'analisi (istantanea dello schermo più un riassunto); i file
+  scaricati si aprono nel foglio Condividi; le fasce dell'ora e della barra home prendono il colore della pagina.
+- **Il sito sa di essere nell'app** da `window.FlocketsNativo` e dalla classe `in-app` su `<html>`
+  ([`web/js/nativo.js`](web/js/nativo.js), un ramo in `account.js`, poche regole in fondo a `style.css`).
+- **Supabase** deve ammettere l'app: provider Apple → Client IDs `site.flockets.web,site.flockets.app`;
+  URL Configuration → Redirect URLs `site.flockets.app://login-callback`.
+- Icona e schermata di avvio: `python3 strumenti/risorse_ios.py` (dal logo).
+- Build per il simulatore:
+  `xcodebuild -project ios/Flockets.xcodeproj -scheme Flockets -destination 'platform=iOS Simulator,name=iPhone 17' build`.
+
 ### Il motore
 
 Il motore è il pacchetto Python [`flockets/`](flockets/) e usa solo `numpy` e `pandas`.
@@ -430,6 +451,9 @@ simulazione.consiglia({...})           # le combinazioni migliori con lo stesso 
 | [`web/api/leggi.js`](web/api/leggi.js) | la funzione che legge la descrizione di un annuncio con Claude Haiku |
 | [`web/js/account.js`](web/js/account.js) | account (email o Google, Apple, GitHub, Microsoft), profilo e progetti salvati, su Supabase |
 | [`supabase/`](supabase/) | configurazione e migrazioni del database (profili e progetti, ognuno vede solo i suoi) |
+| [`ios/`](ios/) | l'app per iPhone: il sito incluso, accesso con Apple e Google, Condividi (`Sito.swift`, `Ponte.swift`) |
+| [`web/js/nativo.js`](web/js/nativo.js) | solo nell'app: il riassunto dell'analisi per il bottone Condividi |
+| [`strumenti/risorse_ios.py`](strumenti/risorse_ios.py) | icona e schermata di avvio dell'app dal logo |
 | [`strumenti/prova_esterna.py`](strumenti/prova_esterna.py) | prova il motore su uno storico qualsiasi: nasconde gli ultimi giorni e confronta |
 | [`strumenti/benchmark_conjura.py`](strumenti/benchmark_conjura.py) | ricava dal dataset Conjura i valori reali di partenza del simulatore |
 | [`strumenti/prova_conjura.py`](strumenti/prova_conjura.py) | la prova sulle 79 marche vere del dataset Conjura |
