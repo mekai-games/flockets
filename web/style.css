@@ -35,7 +35,7 @@ canvas { display: block; width: 100%; image-rendering: pixelated; }
 .pulsante.scuro { color: #fff; background: #151517; border-color: #2B2B30; } .pulsante.scuro:hover { border-color: #55555C; }
 
 /* ------------------------------------------------------------------ home */
-.scura { background: #000; color: #fff; min-height: 100vh; overflow: hidden; }
+.scura { background: #000; color: #fff; height: 100vh; min-height: 620px; overflow: hidden; position: relative; }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 1240px; margin: 0 auto; padding: 22px 24px; }
 .nav-centro { display: flex; gap: 30px; }
 .nav-centro a { color: #A1A1AA; text-decoration: none; font-size: 15px; } .nav-centro a:hover { color: #fff; }
@@ -46,16 +46,7 @@ canvas { display: block; width: 100%; image-rendering: pixelated; }
 .sotto-riga svg { position: absolute; left: -4%; right: -4%; bottom: -.22em; width: 108%; height: .34em; fill: none; stroke: #fff; stroke-width: 3.2; stroke-linecap: round; }
 .sotto { color: #8E8E96; font-size: clamp(16px, 1.7vw, 20px); max-width: 34em; margin: 0 auto 30px; text-wrap: pretty; }
 .azioni { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-#folla { margin-top: -70px; position: relative; z-index: 1; -webkit-mask-image: linear-gradient(#0000, #000 34%); mask-image: linear-gradient(#0000, #000 34%); }
-.sezione { max-width: 1240px; margin: 0 auto; padding: 90px 24px 60px; text-align: center; }
-.sezione h2 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 700; }
-.sezione-sotto { color: #8E8E96; font-size: 18px; margin: 12px 0 40px; }
-.passi-griglia { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; text-align: left; }
-.passi-griglia li { border: 1px solid #222226; border-radius: 14px; padding: 18px; background: #0B0B0D; }
-.passi-griglia span { font: 500 13px var(--mono); color: #6B6B73; }
-.passi-griglia b { display: block; font: 700 19px var(--titoli); margin: 22px 0 6px; }
-.passi-griglia p { color: #8E8E96; font-size: 14px; margin: 0; }
-.piede { color: #5C5C64; font: 13px var(--mono); margin: 56px 0 0; }
+#folla { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; -webkit-mask-image: linear-gradient(#0000, #000 34%); mask-image: linear-gradient(#0000, #000 34%); }
 
 /* --------------------------------------------------------------- console */
 .nav.chiara { max-width: none; padding: 16px 44px; }
@@ -212,7 +203,7 @@ figcaption { font: 700 14px var(--titoli); margin-bottom: 2px; } figcaption span
 .registro-righe { height: 96px; overflow: auto; font-size: 12px; line-height: 1.75; padding-top: 6px; scrollbar-width: thin; scrollbar-color: #3A3A40 transparent; }
 .registro-righe span { color: #6B6B73; margin-right: 14px; }
 
-@media (max-width: 1100px) { .passi-griglia { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stato #st-testo { display: none; } }
+@media (max-width: 1100px) { .stato #st-testo { display: none; } }
 @media (max-width: 900px) {
   .nav-centro { display: none; } .console { grid-template-columns: minmax(0, 1fr); padding: 12px 20px 40px; gap: 36px; } .nav.chiara { padding: 14px 20px; }
   .lavoro, .lavoro[data-disp] { grid-template-columns: minmax(0, 1fr); height: auto; } .lavoro[data-disp="diviso"] .palco { border-right: 0; border-bottom: 1px solid var(--riga); }
@@ -220,7 +211,7 @@ figcaption { font: 700 14px var(--titoli); margin-bottom: 2px; } figcaption span
   .registro { position: sticky; bottom: 0; } .registro-righe { height: 62px; }
 }
 @media (max-width: 560px) {
-  .zone { grid-template-columns: minmax(0, 1fr); } .passi-griglia { grid-template-columns: minmax(0, 1fr); } .tessere.quattro { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
+  .zone { grid-template-columns: minmax(0, 1fr); } .tessere.quattro { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
   .campi { grid-template-columns: minmax(0, 1fr); } .scatola { padding: 20px 18px 0; } .avviso-barra { margin: 0 -18px; padding: 11px 18px; } .stato b { display: none; }
   .palco { padding: 14px; } .schede { padding: 14px; } .scheda { padding: 16px; }
   .viste button { padding: 6px 9px; } .barra { overflow: hidden; } .stato { min-width: 0; overflow: hidden; }
