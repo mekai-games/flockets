@@ -13,7 +13,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=36">
+<link rel="stylesheet" href="style.css?v=38">
 </head>
 <body data-vista="benvenuto">
 
@@ -25,7 +25,6 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
 <section class="vista scura" id="v-benvenuto">
   <header class="nav">
     <a class="logo" href="#/" aria-label="Flockets"><svg width="26" height="26"><use href="#marchio"/></svg>Flockets</a>
-    <nav class="nav-centro"><a href="#/come">Come funziona</a><a href="#/console">Demo</a><a href="#/nuova">Campagna nuova</a><a href="#/sim/consegne">Consegne</a></nav>
     <a class="pulsante bianco" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub</a>
   </header>
   <div class="eroe">
@@ -62,7 +61,7 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
       <li><span>03</span><div><b>Cerca le cause</b><p>Un annuncio va bene o male per più motivi insieme: la creatività, il pubblico, da quanto è in onda, il giorno, il periodo dell’anno. Confrontando tutti gli annunci di tutti i giorni il modello li separa. La stessa creatività in due pubblici diversi mostra quanto conta il pubblico; lo stesso annuncio seguito nel tempo mostra quanto si stanca.</p></div></li>
       <li><span>04</span><div><b>Ne ricava dei moltiplicatori</b><p>Una tabella di numeri: per esempio pubblico di retargeting ×1,7 sui click, aggancio nei primi 2 secondi ×1,2, annuncio in onda da tre settimane ×0,65, settimana del Black Friday ×1,3 sul costo.</p></div></li>
       <li><span>05</span><div><b>Rimonta i pezzi per il giorno futuro</b><p>Per un annuncio e un giorno moltiplica i suoi fattori. Se negli ultimi giorni i livelli si sono spostati, una prova interna decide quanto seguirli.</p></div></li>
-      <li><span>06</span><div><b>Stima le creatività mai viste</b><p>Senza storico, la qualità viene dalla descrizione: è un video? parla una persona? c’è tanto testo? Sul sito la descrizione la legge Claude.</p></div></li>
+      <li><span>06</span><div><b>Stima le creatività mai viste</b><p>Senza storico, la qualità viene dalla descrizione: è un video? parla una persona? c’è tanto testo?</p></div></li>
       <li><span>07</span><div><b>Passa dai soldi ai click</b><p>Budget del giorno → spesa; spesa diviso costo → visualizzazioni; visualizzazioni per CTR → click.</p></div></li>
       <li><span>08</span><div><b>Dice quanto può sbagliare</b><p>Ripete il calcolo 2.000 volte con piccole variazioni casuali: ne esce una forchetta, come il meteo che dà la probabilità di pioggia.</p></div></li>
     </ol>
@@ -130,11 +129,6 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
     <div class="composer">
       <label class="nascosta" for="richiesta">Annuncio o campagna da prevedere</label>
       <textarea id="richiesta" rows="2" placeholder="Descrivi un annuncio da provare (facoltativo)…"></textarea>
-      <div class="capito" id="capito" hidden>
-        <p class="mono">Ho capito <span id="capito-fonte" aria-live="polite"></span> · <button type="button" class="testo-link" id="capito-tutti" aria-expanded="false">modifica</button></p>
-        <div class="chips mono" id="capito-chips"></div>
-        <p class="capito-motivo" id="capito-motivo" hidden></p>
-      </div>
       <div class="composer-barra">
         <span class="file-chip" id="file-chip" hidden><span id="file-nome"></span><button type="button" id="togli-file" aria-label="Togli il file">✕</button></span>
         <button class="invia" id="avvia" type="button" aria-label="Analizza"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -158,7 +152,6 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
       </div>
     </div>
     <div id="esito-file" aria-live="polite"></div>
-    <p class="avviso mono" id="avviso"></p>
   </main>
   <canvas id="prato" aria-hidden="true"></canvas>
   <canvas id="folla-avvio" aria-hidden="true"></canvas>
@@ -254,41 +247,12 @@ try { var tm = localStorage.getItem('flockets-tema'); document.documentElement.d
   <canvas id="tr-folla" aria-hidden="true"></canvas>
 </div>
 
-<!-- 6. DETTAGLI TECNICI -->
-<section class="vista" id="v-sim" hidden>
-  <header class="barra">
-    <a class="indietro" href="#/console" aria-label="Cambia i dati">←</a>
-    <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="22" height="22"><use href="#marchio"/></svg><span>Flockets</span></a>
-    <nav class="passi-nav" id="passi-nav" aria-label="Passi"></nav>
-    <a class="mono-link come-link" href="#/come">Come funziona</a>
-  </header>
-  <div class="in-uso" id="in-uso"></div>
-  <div class="lavoro">
-    <section class="palco" aria-label="Pubblico simulato">
-      <div class="palco-testa">
-        <b class="palco-titolo">Pubblico simulato</b>
-        <div class="campagne" id="campagne" role="tablist" aria-label="Campagna"></div>
-      </div>
-      <div class="tempo" id="tempo">
-        <button class="tondo" id="pz-play" aria-label="Avvia i 15 giorni"><svg width="12" height="12" viewBox="0 0 14 14"><path id="pz-icona" d="M3 1.5v11l9-5.5z"/></svg></button>
-        <b id="pz-data" class="mono"></b><span id="pz-evento" class="evento" hidden></span>
-        <input type="range" id="pz-slider" min="0" max="14" value="0" aria-label="Giorno della previsione">
-      </div>
-      <div class="zone" id="zone"></div>
-      <div class="legenda" id="pz-legenda"></div>
-    </section>
-    <section class="tecnica" aria-label="Analisi">
-      <div class="schede" id="pannello"></div>
-    </section>
-  </div>
-</section>
 
-<script src="js/scena.js?v=36"></script>
-<script src="js/motore.js?v=36"></script>
-<script src="js/grafici.js?v=36"></script>
-<script src="js/nuova.js?v=36"></script>
-<script src="js/esplora.js?v=36"></script>
-<script src="js/analisi.js?v=36"></script>
-<script src="js/app.js?v=36"></script>
+<script src="js/scena.js?v=38"></script>
+<script src="js/motore.js?v=38"></script>
+<script src="js/nuova.js?v=38"></script>
+<script src="js/esplora.js?v=38"></script>
+<script src="js/analisi.js?v=38"></script>
+<script src="js/app.js?v=38"></script>
 </body>
 </html>

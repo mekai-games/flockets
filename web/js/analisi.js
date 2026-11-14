@@ -80,7 +80,7 @@ window.Analisi = (function () {
     else if (/famos|notissim|\bleader\b/.test(s)) spec.marchio = 'famoso';
     if (/notoriet|farsi conoscere|awareness|visibilit/.test(s)) spec.obiettivo = 'notorieta';
     else if (/\bvisite\b|traffico|portare (?:gente|persone) sul sito/.test(s)) spec.obiettivo = 'traffico';
-    // a chi è rivolto, vantaggi dell'offerta, quando parte (regole di riserva, se Claude non risponde)
+    // a chi è rivolto, vantaggi dell'offerta, quando parte (regole di riserva, se la lettura del testo non risponde)
     const filtri = {};
     if (/\bdonne\b|ragazze|mamme|\bsignore\b|femminil/.test(s) && !/uomini/.test(s)) filtri.genere = ['donna'];
     else if (/\buomini\b|papà|maschil/.test(s) && !/donne|ragazze/.test(s)) filtri.genere = ['uomo'];
@@ -108,7 +108,7 @@ window.Analisi = (function () {
       : /iscri|registra/.test(s) ? 'iscrizioni' : 'acquisti';
     // gratis vale per il prodotto, non per spedizione, reso o prova
     let gratis = /gratis|gratuit|\bfree\b/.test(s.replace(/(?:spedizion\w*|reso|consegna|prova|campione|resi)\s+(?:è\s+)?gratu\w*|gratis la spedizione/g, ' ')), ia = false, messaggio = null, suggerimenti = [];
-    // quello che ha capito Claude Haiku (funzione /api/leggi) vale più delle regole a parole chiave; 0, vuoto o non_indicato = non detto
+    // quello che ha capito la lettura del testo (funzione /api/leggi) vale più delle regole a parole chiave; 0, vuoto o non_indicato = non detto
     const ia2 = brief && brief.fonte === 'ia' ? brief.campagna : null;
     if (brief && brief.fonte === 'ia' && brief.f) spec.creativita = brief.f;
     if (ia2) {
@@ -124,7 +124,7 @@ window.Analisi = (function () {
       spec.obiettivo = ia2.obiettivo;
       if (ia2.leve && ia2.leve.length) spec.leve = ia2.leve;
       if (ia2.prodotto) spec.descrizione_prodotto = ia2.prodotto + '. ' + testo;
-      if (ia2.pubblico) Object.entries(ia2.pubblico).forEach(([k, v]) => { if (v && v.length) spec.filtri[k] = v; });   // le regole restano dove Claude tace
+      if (ia2.pubblico) Object.entries(ia2.pubblico).forEach(([k, v]) => { if (v && v.length) spec.filtri[k] = v; });   // le regole restano dove la lettura del testo tace
       if (ia2.inizio) spec.inizio = ia2.inizio;
       if (ia2.trend && ia2.trend !== 'non_indicato') spec.trend = { in_calo: 0.8, normale: 1, in_crescita: 1.3, di_moda: 1.6 }[ia2.trend];
       if (ia2.extra) spec.extra = [...new Set([...spec.extra, ...ia2.extra])];
@@ -132,7 +132,7 @@ window.Analisi = (function () {
     }
     if (brief && brief.fonte === 'ia' && brief.messaggio) {
       // voto del messaggio: concretezza, credibilità e invito all'azione contati sul testo (stabili tra prompt simili),
-      // beneficio e adatto al canale giudicati da Claude
+      // beneficio e adatto al canale giudicati dalla lettura del testo
       const ann = s.replace(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:al|a|\/|ogni|per)\s*(?:giorno|gg|day)/g, ' ').replace(/budget[^.;]*/g, ' ')
         .replace(/\b(?:per\s*)?\d+\s*(?:giorni|gg|settiman\w*|mesi?)\b/g, ' ');
       const concretezza = Math.min(2, [/\d{1,2}\s*%/, /\d[\d.,]*\s*(?:€|euro)/, /solo (?:oggi|fino|per)|entro |scade|fino a \w+|ultimi \d|\d+\s*(?:ml|pezzi|ore)\b/]
@@ -141,7 +141,7 @@ window.Analisi = (function () {
         : /recension|testimonian|consigliat|dermatolog|esperti|premiat|best ?seller|più vendut|amat[oa] da/.test(ann) ? 1 : 0;
       const invito = /\b(?:compra|acquista|ordina|scopri|scarica|iscriviti|clicca|prenota|approfitta|non perdere|corri|vai sul sito|link in bio|prova ora|provala|provalo)\b/.test(ann) ? 2 : 0;
       const g = brief.messaggio;
-      // adatto al canale: il formato rispetto a quello che il canale preferisce (se il formato non si capisce, decide Claude)
+      // adatto al canale: il formato rispetto a quello che il canale preferisce (se il formato non si capisce, decide la lettura del testo)
       const PREF = { social: { video_breve: 2, carosello: 2, immagine: 1, video: 2 }, video_brevi: { video_breve: 2, video: 2 }, ricerca: { testo: 2 },
         shopping: { immagine: 2 }, display: { immagine: 2, video: 1 }, video: { video: 2, video_breve: 1 }, email: { immagine: 2, testo: 2 } };
       const fmt = spec.formato || (/video|reel|secondi|clip/.test(s) ? (spec.canale === 'video' ? 'video' : 'video_breve') : /carosello|slide|schede/.test(s) ? 'carosello'
@@ -450,7 +450,7 @@ window.Analisi = (function () {
       ...Object.entries(C.filtri || {}).map(([k, v]) => (k === 'eta' ? 'per ' + etaInBreve(v) : 'per ' + v.map(x => VALORI[x] || x).join(' o '))),
       C.forza != null ? `messaggio ${ni(C.forza)}/10` : '',
     ].filter(Boolean);
-    return `<div class="a-capito"><span class="a-capito-t">${contesto.ia ? 'Claude ha capito' : 'Ho capito'}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
+    return `<div class="a-capito"><span class="a-capito-t">Dal tuo testo</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
       ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
       ${m.nuova.taratura ? `<p class="a-nota a-tarato">Tarato su ${esc(contesto.fonte || 'il tuo storico')}${contesto.marca ? ' (' + esc(contesto.marca) + ')' : ''}: per questa marca i click partono da ×${nf(Math.exp(m.nuova.taratura.ctr), 2)} e il costo da ×${nf(Math.exp(m.nuova.taratura.cpm), 2)} rispetto al tipico del settore.</p>` : ''}`;
   }
@@ -540,7 +540,7 @@ window.Analisi = (function () {
       ${ric ? card(i++, 'Quando si ripaga', `<div id="a-pareggio"></div><p class="a-es-nota" id="a-pareggio-nota"></p>`, 'a-luce') : ''}
       ${card(i++, 'Tutti i pubblici', `<p class="a-sotto">Dal migliore al meno conveniente. Tocca per vedere chi c’è dentro.</p>${righePub}`)}
       ${m.gruppi ? card(i++, 'Chi risponde di più', `<p class="a-sotto">Quanto rende ogni euro speso su ogni gruppo, rispetto alla media.</p><div class="a-gruppi">${['eta', 'genere', 'reddito', 'area'].map(barre).join('')}</div>`) : ''}
-      <p class="a-piede">${m.sorgente === 'storico' ? `<a href="#/sim/dati">Dettagli tecnici e consegne</a> · <a href="${window.Flk.scarico()}" download="${esc(window.Flk.D.meta.file_previsioni)}">Scarica le previsioni</a>` : '<a href="#/nuova" data-modifica>Modifica la campagna</a>'} · <a href="#/come">Come funziona</a></p>`;
+      <p class="a-piede">${m.sorgente === 'storico' ? `<a href="${window.Flk.scarico()}" download="${esc(window.Flk.D.meta.file_previsioni)}">Scarica le previsioni</a>` : '<a href="#/nuova" data-modifica>Modifica la campagna</a>'} · <a href="#/come">Come funziona</a></p>`;
     // controlli
     $$('.a-tab [data-met]', el).forEach(b => b.addEventListener('click', () => { es.metrica = b.dataset.met; $$('.a-tab [data-met]', el).forEach(x => x.setAttribute('aria-selected', x === b)); rEsplora(); }));
     $$('.a-seg', el).forEach(g => $$('button', g).forEach(b => b.addEventListener('click', () => {
@@ -552,7 +552,7 @@ window.Analisi = (function () {
     rEsplora(); rBudget(1); rPareggio();
     contaSu(el); luce(el);
   }
-  // il testo dell'annuncio giudicato da Claude: cinque criteri, il voto entra nel simulatore come forza del messaggio
+  // il testo dell'annuncio giudicato dalla lettura del testo: cinque criteri, il voto entra nel simulatore come forza del messaggio
   function messaggio(i) {
     const g = contesto.messaggio;
     if (!g || M.sorgente !== 'nuova') return '';
@@ -565,7 +565,7 @@ window.Analisi = (function () {
         <div class="a-msg-sugg">${verso8 > 0.01 ? `<p>Con un messaggio da 8/10: circa <b>+${pc(verso8 * 100)}</b> di click e di ${esc(u.plur)}, con lo stesso budget.</p>` : '<p>Il messaggio è già forte: il margine è nel pubblico e nel canale.</p>'}
           ${sugg.length ? `<ul class="a-azioni">${sugg.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>
       </div>
-      <p class="a-nota">Offerta concreta, credibilità e invito all’azione sono contati sul testo; adatto al canale viene dal formato; il beneficio lo giudica Claude. Nel modello il voto sposta la probabilità di click: da circa −26% (0/10) a +35% (10/10) rispetto a un messaggio medio (5/10).</p></section>`;
+      <p class="a-nota">Offerta concreta, credibilità e invito all’azione sono contati sul testo; adatto al canale viene dal formato; il beneficio dalla lettura del testo. Nel modello il voto sposta la probabilità di click: da circa −26% (0/10) a +35% (10/10) rispetto a un messaggio medio (5/10).</p></section>`;
   }
   // l'annuncio scritto nella pagina di partenza, provato sui pubblici del file
   function annuncioProvato(i) {

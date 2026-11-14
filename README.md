@@ -18,7 +18,7 @@ Questa pagina segue le tre consegne chieste dalla sfida.
 |---|---|
 | 1. Lo strumento | il [sito](https://flockets.vercel.app) (cartella [`web/`](web/)) e il motore di previsione ([`flockets/`](flockets/)) |
 | 2. Le previsioni | [`output/previsioni_16-30_nov.csv`](output/previsioni_16-30_nov.csv): 699 righe, 51 annunci |
-| 3. Il ragionamento | questa pagina, la scheda Consegne del sito e il video di 3 minuti |
+| 3. Il ragionamento | questa pagina, la pagina «Come funziona» del sito e il video di 3 minuti |
 
 ---
 
@@ -54,7 +54,7 @@ sistema, poi la scelta resta nel browser).
      (sopra la testa, se non c'è posto sotto i piedi o di fianco): chi è, dove vive, cosa ha fatto, probabilità di
      click e di acquisto, quanto rende ogni euro speso su di lei, perché, e quante persone come lei ci sono in
      Italia. I bottoni in basso evidenziano un tipo di pubblico.
-   - **Analisi**: parte da quello che hai mandato (l'annuncio tra virgolette con «Ho capito» e il link per
+   - **Analisi**: parte da quello che hai mandato (l'annuncio tra virgolette con la riga «Dal tuo testo» e il link per
      correggere, oppure il nome del file). Poi una frase con il risultato e i numeri principali che salgono da
      zero; il pubblico migliore con il confronto con gli altri; cosa fare adesso (pubblico, canale e leve
      provati alla pari, chi risponde meglio, creatività stanche); **Studia i numeri**, un grafico da esplorare
@@ -69,16 +69,8 @@ Le animazioni (griglia di pallini, numeri che salgono, luce che segue il puntato
 zero in JavaScript, ispirate ai componenti Dot Grid, Count Up e Spotlight Card di
 [React Bits](https://reactbits.dev): il sito resta senza React e senza librerie.
 
-Le schermate tecniche di prima restano, sotto «Dettagli tecnici e consegne» in fondo all'analisi:
-
-| Passo | Cosa mostra |
-|---|---|
-| 1 Dati | cosa sto analizzando, quali dati uso e per cosa, cosa mancava e cosa ho assunto, i giorni esclusi, l'andamento del mercato |
-| 2 Pubblici | chi c'è dietro ogni ad set, detto in parole: quanti sono, quanto cliccano e costano rispetto alla media |
-| 3 Previsioni | i giorni scorrono: gli omini che esultano sono i click, quelli che dormono hanno visto l'annuncio troppe volte. Per ogni annuncio CTR e CPM con la forchetta di errore, e una frase che li spiega |
-| 4 Decisioni | cursori del budget con ricalcolo immediato (anche sul pubblico simulato), proposta di riallocazione, creatività da sostituire |
-| 5 Prova un annuncio | descrivi un annuncio nuovo e vedi come reagisce ogni pubblico, prima del lancio |
-| Consegne | le tre consegne della sfida |
+La vecchia interfaccia a passi (Dati, Pubblici, Previsioni, Decisioni, Prova un annuncio, Consegne) è stata tolta il
+14/11: le previsioni si scaricano dal fondo dell'analisi, il resto delle consegne sta in questo README e in `output/`.
 
 Il file d'esempio del gioco si rigenera con `python3 strumenti/esempio_gioco.py`: i numeri sono inventati
 con una regola semplice e un seme fisso.
@@ -89,8 +81,8 @@ con uscita strutturata (JSON con schema fisso): formato, leva e caratteristiche 
 il modello usa per stimare una creatività mai vista, più la campagna (prodotto, categoria, canale, budget al giorno,
 durata, prezzo, sconto, marchio nuovo o noto, obiettivo, tipo di risultato, gratis o no, leve dell'offerta) che il
 simulatore usa quando l'annuncio arriva senza file. Quello che Claude legge vale più delle regole; un valore non
-detto resta alle regole o a un valore prudente. Nell'analisi la riga «Claude ha capito» mostra cosa ha letto. La zona
-«Ho capito» mostra il risultato e lascia correggere ogni voce a mano. La chiave dell'API sta solo nella
+detto resta alle regole o a un valore prudente. Nell'analisi la riga «Dal tuo testo» mostra cosa è stato letto, con il
+link per correggerlo; mentre si scrive il prompt non compare niente. Sul sito non si nomina Claude. La chiave dell'API sta solo nella
 variabile d'ambiente `ANTHROPIC_API_KEY` del progetto Vercel, mai nel codice; senza chiave il sito continua
 con le regole.
 

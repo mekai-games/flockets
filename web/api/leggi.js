@@ -267,7 +267,7 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   const attiva = Boolean(process.env.ANTHROPIC_API_KEY);
 
-  if (req.method === "GET") return res.status(200).json({ attiva, modello: MODELLO });
+  if (req.method === "GET") return res.status(200).json({ attiva });
   if (req.method !== "POST") return res.status(405).json({ errore: "Metodo non ammesso" });
   if (!attiva) return res.status(503).json({ errore: "Lettura con IA non configurata" });
 
@@ -317,7 +317,6 @@ export default async function handler(req, res) {
       campagna: pulisci(letto.campagna),
       messaggio: messaggio(letto.messaggio),
       suggerimenti: (Array.isArray(letto.suggerimenti) ? letto.suggerimenti : []).filter((x) => typeof x === "string").slice(0, 3).map((x) => x.slice(0, 140)),
-      modello: MODELLO,
     });
   } catch (errore) {
     if (errore instanceof Anthropic.AuthenticationError || errore instanceof Anthropic.PermissionDeniedError) {
