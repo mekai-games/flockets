@@ -4,14 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flockets · proposte di logo</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   body { margin: 0; background: #EDEDEA; color: #111; font: 14px/1.45 Inter, system-ui, sans-serif; padding: 22px; }
-  header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
-  h1 { font: 700 20px "Inter Tight", sans-serif; margin: 0; } header p { margin: 0; color: #666; font-size: 12.5px; }
-  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .testa { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font: 700 20px "Inter Tight", sans-serif; margin: 0; } .testa p { margin: 0; color: #666; font-size: 12.5px; max-width: 60em; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
   .carta { background: #fff; border: 1px solid #DAD9D5; border-radius: 8px; overflow: hidden; }
-  .carta > header { padding: 10px 14px; margin: 0; border-bottom: 1px solid #ECECE8; } .carta b { font-weight: 600; } .carta code { font: 11.5px "JetBrains Mono", monospace; color: #999; }
+  .carta > header { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid #ECECE8; }
+  .carta b { font-weight: 600; } .carta b i { font: 500 12px "JetBrains Mono", monospace; color: #F2551D; margin-right: 8px; font-style: normal; }
+  .carta code { font: 11.5px "JetBrains Mono", monospace; color: #999; }
   .due { display: grid; grid-template-columns: 1fr 1fr; } .due div { display: grid; place-items: center; height: 150px; }
   .scuro { background: #111; color: #fff; } svg { fill: currentColor; display: block; }
   .riga { display: flex; align-items: center; gap: 18px; padding: 12px 16px; border-top: 1px solid #ECECE8; }
@@ -19,30 +21,58 @@
   .scheda-b { display: inline-flex; align-items: center; gap: 6px; background: #E4E4E0; border-radius: 6px 6px 0 0; padding: 5px 10px; font-size: 11.5px; color: #333; }
   .riga.scuro .scheda-b { background: #2A2A2A; color: #ddd; }
   .carta p { margin: 0; padding: 12px 16px 14px; border-top: 1px solid #ECECE8; color: #444; font-size: 13px; }
-  .scelto > header { background: #FFF3EC; } .scelto code::after { content: " · in uso sul sito"; color: #F2551D; }
+  .uso > header { background: #F1F1EE; } .uso code::after { content: " · in uso sul sito"; }
 </style>
 </head>
 <body>
-<header><h1>Proposte di logo</h1><p>Marchi geometrici a un solo colore. Ognuno è mostrato grande, da 48 a 16 pixel, accanto al nome e come icona della scheda del browser.</p></header>
+<div class="testa"><h1>Proposte di logo</h1><p>Marchi geometrici a un solo colore. Ognuno è mostrato grande, da 48 a 16 pixel, accanto al nome e come icona della scheda del browser. Per scegliere basta il numero.</p></div>
 <div class="griglia" id="g"></div>
 <script>
 const c = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}"/>`;
-const q = (x, y, l, r) => `<rect x="${x}" y="${y}" width="${l}" height="${l}" rx="${r}"/>`;
+const q = (x, y, w, h, r) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
+const s = (d, w) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const anello = (x, y, r, w) => `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="currentColor" stroke-width="${w}"/>`;
+const p = d => `<path d="${d}"/>`;
+const scia = (x, y, r, t) => p(`M${x + .707 * r} ${y + .707 * r}L${x - .707 * r} ${y - .707 * r}L${x - t} ${y + t}Z`) + c(x, y, r);
+const esa = [[36.8, 24], [30.4, 35.08], [17.6, 35.08], [11.2, 24], [17.6, 12.92], [30.4, 12.92]];
 const LOGHI = [
-  { id: 'stormo', nome: 'Stormo', d: c(37, 24, 5.5) + c(25.5, 15.5, 4.6) + c(25.5, 32.5, 4.6) + c(14, 7.5, 3.8) + c(14, 40.5, 3.8), t: 'Cinque punti in formazione a V: uno stormo che segue chi sta davanti.', scelto: true },
-  { id: 'stormo-mira', nome: 'Stormo sul bersaglio', d: q(31, 18, 12, 3) + c(21, 14.5, 4.2) + c(21, 33.5, 4.2) + c(10.5, 6.5, 3.5) + c(10.5, 41.5, 3.5), t: 'Lo stormo punta verso un quadrato: il pubblico che va verso l’annuncio.' },
-  { id: 'triangolo', nome: 'Triangolo', d: c(11, 9.5, 4.7) + c(11, 24, 4.7) + c(11, 38.5, 4.7) + c(24.5, 16.75, 4.7) + c(24.5, 31.25, 4.7) + c(38, 24, 4.7), t: 'Sei punti che formano una freccia: la folla e il tasto di avvio della simulazione.' },
-  { id: 'effe', nome: 'F di punti', d: [[15, 8], [25, 8], [35, 8], [15, 16], [15, 24], [25, 24], [15, 32], [15, 40]].map(p => c(p[0], p[1], 3.7)).join(''), t: 'La F di Flockets composta da persone, una per punto.' },
-  { id: 'raduno', nome: 'Raduno', d: q(18, 5, 12, 3) + c(7.5, 24.5, 4) + c(16, 33.5, 4) + c(32, 33.5, 4) + c(40.5, 24.5, 4), t: 'Quattro persone ad arco intorno a un annuncio.' },
-  { id: 'scia', nome: 'Scia', d: c(8, 38, 2.6) + c(16, 30.5, 3.5) + c(26, 22.5, 4.6) + c(38, 13, 6), t: 'Punti che crescono lungo una diagonale: il gruppo che avanza e la previsione che sale.' },
+  { id: 'stormo', nome: 'Stormo', uso: true, d: c(37, 24, 5.5) + c(25.5, 15.5, 4.6) + c(25.5, 32.5, 4.6) + c(14, 7.5, 3.8) + c(14, 40.5, 3.8),
+    t: 'Quello di adesso. Cinque punti in formazione a V.' },
+  { id: 'cliente-vuoto', nome: 'Il cliente che non esiste', d: esa.map(e => c(e[0], e[1], 5.3)).join('') + anello(24, 24, 3.95, 2.7),
+    t: 'Sette persone vicine, quella al centro è vuota: il cliente finto in mezzo a quelli veri. Riprende il titolo della sfida.' },
+  { id: 'uno-su-nove', nome: 'Uno su nove', d: [9.5, 24, 38.5].flatMap(y => [9.5, 24, 38.5].map(x => (x === 24 && y === 24 ? '' : c(x, y, 4.5)))).join('') + q(18.6, 18.6, 10.8, 10.8, 2.6),
+    t: 'Una griglia di persone con l’annuncio al centro. Simmetrico, regge bene da piccolo.' },
+  { id: 'folla-cresce', nome: 'Folla che cresce', d: c(11, 25.5, 4.3) + q(6.5, 31.5, 9, 11.5, 4.5) + c(24, 16, 4.3) + q(19.5, 22, 9, 21, 4.5) + c(37, 6.8, 4.3) + q(32.5, 13, 9, 30, 4.5),
+    t: 'Tre persone che sono anche le barre di un grafico: il pubblico e la previsione nello stesso segno.' },
+  { id: 'tre-scie', nome: 'Tre scie', d: scia(33, 14.5, 6.2, 21) + scia(15.5, 11, 3.9, 10.5) + scia(38, 33, 3.9, 10.5),
+    t: 'Tre punti in corsa con la scia: uno stormo in movimento, verso l’alto come un andamento che sale.' },
+  { id: 'recinto', nome: 'Recinto', d: s('M38.72 15.5A17 17 0 1 0 38.72 32.5', 4.4) + c(16, 24, 3.9) + c(28.5, 24, 3.9) + c(41, 24, 3.9),
+    t: 'Il gregge che entra nel recinto in fila: due dentro, uno sulla porta. Il pubblico raccolto in un posto solo.' },
+  { id: 'cono', nome: 'Megafono', d: c(9.5, 24, 5.5) + p('M19 19.6L39.4 9.2Q43 7.6 43 11.4V36.6Q43 40.4 39.4 38.8L19 28.4Z'),
+    t: 'Un punto e un cono che si apre: è un megafono (la pubblicità) ed è la forchetta di una previsione che si allarga nel tempo.' },
+  { id: 'avanti', nome: 'Avanti veloce', d: [[10, 10], [19.5, 24], [10, 38], [27, 10], [36.5, 24], [27, 38]].map(e => c(e[0], e[1], 4.5)).join(''),
+    t: 'Sei punti che disegnano il tasto «avanti veloce»: vedere prima come andrà.' },
+  { id: 'ali', nome: 'Tre in volo', d: s('M5 26Q14 13 24 23.5Q34 13 43 26', 4.8) + s('M27 10.5Q31 5 35 9.5Q39 5 43 10.5', 3.4) + s('M6 39.5Q10.5 33.5 15 38.5Q19.5 33.5 24 39.5', 3.6),
+    t: 'Tre uccelli disegnati con un tratto solo. Il più diretto per dire «stormo», il meno astratto.' },
+  { id: 'effe-stormo', nome: 'F con lo stormo', d: q(9, 6, 9, 36, 4.5) + c(27, 10.5, 4.5) + c(39, 10.5, 4.5) + c(27, 24, 4.5),
+    t: 'La F di Flockets: l’asta è piena, i bracci sono persone che partono.' },
+  { id: 'onda', nome: 'Onda', d: c(5.5, 29, 2.7) + c(14, 19.5, 3.8) + c(24.5, 24, 5.2) + c(35, 30.5, 3.8) + c(43, 22, 2.7),
+    t: 'Cinque punti su un’onda: lo stormo che si muove insieme, e una curva di dati.' },
+  { id: 'prospettiva', nome: 'Platea', d: c(24, 8.5, 3.2) + c(16.5, 19.5, 4.3) + c(31.5, 19.5, 4.3) + c(8.5, 34.5, 5.6) + c(24, 34.5, 5.6) + c(39.5, 34.5, 5.6),
+    t: 'Una folla vista da dietro, in prospettiva: le file più vicine sono più grandi.' },
+  { id: 'formazione', nome: 'Formazione', d: q(5, 6, 9, 36, 4.5) + q(19.5, 12.5, 9, 23, 4.5) + q(34, 19, 9, 10, 4.5),
+    t: 'Tre colonne che stringono verso una punta: una freccia, un gruppo che avanza, un livello che cambia.' },
+  { id: 'guida', nome: 'Chi guida', d: s('M9 9.5L27 24L9 38.5', 6.4) + c(40, 24, 4.8),
+    t: 'Un punto davanti e le ali dietro: uno parte, gli altri seguono. Il più semplice di tutti.' },
 ];
-const svg = (d, s) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48">${d}</svg>`;
+const svg = (d, n) => `<svg width="${n}" height="${n}" viewBox="0 0 48 48">${d}</svg>`;
+let n = 0;
 document.getElementById('g').innerHTML = LOGHI.map(l => `
-  <article class="carta${l.scelto ? ' scelto' : ''}">
-    <header><b>${l.nome}</b><code>${l.id}</code></header>
+  <article class="carta${l.uso ? ' uso' : ''}">
+    <header><b>${l.uso ? '' : `<i>${String(++n).padStart(2, '0')}</i>`}${l.nome}</b><code>${l.id}</code></header>
     <div class="due"><div>${svg(l.d, 96)}</div><div class="scuro">${svg(l.d, 96)}</div></div>
-    <div class="riga">${[48, 32, 24, 16].map(s => svg(l.d, s)).join('')}</div>
-    <div class="riga scuro">${[48, 32, 24, 16].map(s => svg(l.d, s)).join('')}</div>
+    <div class="riga">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
+    <div class="riga scuro">${[48, 32, 24, 16].map(x => svg(l.d, x)).join('')}</div>
     <div class="riga"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
     <div class="riga scuro"><span class="nome">${svg(l.d, 24)}Flockets</span><span class="scheda-b">${svg(l.d, 14)}Flockets</span></div>
     <p>${l.t}</p>
