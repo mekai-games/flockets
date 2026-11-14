@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 </head>
 <body data-vista="benvenuto">
 
@@ -121,57 +121,49 @@
     <a class="logo" href="#/" aria-label="Flockets, pagina iniziale"><svg width="24" height="24"><use href="#marchio"/></svg>Flockets</a>
     <nav class="nav-link"><a class="mono-link" href="#/come">Come funziona</a><a class="mono-link" href="https://github.com/mekai-games/flockets" target="_blank" rel="noopener">GitHub ↗</a></nav>
   </header>
-  <div class="console">
-    <div class="console-sx">
-      <p class="mono etichetta-m">■ Nuova analisi</p>
-      <h2>Quali dati analizzo?</h2>
-      <p class="tenue">Flockets legge lo storico di una campagna (per ogni annuncio, ogni giorno: spesa, visualizzazioni e click), capisce cosa fa salire o scendere i risultati e prevede i giorni successivi.</p>
-      <p class="mono etichetta-m spazio">◇ Cosa ottieni</p>
-      <ol class="passi-lista">
-        <li><span>01</span><div><b>Dati</b><p>Cosa ho letto, cosa mancava e quali giorni ho escluso.</p></div></li>
-        <li><span>02</span><div><b>Pubblici</b><p>Chi c’è dietro ogni gruppo di annunci, e quanto è grande.</p></div></li>
-        <li><span>03</span><div><b>Previsioni</b><p>CTR e CPM di ogni annuncio, giorno per giorno, con il margine di errore.</p></div></li>
-        <li><span>04</span><div><b>Decisioni</b><p>Dove mettere il budget e quali creatività cambiare.</p></div></li>
-        <li><span>05</span><div><b>Prova un annuncio</b><p>Come andrebbe un annuncio nuovo, prima di pubblicarlo.</p></div></li>
-      </ol>
-    </div>
-    <div class="console-dx">
-      <div class="scatola" id="zona-file">
-        <div class="scatola-riga"><span class="mono">01 / Dati da analizzare</span></div>
-        <div class="sorgenti" role="radiogroup" aria-label="Dati da analizzare">
-          <label class="sorgente"><input type="radio" name="sorgente" value="kit" checked>
-            <span><b>Dati della sfida</b><small>3 marchi di e-commerce, 12 pubblici, 57 annunci, 91 giorni di storico. Previsioni dal 16 al 30 novembre, Black Friday compreso. Dati simulati, forniti da Wevion.</small></span></label>
-          <label class="sorgente"><input type="radio" name="sorgente" value="esempio">
-            <span><b>Esempio: un gioco per telefono</b><small>Campagna inventata, nel formato dell’export di Meta: 3 pubblici, 5 annunci, 6 settimane. Mostra Flockets fuori dalla sfida.</small></span></label>
-          <label class="sorgente"><input type="radio" name="sorgente" value="file">
-            <span><b>Il tuo storico</b><small>Un CSV con una riga per annuncio e giorno. Resta sul tuo computer: il calcolo avviene nel browser.</small></span></label>
-          <label class="sorgente"><input type="radio" name="sorgente" value="nuova">
-            <span><b>Nessun dato: una campagna nuova</b><small>Descrivi prodotto e annuncio: Flockets la simula su tutti i tipi di persona e consiglia pubblico, canale e formato.</small></span></label>
-        </div>
-        <div class="carica" id="carica" hidden>
-          <label class="pulsante bordo" for="file-ingresso">Scegli il file</label>
-          <span class="mono tenue" id="file-nome">oppure trascinalo qui</span>
-          <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden>
-        </div>
-        <div id="esito-file" aria-live="polite"></div>
-        <details class="colonne"><summary>Quali colonne servono · <a href="data/esempio_gioco.csv" download>file di esempio</a></summary><div class="scorri" id="colonne-console"></div></details>
-        <div class="divisore"><span class="mono">Facoltativo</span></div>
-        <div class="scatola-riga"><label class="mono" for="richiesta">02 / Un annuncio nuovo da provare</label></div>
-        <textarea id="richiesta" class="mono" rows="3" placeholder="Video di 15 secondi: una ragazza parla in camera, nei primi 2 secondi appare la scritta -30% SOLO OGGI"></textarea>
-        <div class="capito" id="capito" hidden>
-          <p class="mono etichetta-m">Ho capito (tocca per correggere) <span id="capito-fonte" aria-live="polite"></span></p>
-          <div class="chips mono" id="capito-chips"></div>
-          <p class="capito-motivo" id="capito-motivo" hidden></p>
-        </div>
-        <div class="campi due">
-          <label>Budget al giorno, in euro <input type="number" id="br-budget" min="1" step="1" inputmode="numeric" placeholder="facoltativo"></label>
-          <label>Giorno di lancio <select id="br-lancio"></select></label>
-        </div>
-        <button class="avvia" id="avvia"><span>Analizza</span><span aria-hidden="true">→</span></button>
-        <p class="avviso-barra mono" id="avviso"></p>
+  <main class="avvio" id="zona-file">
+    <p class="avvio-frase">Descrivi l’annuncio e scegli i dati: Flockets prevede click, costi e acquisti, giorno per giorno.</p>
+
+    <div class="composer">
+      <label class="nascosta" for="richiesta">Annuncio o campagna da prevedere</label>
+      <textarea id="richiesta" rows="2" placeholder="Descrivi un annuncio da provare (facoltativo)…"></textarea>
+      <div class="capito" id="capito" hidden>
+        <p class="mono">Ho capito <span id="capito-fonte" aria-live="polite"></span> · <button type="button" class="testo-link" id="capito-tutti" aria-expanded="false">modifica</button></p>
+        <div class="chips mono" id="capito-chips"></div>
+        <p class="capito-motivo" id="capito-motivo" hidden></p>
+      </div>
+      <div class="composer-barra">
+        <label class="fonte-dati"><span class="nascosta">Dati da analizzare</span>
+          <select id="sorgente">
+            <option value="kit">Dati della sfida</option>
+            <option value="esempio">Esempio: gioco per telefono</option>
+            <option value="file">Il mio file CSV</option>
+            <option value="nuova">Nessun dato: campagna nuova</option>
+          </select></label>
+        <span class="file-chip" id="file-chip" hidden><span id="file-nome"></span><button type="button" id="togli-file" aria-label="Togli il file">✕</button></span>
+        <button class="invia" id="avvia" type="button" aria-label="Analizza"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </div>
-  </div>
+
+    <div class="allega">
+      <label class="allega-zona" for="file-ingresso">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5 12.5 20a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span>Allega lo storico della campagna, oppure trascinalo qui</span><b class="mono">CSV</b>
+      </label>
+      <input type="file" id="file-ingresso" accept=".csv,text/csv" multiple hidden>
+      <button class="info" type="button" id="info-file" aria-expanded="false" aria-controls="info-box" aria-label="Che file serve">i</button>
+      <div class="info-box" id="info-box" role="dialog" aria-label="Che file serve" hidden>
+        <button type="button" class="chiudi" id="info-chiudi" aria-label="Chiudi">✕</button>
+        <b>Che file serve</b>
+        <p>Un CSV con una riga per annuncio e per giorno. Bastano data, annuncio, spesa, impression e click; ad set, campagna, copertura e budget migliorano la previsione.</p>
+        <p>Va bene l’export di Meta Ads Manager (report giornaliero, livello inserzione), anche in inglese, spagnolo, francese o tedesco. Il file resta sul tuo computer: il calcolo avviene nel browser.</p>
+        <div class="scorri" id="colonne-console"></div>
+        <p><a href="data/esempio_gioco.csv" download>Scarica un file di esempio</a></p>
+      </div>
+    </div>
+    <div id="esito-file" aria-live="polite"></div>
+    <p class="avviso mono" id="avviso"></p>
+  </main>
 </section>
 
 <!-- 4. CAMPAGNA NUOVA -->
@@ -268,10 +260,10 @@
   </div>
 </section>
 
-<script src="js/scena.js?v=18"></script>
-<script src="js/motore.js?v=18"></script>
-<script src="js/grafici.js?v=18"></script>
-<script src="js/nuova.js?v=18"></script>
-<script src="js/app.js?v=18"></script>
+<script src="js/scena.js?v=19"></script>
+<script src="js/motore.js?v=19"></script>
+<script src="js/grafici.js?v=19"></script>
+<script src="js/nuova.js?v=19"></script>
+<script src="js/app.js?v=19"></script>
 </body>
 </html>

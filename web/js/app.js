@@ -715,17 +715,25 @@ CPM = livello del pubblico × stagione × giorno
   }
   // scelta dei dati da analizzare: dati della sfida, esempio inventato, oppure un file
   const AVVISI = {
-    kit: 'Previsioni già calcolate dal motore: si aprono subito.',
-    esempio: 'Il calcolo avviene nel tuo browser. La prima volta scarica il motore: circa mezzo minuto.',
-    file: 'Il file resta sul tuo computer: il calcolo avviene nel browser. La prima volta scarica il motore: circa mezzo minuto.',
-    nuova: 'Nessun dato da caricare: si passa alla descrizione della campagna.',
+    kit: 'Dati della sfida: 3 marchi, 57 annunci, previsioni dal 16 al 30 novembre. Si aprono subito.',
+    esempio: 'Campagna inventata per un gioco per telefono. Il calcolo avviene nel browser: la prima volta circa mezzo minuto.',
+    file: 'Il file resta sul tuo computer: il calcolo avviene nel browser. La prima volta circa mezzo minuto.',
+    nuova: 'Nessun dato: la campagna viene simulata su 50 milioni di persone virtuali.',
+  };
+  const SEGNAPOSTO = {
+    nuova: 'Descrivi prodotto e annuncio: «Siero viso alla vitamina C, video di 15 secondi, -20% solo oggi»',
+    altro: 'Descrivi un annuncio da provare (facoltativo): «Video di 15 secondi, una ragazza parla in camera, -30% solo oggi»',
   };
   function sorgente(v) {
-    const r = $(`input[name="sorgente"][value="${v}"]`); if (r) r.checked = true;
-    $$('.sorgente').forEach(l => l.classList.toggle('scelta', $('input', l).checked));
-    $('#carica').hidden = v !== 'file';
+    $('#sorgente').value = v;
+    $('#file-chip').hidden = !(v === 'file' && S.file);
     if (v !== 'file') $('#esito-file').innerHTML = '';
-    $('#avviso').textContent = v === 'file' && S.fileKit && S.file ? AVVISI.kit : AVVISI[v];
+    $('#richiesta').placeholder = v === 'nuova' ? SEGNAPOSTO.nuova : SEGNAPOSTO.altro;
+    $('#avviso').textContent = v === 'file' && !S.file ? 'Allega il file qui sotto.' : v === 'file' && S.fileKit ? AVVISI.kit : AVVISI[v];
+  }
+  function togliFile() {
+    S.file = null; S.fileKit = true; $('#file-ingresso').value = '';
+    sorgente('kit');
   }
   function suFile(files) {
     const out = $('#esito-file');
@@ -738,6 +746,7 @@ CPM = livello del pubblico × stagione × giorno
       S.file = letti;
       S.fileKit = !!st && st.lista.filter(a => D.ads_storico.includes(a)).length / st.lista.length > 0.9 && st.n > 1000 && kit();
       $('#file-nome').textContent = letti.length === 1 ? letti[0].nome : letti.length + ' file';
+      sorgente('file');
       out.innerHTML = `<ul class="controlli mono">
           ${st ? `<li class="si">${ni(st.n)} righe · ${st.ads} annunci · dal ${gm(st.min)} al ${gm(st.max)}</li>` : '<li class="si">Colonne con nomi diversi da quelli del motore: le riconosco al calcolo</li>'}
           ${st ? st.note.map(x => `<li class="attento">${esc(x)}</li>`).join('') : ''}
@@ -750,7 +759,7 @@ CPM = livello del pubblico × stagione × giorno
   function rCapito(rileggi) {
     if (!D) return;
     const testo = $('#richiesta').value.trim(), box = $('#capito');
-    if (!$('#br-lancio').options.length) $('#br-lancio').innerHTML = D.meta.giorni.slice(0, 12).map(d => `<option value="${d}">${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('');
+    if ($('#br-lancio') && !$('#br-lancio').options.length) $('#br-lancio').innerHTML = D.meta.giorni.slice(0, 12).map(d => `<option value="${d}">${NOMI_G[dow(d)].slice(0, 3)} ${gm(d)}</option>`).join('');
     box.hidden = !testo;
     if (!testo) { S.brief = null; clearTimeout(IA.t); return; }
     if (rileggi || !S.brief) {
@@ -771,6 +780,7 @@ CPM = livello del pubblico × stagione × giorno
       D.par.formati.map(v => `<span data-k="formato" data-v="${v}" class="${v === B.formato ? 'si' : ''}">${v}</span>`).join('')
       + D.par.leve.map(v => `<span data-k="leva" data-v="${v}" class="${v === B.leva ? 'si' : ''}">${leva(v)}</span>`).join('')
       + Object.entries(CARATT).map(([k, n]) => `<span data-k="f" data-v="${k}" class="${B.f[k] ? 'si' : ''}">${n}</span>`).join('');
+    if (!$('#capito-chips span.si')) $('#capito-chips').insertAdjacentHTML('afterbegin', '<em class="nessuna">nessuna caratteristica riconosciuta</em>');
     $$('#capito-chips span').forEach(s => s.addEventListener('click', () => {
       if (s.dataset.k === 'f') B.f[s.dataset.v] = B.f[s.dataset.v] ? 0 : 1; else B[s.dataset.k] = s.dataset.v;
       B.manuale = true;   // una correzione fatta a mano non viene più sovrascritta
@@ -779,10 +789,10 @@ CPM = livello del pubblico × stagione × giorno
   }
   // «Analizza»: i dati della sfida sono già calcolati; per l'esempio e per i file il motore gira nel browser
   function avvia() {
-    const b = $('#avvia'), out = $('#esito-file'), scelta = $('input[name="sorgente"]:checked').value;
+    const b = $('#avvia'), out = $('#esito-file'), scelta = $('#sorgente').value;
     S.testoConsole = $('#richiesta').value.trim();
-    const budget = +$('#br-budget').value || null, lancio = $('#br-lancio').value;
-    if (scelta === 'file' && !S.file) { out.innerHTML = '<p class="errore mono">Scegli prima un file CSV.</p>'; return; }
+    const budget = $('#br-budget') ? +$('#br-budget').value || null : null, lancio = $('#br-lancio') ? $('#br-lancio').value : null;
+    if (scelta === 'file' && !S.file) { $('#file-ingresso').click(); return; }
     if (scelta === 'nuova') { location.hash = '#/nuova'; return; }
     // se la lettura di Claude è ancora in corso la si aspetta, al massimo tre secondi
     const b0 = S.brief;
@@ -805,7 +815,7 @@ CPM = livello del pubblico × stagione × giorno
       return;
     }
     b.disabled = true;
-    const stato = m => { b.firstElementChild.textContent = m; };
+    const stato = m => { $('#avviso').textContent = m; };
     const file = scelta === 'esempio'
       ? fetch('data/esempio_gioco.csv').then(r => r.text()).then(testo => [{ nome: 'esempio_gioco.csv', testo }])
       : Promise.resolve(S.file);
@@ -816,7 +826,7 @@ CPM = livello del pubblico × stagione × giorno
       return lettura.then(parti);
     })).catch(err => {
       out.insertAdjacentHTML('beforeend', `<p class="errore mono">${esc(String(err.message || err).split('\n').pop())}</p>`);
-    }).finally(() => { b.disabled = false; b.firstElementChild.textContent = 'Analizza'; });
+    }).finally(() => { b.disabled = false; sorgente($('#sorgente').value); });
   }
 
   /* ------------------------------------------------------------------ avvio */
@@ -825,13 +835,28 @@ CPM = livello del pubblico × stagione × giorno
     $('#avvia').addEventListener('click', avvia);
     $('#colonne-console').innerHTML = tabellaColonne();
     $('#colonne-come').innerHTML = tabellaColonne();
-    $$('input[name="sorgente"]').forEach(r => r.addEventListener('change', () => sorgente(r.value)));
+    $('#sorgente').addEventListener('change', e => { sorgente(e.target.value); if (e.target.value === 'file' && !S.file) $('#file-ingresso').click(); });
     sorgente('kit');
+    $('#togli-file').addEventListener('click', togliFile);
+    // invio = analizza, maiuscolo + invio = a capo (come nelle chat)
+    $('#richiesta').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); avvia(); } });
+    $('#richiesta').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 180) + 'px'; });
+    const info = $('#info-file'), box = $('#info-box');
+    const apriInfo = on => { box.hidden = !on; info.setAttribute('aria-expanded', on); };
+    info.addEventListener('click', e => { e.stopPropagation(); apriInfo(box.hidden); });
+    $('#info-chiudi').addEventListener('click', () => apriInfo(false));
+    // «Ho capito»: si vedono solo le voci riconosciute; «modifica» mostra tutte quelle che si possono scegliere
+    $('#capito-tutti').addEventListener('click', e => {
+      const on = $('#capito').classList.toggle('tutti');
+      e.target.textContent = on ? 'chiudi' : 'modifica'; e.target.setAttribute('aria-expanded', on);
+    });
+    document.addEventListener('click', e => { if (!box.hidden && !box.contains(e.target) && e.target !== info) apriInfo(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) apriInfo(false); });
     $('#richiesta').addEventListener('input', () => (D ? rCapito(true) : dati().then(() => rCapito(true))));
     $('#file-ingresso').addEventListener('change', e => suFile(e.target.files));
-    const z = $('#zona-file');
-    ['dragenter', 'dragover'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); z.classList.add('sopra'); }));
-    ['dragleave', 'drop'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); z.classList.remove('sopra'); }));
+    const z = $('#v-console');   // si può trascinare il file in qualsiasi punto della pagina
+    ['dragenter', 'dragover'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); $('#zona-file').classList.add('sopra'); }));
+    ['dragleave', 'drop'].forEach(n => z.addEventListener(n, e => { e.preventDefault(); if (n === 'drop' || !z.contains(e.relatedTarget)) $('#zona-file').classList.remove('sopra'); }));
     z.addEventListener('drop', e => { if (e.dataTransfer.files.length) suFile(e.dataTransfer.files); });
     $('#pz-play').addEventListener('click', () => play(!S.play));
     $('#pz-slider').addEventListener('input', e => { if (S.play) play(false); S.giorno = +e.target.value; if (palco) palco.aggiorna(1); });

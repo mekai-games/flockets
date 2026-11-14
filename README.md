@@ -31,9 +31,9 @@ Il percorso è in cinque schermate.
 1. **Home**: nome, frase e la folla del pubblico simulato.
 2. **Come funziona**: il modello in otto passaggi, un esempio di calcolo, le colonne che servono, quanto ci
    fidiamo.
-3. **Scelta dei dati**: i dati della sfida, un esempio inventato (una campagna per un gioco per telefono, nel
-   formato dell'export di Meta) oppure il proprio CSV; in più, se si vuole, la descrizione di un annuncio nuovo.
-   Poi «Analizza».
+3. **Partenza**: una frase, un riquadro in stile chat dove descrivere l'annuncio, la scelta dei dati (sfida,
+   esempio inventato di un gioco per telefono, il proprio CSV, nessun dato) e sotto la zona per allegare il CSV, con
+   il tasto ⓘ che spiega che file serve. Invio per analizzare. Tutto dentro lo schermo, senza scorrere.
 4. **Campagna nuova**: nessun dato; si descrivono prodotto, annuncio, budget e pubblico, e Flockets la simula
    su tutti i tipi di persona: risultati con la forchetta, chi risponde, i tipi di persona migliori, alcune persone
    simulate con il loro motivo, e il consiglio su canale, formato, pubblico e leva.
