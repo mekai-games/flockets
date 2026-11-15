@@ -446,6 +446,50 @@ window.Analisi = (function () {
   /* -------------------------------------------------------------- vista Persone */
   // gruppi della barra in basso. Campagna nuova: i gruppi scoperti dall'analisi (il target, l'alternativa, i gruppi che rispondono
   // di più); ogni persona simulata ne fa parte o no secondo i suoi tag. Storico: i pubblici veri del file.
+  // due-tre parole che riassumono un gruppo («Giovani mamme», «Benestanti di città») invece dell'elenco dei suoi tag
+  function nomeBreve(f) {
+    const solo = (k, ...v) => !!f[k] && f[k].length > 0 && f[k].every(x => v.includes(x));
+    const ha = (k, x) => !!f[k] && f[k].includes(x);
+    let nome = null;
+    if (solo('lavoro', 'studente')) nome = 'Studenti';
+    else if (solo('lavoro', 'pensionato')) nome = 'Pensionati';
+    else if (solo('famiglia', 'figli_piccoli', 'figli_grandi')) {
+      nome = solo('genere', 'donna') ? 'Mamme' : solo('genere', 'uomo') ? 'Papà' : 'Genitori';
+      if (solo('famiglia', 'figli_grandi')) nome += ' di ragazzi';
+    } else if (solo('famiglia', 'single')) nome = 'Single';
+    else if (solo('famiglia', 'coppia')) nome = 'Coppie';
+    else if (solo('famiglia', 'single', 'coppia')) nome = 'Senza figli';
+    else if (solo('genere', 'donna')) nome = 'Donne';
+    else if (solo('genere', 'uomo')) nome = 'Uomini';
+    else if (solo('lavoro', 'occupato')) nome = 'Lavoratori';
+    else if (solo('lavoro', 'non_occupato')) nome = 'In cerca di lavoro';
+    else if (solo('istruzione', 'alta')) nome = 'Laureati';
+    // età
+    const E = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'], e = (f.eta || []).map(x => E.indexOf(x)).filter(x => x >= 0);
+    let eta = null;
+    if (e.length && e.length < E.length) {
+      const lo = Math.min(...e), hi = Math.max(...e);
+      eta = hi <= 0 ? 'giovanissimi' : hi <= 1 ? 'giovani' : lo >= 1 && hi <= 2 ? 'giovani' : lo >= 2 && hi <= 3 ? 'di mezza età'
+        : lo >= 5 ? 'over 65' : lo >= 4 ? 'over 55' : lo >= 3 ? 'over 45' : lo >= 2 ? 'over 35' : hi <= 3 ? 'under 55' : null;
+    }
+    const prima = x => x.charAt(0).toUpperCase() + x.slice(1);
+    let out;
+    if (eta === 'giovani' || eta === 'giovanissimi') out = nome ? 'Giovani ' + nome.toLowerCase() : prima(eta === 'giovani' ? 'giovani adulti' : 'ragazzi');
+    else if (eta) out = nome ? nome + ' ' + eta : eta === 'over 65' ? 'Anziani' : eta === 'di mezza età' ? 'Adulti' : prima(eta);
+    else out = nome;
+    // un tratto in più, se c'è spazio
+    const tratti = [
+      [solo('reddito', 'alto'), 'benestanti', 'Benestanti'], [solo('reddito', 'basso'), 'attenti al prezzo', 'Attenti al prezzo'],
+      [solo('reddito', 'medio', 'alto') && !ha('reddito', 'basso'), 'con buon reddito', 'Buon reddito'], [solo('reddito', 'medio'), 'del ceto medio', 'Ceto medio'],
+      [solo('comune', 'grande_citta'), 'di città', 'Cittadini'], [solo('comune', 'piccolo_comune'), 'di paese', 'Gente di paese'],
+      [solo('istruzione', 'alta') && nome !== 'Laureati', 'con laurea', 'Laureati'], [solo('istruzione', 'bassa'), 'senza diploma', 'Senza diploma'],
+      [solo('lavoro', 'occupato') && nome !== 'Lavoratori', 'che lavorano', 'Lavoratori'],
+      [solo('area', 'nord_ovest'), 'del Nord-Ovest', 'Nord-Ovest'], [solo('area', 'nord_est'), 'del Nord-Est', 'Nord-Est'], [solo('area', 'centro'), 'del Centro', 'Centro Italia'],
+      [solo('area', 'sud'), 'del Sud', 'Sud Italia'], [solo('area', 'isole'), 'delle Isole', 'Isole'], [solo('area', 'nord_ovest', 'nord_est'), 'del Nord', 'Nord Italia'],
+    ].find(x => x[0]);
+    if (tratti && (!out || out.split(' ').length + tratti[1].split(' ').length <= 3)) out = out ? out + ' ' + tratti[1] : tratti[2];
+    return out || 'Pubblico ampio';
+  }
   function gruppiPersone(m) {
     const t = m.sorgente === 'nuova' && m.nuova.target;
     if (!t || !t.principale) {
@@ -454,13 +498,13 @@ window.Analisi = (function () {
     }
     const con = f => p => !!p.tag && Object.entries(f).every(([k, v]) => v.includes(p.tag[k]));
     const maiusc = x => x.charAt(0).toUpperCase() + x.slice(1);
-    const g = [{ id: 'target', nome: maiusc(t.principale.descrizione), dettaglio: '×' + nf(t.principale.indice, 1), colore: '#E0457B', stella: true, dentro: con(t.principale.filtri) }];
-    if (t.alternativa) g.push({ id: 'alternativa', nome: maiusc(t.alternativa.descrizione), dettaglio: '×' + nf(t.alternativa.indice, 1), colore: VIOLA, dentro: con(t.alternativa.filtri) });
+    const g = [{ id: 'target', nome: nomeBreve(t.principale.filtri), descr: maiusc(t.principale.descrizione), dettaglio: '×' + nf(t.principale.indice, 1), colore: '#E0457B', stella: true, dentro: con(t.principale.filtri) }];
+    if (t.alternativa) g.push({ id: 'alternativa', nome: nomeBreve(t.alternativa.filtri), descr: maiusc(t.alternativa.descrizione), dettaglio: '×' + nf(t.alternativa.indice, 1), colore: VIOLA, dentro: con(t.alternativa.filtri) });
     // i singoli gruppi che rispondono di più, se non sono già nel target
     const singoli = ['eta', 'genere', 'famiglia', 'reddito', 'area'].flatMap(tag => (t.mappa[tag] || []).filter(x => x.quota > 0.03).map(x => Object.assign({ tag }, x)))
       .filter(x => x.indice >= 1.3 && !(t.principale.filtri[x.tag] || []).includes(x.livello) && !(((t.alternativa || {}).filtri || {})[x.tag]))
       .sort((a, b) => b.indice - a.indice).slice(0, 2);
-    singoli.forEach((x, i) => g.push({ id: 'g' + i, nome: maiusc(x.etichetta), dettaglio: '×' + nf(x.indice, 1), colore: [BLU, ARANCIO][i], dentro: p => !!p.tag && p.tag[x.tag] === x.livello }));
+    singoli.forEach((x, i) => g.push({ id: 'g' + i, nome: nomeBreve({ [x.tag]: [x.livello] }), descr: maiusc(x.etichetta), dettaglio: '×' + nf(x.indice, 1), colore: [BLU, ARANCIO][i], dentro: p => !!p.tag && p.tag[x.tag] === x.livello }));
     return g;
   }
   function rPersone() {
@@ -469,7 +513,7 @@ window.Analisi = (function () {
     if (filtroPub !== 'tutti' && !gruppi.some(x => x.id === filtroPub)) filtroPub = 'tutti';
     const visibile = p => { const gr = gruppi.find(x => x.id === filtroPub); return !gr || gr.dentro(p); };
     $('#a-legenda').innerHTML = `<p class="a-segni"><span><i style="border-color:${BORDO.compra}"></i>${esc(M.u.fatto[1].toLowerCase())}</span><span><i style="border-color:${BORDO.clicca}"></i>ha cliccato</span><span><i style="border-color:${BORDO.passa}"></i>non ha fatto nulla</span></p>
-      <div class="a-filtro-pub">${[{ id: 'tutti', nome: 'Tutti' }, ...gruppi].map(x => `<button type="button" data-p="${esc(x.id)}" class="${filtroPub === x.id ? 'si' : ''}"${x.id === 'target' ? ' title="Il target scoperto dall’analisi"' : ''}>${
+      <div class="a-filtro-pub">${[{ id: 'tutti', nome: 'Tutti' }, ...gruppi].map(x => `<button type="button" data-p="${esc(x.id)}" class="${filtroPub === x.id ? 'si' : ''}"${x.descr ? ` title="${esc((x.id === 'target' ? 'Il target scoperto dall’analisi: ' : '') + x.descr)}"` : ''}>${
       x.id === 'tutti' ? 'Tutti' : `<i style="background:${x.colore}"></i>${x.id === 'target' ? 'Target: ' : ''}${esc(x.nome)}${x.dettaglio ? ` <em>${esc(x.dettaglio)}</em>` : ''}`}${x.stella ? ' <span class="stella">★</span>' : ''}</button>`).join('')}</div>`;
     $$('#a-legenda [data-p]').forEach(b => b.addEventListener('click', () => {
       filtroPub = b.dataset.p;
@@ -1078,6 +1122,7 @@ window.Analisi = (function () {
     contesto.domanda = contesto.domanda || domanda(contesto.prompt);   // una domanda nel prompt: la risposta va in cima
     if (location.hash === '#/analisi') mostra('persone'); else location.hash = '#/analisi';
   }
+  let cambio = 0;
   function mostra(quale) {
     const prima = modo;
     modo = quale === 'analisi' ? 'analisi' : 'persone';
@@ -1086,6 +1131,17 @@ window.Analisi = (function () {
     const sw = $('#v-analisi .interruttore');
     sw.dataset.modo = modo;
     $$('button', sw).forEach(b => b.setAttribute('aria-selected', b.dataset.modo === modo));
+    // la vista vecchia scivola via in un attimo, poi entra la nuova
+    const vecchia = prima !== modo && $(prima === 'persone' ? '#a-persone' : '#a-analisi');
+    const io = ++cambio;
+    if (vecchia && !vecchia.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      vecchia.style.setProperty('--ex', modo === 'analisi' ? '-24px' : '24px');
+      vecchia.classList.remove('entra', 'da-destra', 'da-sinistra', 'da-sotto'); void vecchia.offsetWidth;
+      vecchia.classList.add('esce');
+      setTimeout(() => { vecchia.classList.remove('esce'); if (io === cambio) entra(prima); }, 190);
+    } else entra(prima);
+  }
+  function entra(prima) {
     const vista = modo === 'persone' ? $('#a-persone') : $('#a-analisi');
     $('#a-persone').hidden = modo !== 'persone';
     $('#a-analisi').hidden = modo !== 'analisi';

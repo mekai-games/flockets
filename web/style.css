@@ -390,6 +390,7 @@ table.semplice th, table.semplice td, table.fonti th, table.fonti td { text-alig
 .interruttore[data-modo="analisi"]::before { transform: translateX(100%); }
 .interruttore button { position: relative; z-index: 1; border: 0; background: none; font: 600 14px var(--testo); color: var(--tenue); padding: 8px 24px; min-width: 112px; border-radius: 999px; cursor: pointer; transition: color .3s; }
 .interruttore button[aria-selected="true"] { color: var(--su-scuro); }
+.interruttore button .ic { display: none; }
 .riga-a { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px 20px; padding: 12px 20px; border-bottom: 1px solid var(--riga); position: relative; z-index: 4; background: var(--carta); }
 .a-nome { min-width: 0; display: flex; align-items: baseline; gap: 10px; }
 .a-nome b { font: 700 17px var(--titoli); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -399,6 +400,8 @@ table.semplice th, table.semplice td, table.fonti th, table.fonti td { text-alig
 .modo-persone.entra, .modo-analisi.entra { animation: a-vista .55s cubic-bezier(.2, .7, .2, 1) both; }
 .modo-persone.da-sinistra { --dx: -28px; } .modo-analisi.da-destra { --dx: 28px; } .da-sotto { --dy: 14px; }
 @keyframes a-vista { from { opacity: 0; transform: translate(var(--dx, 0), var(--dy, 0)); } }
+.modo-persone.esce, .modo-analisi.esce { animation: a-esce .2s cubic-bezier(.4, 0, 1, 1) both; pointer-events: none; }
+@keyframes a-esce { to { opacity: 0; transform: translateX(var(--ex, 0)); } }
 
 /* persone: omini su una griglia di pallini */
 .modo-persone { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--fondo); touch-action: manipulation; }
@@ -575,7 +578,7 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
   .barra-a .come-link { display: none; } .barra-a { grid-template-columns: auto auto 1fr; }
 }
 @media (max-width: 600px) {
-  .barra-a { padding: 0 12px; gap: 10px; } .barra-a .logo span { display: none; } .interruttore button { padding: 7px 14px; min-width: 92px; }
+  .barra-a { padding: 0 12px; gap: 10px; } .barra-a .logo span { display: none; }
   .riga-a { padding: 10px 14px; } .a-nome { flex-direction: column; gap: 0; } .a-nome b { font-size: 15px; max-width: 100%; }
   .a-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); } .a-kpi dd { font-size: 19px; }
   .a-pub summary { grid-template-columns: minmax(0, 1fr) auto; } .a-pub-barra { grid-column: 1 / -1; order: 3; } .a-pub-num { text-align: left; }
@@ -897,7 +900,6 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 @media (max-width: 600px) {
   :root.in-app .barra-a { gap: 8px; padding: 0 12px; grid-template-columns: auto 1fr auto; }
   :root.in-app .barra-a .logo, :root.in-app .barra-a .tema, :root.in-app .barra-a .account-accedi { display: none; }
-  :root.in-app .barra-a .interruttore button { min-width: 0; padding: 7px 14px; }
   :root.in-app .barra-a .barra-dx { gap: 8px; }
   :root.in-app .barra-a .salvataggio, :root.in-app .barra-a .salvataggio .testo-link { font-size: 11.5px; line-height: 1.25; }
   :root.in-app .barra-a .salvataggio { max-width: 96px; white-space: normal; text-align: right; }
@@ -930,3 +932,34 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 
 .a-filtro-pub button em { font-style: normal; font-family: var(--mono); font-size: .85em; color: var(--tenue); margin-left: 2px; }
 .a-filtro-pub button { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* telefono: la barra dell'analisi sta in una riga. Via il logo (c'è la freccia), interruttore più stretto,
+   la spia del salvataggio su due righe piccole, «Accedi» compatto */
+@media (max-width: 600px) {
+  .barra-a { gap: 8px; padding: 0 10px; grid-template-columns: auto auto minmax(0, 1fr); }
+  .barra-a .logo { display: none; }
+  .barra-a .barra-dx { gap: 8px; min-width: 0; justify-self: end; }
+  .barra-a .salvataggio, .barra-a .salvataggio .testo-link, .barra-a .salvataggio a { font-size: 11px; line-height: 1.25; }
+  .barra-a .salvataggio { max-width: 84px; white-space: normal; text-align: right; }
+  .barra-a .account-accedi { padding: 7px 12px; font-size: 13px; }
+}
+
+/* telefono: nell'interruttore la vista scelta diventa un'icona (il testo si chiude), l'altra resta scritta */
+@media (max-width: 600px) {
+  .barra-a .interruttore { display: flex; }
+  .barra-a .interruttore::before { display: none; }
+  .barra-a .interruttore button { min-width: 0; padding: 7px 15px; display: inline-flex; align-items: center; justify-content: center;
+    transition: color .3s, padding .42s cubic-bezier(.65, 0, .35, 1), background-color .35s, box-shadow .35s; }
+  .barra-a .interruttore button[aria-selected="true"] { padding: 7px 13px; background-color: var(--inchiostro); background-image: var(--vetro-riflesso);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 4px 14px rgba(17, 17, 19, .22); }
+  .barra-a .interruttore button span { display: inline-block; overflow: hidden; white-space: nowrap; max-width: 76px;
+    transition: max-width .42s cubic-bezier(.65, 0, .35, 1), opacity .25s .14s; }
+  .barra-a .interruttore button[aria-selected="true"] span { max-width: 0; opacity: 0; transition: max-width .42s cubic-bezier(.65, 0, .35, 1), opacity .12s; }
+  .barra-a .interruttore button .ic { display: block; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none;
+    width: 0; opacity: 0; transform: scale(.4) rotate(-20deg); transition: width .42s cubic-bezier(.65, 0, .35, 1), opacity .15s, transform .3s; }
+  .barra-a .interruttore button[aria-selected="true"] .ic { width: 18px; opacity: 1; transform: none;
+    transition: width .42s cubic-bezier(.65, 0, .35, 1), opacity .25s .12s, transform .5s .08s cubic-bezier(.3, 1.5, .5, 1); }
+}
+@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  .barra-a .interruttore button, .barra-a .interruttore button span, .barra-a .interruttore button .ic { transition: none !important; }
+}
