@@ -1027,7 +1027,7 @@ def _storie(P, T, c, cat, inizio, tar, seed, n=8):
                         "comune": pe.ETICHETTE[r.comune], "lavoro": pe.ETICHETTE[r.lavoro], "reddito": pe.ETICHETTE[r.reddito],
                         "famiglia": pe.ETICHETTE[r.famiglia], "istruzione": pe.ETICHETTE[r.istruzione], "visto": volte,
                         "prob_click": pc, "prob_acquisto": pa, "esito": esito, "clicca": esito != "passa", "compra": esito == "compra",
-                        "perche_si": si, "perche_no": no, "perche": si + no, "tipo": pe.descrivi(r), "persone_simili": float(r.peso),
+                        "perche_si": si, "perche_no": no, "perche": si + no, "tipo": pe.descrivi(r), "persone_simili": float(r.peso), "tag": {t: r[t] for t in pe.DIMENSIONI},
                         "resa": float((T["acq"][i] / max(T["spesa"][i], 1e-12)) / media) if media > 0 else 0.0})
     return out
 

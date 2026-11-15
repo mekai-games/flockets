@@ -103,9 +103,10 @@
       return fetch('api/leggi', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ testo: testo.slice(0, 800), formati: D.par.formati, leve: D.par.leve,
           immagini: cr ? cr.immagini : [], video: !!cr && cr.tipo === 'video' }) })
-        .then(r => (r.ok ? r.json() : null))
+        .then(r => (r.ok ? r.json() : { __errore: r.status === 429 ? 'occupata' : 'servizio' }))
         .then(j => {
-          if (!j) return null;
+          if (!j || j.__errore) { LETTURA.errore = j ? j.__errore : 'servizio'; return null; }
+          LETTURA.errore = null;
           // la campagna (canale, budget, durata…) serve anche senza file; formato e leva solo se il modello li conosce
           const extra = { campagna: j.campagna || null, messaggio: j.messaggio || null, suggerimenti: j.suggerimenti || [], motivo: j.motivo || '',
             vista: j.creativita_vista || null, presentazione: j.presentazione || null, fonte: 'ia' };
@@ -114,7 +115,10 @@
           Object.keys(D.par.feat_regole).forEach(k => { f[k] = j.caratteristiche && j.caratteristiche[k] ? 1 : 0; });
           return Object.assign({ f, formato: j.formato, leva: j.leva }, extra);
         });
-    }).catch(() => null);
+    }).catch(() => null).then(b => {
+      if (!b && LETTURA.ultimo && LETTURA.ultimo.p === p) LETTURA.ultimo = null;   // una lettura fallita si può ritentare
+      return b;
+    });
     LETTURA.ultimo = { chiave, p };
     return p;
   }
@@ -418,7 +422,7 @@
     if (!S.brief && S.creativa) S.brief = Object.assign(leggiTesto(S.testoConsole), { attesa: true });
     const b0 = S.brief;
     const lettura = b0 && b0.attesa && LETTURA.attiva !== false
-      ? (clearTimeout(LETTURA.t), Promise.race([chiediLettura(S.testoConsole), new Promise(r => setTimeout(() => r(null), S.creativa ? 20000 : 5000))])
+      ? (clearTimeout(LETTURA.t), Promise.race([chiediLettura(S.testoConsole), new Promise(r => setTimeout(() => { if (S.creativa) LETTURA.errore = 'lenta'; r(null); }, S.creativa ? 45000 : 8000))])
         .then(b => { if (S.brief === b0) { if (b && !b0.manuale) S.brief = b; else b0.attesa = false; } }))
       : Promise.resolve();
     b.disabled = true;
@@ -429,7 +433,9 @@
       let L = null;
       const lavoro = lettura.then(() => {
         const testo = testoAnnuncio();
-        if (!testo) throw new Error('Non riesco a leggere la foto o il video: aggiungi due righe di descrizione.');
+        if (!testo) throw new Error({ occupata: 'La lettura di foto e video è occupata (troppe richieste in pochi minuti): riprova tra un minuto, o aggiungi due righe di descrizione.',
+          lenta: 'La lettura della foto o del video ci sta mettendo troppo: riprova, o aggiungi due righe di descrizione.' }[LETTURA.errore]
+          || 'Non riesco a leggere la foto o il video: aggiungi due righe di descrizione.');
         L = window.Analisi.leggiPrompt(testo, S.brief);
         formatoDalFile(L.spec);
         return MotoreFlockets.campagna(L.spec, () => {});

@@ -15,8 +15,8 @@ const MAX_IMMAGINI = 6;
 const MAX_IMMAGINE = 900_000;   // caratteri di base64 per immagine (circa 650 KB)
 const TIPI_IMMAGINE = ["image/jpeg", "image/png", "image/webp"];
 const FINESTRA_MS = 10 * 60 * 1000;
-const MAX_PER_IP = 30; // letture per indirizzo ogni dieci minuti
-const MAX_TOTALE = 400; // letture per istanza ogni dieci minuti
+const MAX_PER_IP = 120; // letture per indirizzo ogni dieci minuti (mentre si scrive la lettura riparte più volte)
+const MAX_TOTALE = 1500; // letture per istanza ogni dieci minuti
 
 const CARATTERISTICHE = {
   ugc: "una persona vera parla in camera o mostra il prodotto in stile amatoriale (testimonianza, selfie, unboxing)",
@@ -411,7 +411,7 @@ export default async function handler(req, res) {
     const client = new Anthropic({ maxRetries: 1, timeout: 20_000 });
     const risposta = await client.messages.create({
       model: MODELLO,
-      max_tokens: 3000, // lascia spazio al ragionamento, che conta nel limite
+      max_tokens: 8000, // lascia spazio al ragionamento e a tutti i campi (profilo, zona, nicchia), che contano nel limite
       system: istruzioni(formati, leve, new Date().toISOString().slice(0, 10)),
       messages: [{ role: "user", content: [
         ...immagini.flatMap((x, i) => [

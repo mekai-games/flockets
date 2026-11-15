@@ -415,8 +415,13 @@ window.Analisi = (function () {
   const FEMMINILI = /vestito|chignon|Studentessa|Maestra|Nonna|capelli lunghi/i, MASCHILI = /Impiegato|Muratore|Giardiniere|Idraulico|Nonno|pelato|casco|bandana|cresta|Punk/i, ANZIANI = /Nonn|grigi/i;
   function personaggi(persone) {
     const nomi = window.Flock.nomiPersonaggi(), usati = new Set();
+    const adatto = (p, i) => (p.genere === 'donna' ? FEMMINILI.test(nomi[i]) || !MASCHILI.test(nomi[i]) : MASCHILI.test(nomi[i]) || !FEMMINILI.test(nomi[i]));
     return persone.map(p => {
-      let cand = nomi.map((n, i) => i).filter(i => !usati.has(i) && (p.genere === 'donna' ? FEMMINILI.test(nomi[i]) || !MASCHILI.test(nomi[i]) : MASCHILI.test(nomi[i]) || !FEMMINILI.test(nomi[i])));
+      // prima i personaggi chiaramente del suo genere, poi quelli neutri; finiti quelli nuovi, se ne riusa uno del genere giusto
+      const suo = i => (p.genere === 'donna' ? FEMMINILI : MASCHILI).test(nomi[i]);
+      let cand = nomi.map((n, i) => i).filter(i => !usati.has(i) && suo(i));
+      if (!cand.length) cand = nomi.map((n, i) => i).filter(i => !usati.has(i) && adatto(p, i));
+      if (!cand.length) cand = nomi.map((n, i) => i).filter(i => suo(i));
       const vecchi = cand.filter(i => ANZIANI.test(nomi[i]));
       if (p.eta >= 62 && vecchi.length) cand = vecchi; else if (p.eta < 50) cand = cand.filter(i => !ANZIANI.test(nomi[i])).concat(cand.length ? [] : vecchi);
       if (!cand.length) cand = nomi.map((n, i) => i).filter(i => !usati.has(i));
@@ -439,18 +444,37 @@ window.Analisi = (function () {
   const nuovaTela = sel => { const v = $(sel), n = v.cloneNode(false); v.replaceWith(n); return n; };   // la scena vecchia si ferma da sola
 
   /* -------------------------------------------------------------- vista Persone */
+  // gruppi della barra in basso. Campagna nuova: i gruppi scoperti dall'analisi (il target, l'alternativa, i gruppi che rispondono
+  // di più); ogni persona simulata ne fa parte o no secondo i suoi tag. Storico: i pubblici veri del file.
+  function gruppiPersone(m) {
+    const t = m.sorgente === 'nuova' && m.nuova.target;
+    if (!t || !t.principale) {
+      return [...new Set(m.pubblici.map(p => p.tipo))].map(tipo => ({ id: tipo, nome: NOMI_PUBBLICO[tipo] || 'Pubblico', colore: COLORE_TIPO[tipo] || GRIGIO,
+        stella: tipo === m.migliore.tipo, dentro: p => p.pubblico.tipo === tipo }));
+    }
+    const con = f => p => !!p.tag && Object.entries(f).every(([k, v]) => v.includes(p.tag[k]));
+    const maiusc = x => x.charAt(0).toUpperCase() + x.slice(1);
+    const g = [{ id: 'target', nome: maiusc(t.principale.descrizione), dettaglio: '×' + nf(t.principale.indice, 1), colore: '#E0457B', stella: true, dentro: con(t.principale.filtri) }];
+    if (t.alternativa) g.push({ id: 'alternativa', nome: maiusc(t.alternativa.descrizione), dettaglio: '×' + nf(t.alternativa.indice, 1), colore: VIOLA, dentro: con(t.alternativa.filtri) });
+    // i singoli gruppi che rispondono di più, se non sono già nel target
+    const singoli = ['eta', 'genere', 'famiglia', 'reddito', 'area'].flatMap(tag => (t.mappa[tag] || []).filter(x => x.quota > 0.03).map(x => Object.assign({ tag }, x)))
+      .filter(x => x.indice >= 1.3 && !(t.principale.filtri[x.tag] || []).includes(x.livello) && !(((t.alternativa || {}).filtri || {})[x.tag]))
+      .sort((a, b) => b.indice - a.indice).slice(0, 2);
+    singoli.forEach((x, i) => g.push({ id: 'g' + i, nome: maiusc(x.etichetta), dettaglio: '×' + nf(x.indice, 1), colore: [BLU, ARANCIO][i], dentro: p => !!p.tag && p.tag[x.tag] === x.livello }));
+    return g;
+  }
   function rPersone() {
     chiudiScheda();
-    const st = $('#a-persone'), persone = personeDaMostrare(M);
-    const tipi = [...new Set(M.pubblici.map(p => p.tipo))];
-    if (filtroPub !== 'tutti' && !tipi.includes(filtroPub)) filtroPub = 'tutti';
+    const st = $('#a-persone'), persone = personeDaMostrare(M), gruppi = gruppiPersone(M);
+    if (filtroPub !== 'tutti' && !gruppi.some(x => x.id === filtroPub)) filtroPub = 'tutti';
+    const visibile = p => { const gr = gruppi.find(x => x.id === filtroPub); return !gr || gr.dentro(p); };
     $('#a-legenda').innerHTML = `<p class="a-segni"><span><i style="border-color:${BORDO.compra}"></i>${esc(M.u.fatto[1].toLowerCase())}</span><span><i style="border-color:${BORDO.clicca}"></i>ha cliccato</span><span><i style="border-color:${BORDO.passa}"></i>non ha fatto nulla</span></p>
-      <div class="a-filtro-pub">${['tutti', ...tipi].map(t => `<button type="button" data-p="${esc(t)}" class="${filtroPub === t ? 'si' : ''}">${
-      t === 'tutti' ? 'Tutti' : `<i style="background:${COLORE_TIPO[t] || GRIGIO}"></i>${esc(NOMI_PUBBLICO[t] || 'Pubblico')}`}${t === M.migliore.tipo ? ' <span class="stella">★</span>' : ''}</button>`).join('')}</div>`;
+      <div class="a-filtro-pub">${[{ id: 'tutti', nome: 'Tutti' }, ...gruppi].map(x => `<button type="button" data-p="${esc(x.id)}" class="${filtroPub === x.id ? 'si' : ''}"${x.id === 'target' ? ' title="Il target scoperto dall’analisi"' : ''}>${
+      x.id === 'tutti' ? 'Tutti' : `<i style="background:${x.colore}"></i>${x.id === 'target' ? 'Target: ' : ''}${esc(x.nome)}${x.dettaglio ? ` <em>${esc(x.dettaglio)}</em>` : ''}`}${x.stella ? ' <span class="stella">★</span>' : ''}</button>`).join('')}</div>`;
     $$('#a-legenda [data-p]').forEach(b => b.addEventListener('click', () => {
       filtroPub = b.dataset.p;
       $$('#a-legenda [data-p]').forEach(x => x.classList.toggle('si', x === b));
-      if (scena) scena.omini.forEach(o => { o.a = filtroPub === 'tutti' || o.persona.pubblico.tipo === filtroPub ? 1 : 0.18; });
+      if (scena) scena.omini.forEach(o => { o.a = visibile(o.persona) ? 1 : 0.18; });
       if (punti) punti.onda(st.clientWidth / 2, st.clientHeight * 0.6, 0.6);
       chiudiScheda();
     }));
@@ -465,11 +489,11 @@ window.Analisi = (function () {
         vista: () => ({ z: scena.zoom, ox: scena.ox, oy: scena.oy }) });
       zoomControlli(st, cf);
       scena.omini.forEach(o => {
-        const p = persone[ids.indexOf(o.id)];
+        const p = persone[o.indice != null ? o.indice : ids.indexOf(o.id)];
         o.persona = p;
         o.allegro = p.esito === 'compra';   // chi ha comprato ogni tanto fa festa
         o.bordo = BORDO[p.esito];           // perimetro di 1 pixel: cosa ha fatto
-        o.a = filtroPub === 'tutti' || p.pubblico.tipo === filtroPub ? 1 : 0.18;
+        o.a = visibile(p) ? 1 : 0.18;
       });
     });
   }

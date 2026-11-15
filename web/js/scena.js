@@ -370,6 +370,7 @@
     sc.omini = [];
     for (let k = 0; k < n; k++) {
       const om = new Omino(o.ids ? o.ids[k] : nuovo(), Math.random() * (w + 80) - 40, {});
+      om.indice = k;   // posizione nella lista ids: lo stesso personaggio può comparire più volte
       sc.profondita(om);
       sc.omini.push(om);
     }
