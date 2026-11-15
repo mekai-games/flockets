@@ -174,16 +174,17 @@ ${elenco(Object.keys(CANALI), CANALI)}
   descrizione al massimo 6 parole; persone = quanti adulti abitano nella zona servita, stima ragionata (0 se l'attività non è locale).
   Se c'è una zona, metti anche l'area (e il comune, per una grande città) nel pubblico.
 - profilo: come è fatto il prodotto nel mercato, anche se il testo non lo dice (usa quello che sai del prodotto):
-  pubblico_tipico = chi lo compra di solito, solo i livelli molto più interessati della media per ogni tag
-  (liste vuote dove non c'è differenza netta; tag: ${Object.entries(PROFILO_TAG).map(([k, v]) => k + " " + v.join("/")).join("; ")});
+  pubblico_tipico = chi lo compra di solito: i livelli molto più interessati della media, di qualsiasi tag, scritti esattamente come
+  qui e separati da virgole («25-34, 35-44, donna, alto»; niente per i tag senza differenza netta; tag: ${Object.entries(PROFILO_TAG).map(([k, v]) => k + " " + v.join("/")).join("; ")});
   prezzo_tipico = prezzo tipico in euro di prodotti come questo (0 se non sai); frequenza = tra le persone a cui interessa, quanto spesso
   lo cercano o lo comprano: raro (una volta ogni qualche anno: auto, apparecchi, corsi cari, viaggi lunghi), occasionale (qualche volta
   l'anno), frequente (ogni mese o quasi), continuo (ogni settimana: cibo, consegne, consumi); cpc_ricerca = costo tipico in euro di un click
   su Google in Italia per le ricerche di questo prodotto (0 se non sai).
 - gratis: true se il prodotto si ottiene gratis (app o gioco gratuito, prova gratuita).
-- leve: le leve dell'offerta presenti nel testo, tra:
+- leve: le leve dell'offerta presenti nel testo, separate da virgole (stringa vuota se nessuna), tra:
 ${elenco(Object.keys(LEVE_CAMPAGNA), LEVE_CAMPAGNA)}
-- pubblico: solo se il testo dice a chi e rivolto l'annuncio; liste vuote per tutto cio che non dice. Il luogo del prodotto non è il
+- pubblico: solo se il testo dice a chi e rivolto l'annuncio: i valori di qualsiasi tag, scritti esattamente come qui e separati da
+  virgole («donna, 25-34, 35-44, nord_ovest»); niente per tutto cio che non dice (stringa vuota se non dice nulla). Il luogo del prodotto non è il
   pubblico: un hotel a Roma, vacanze in Sardegna o una crociera si vendono a chi abita ovunque (area vuota); l'area va messa solo
   per un'attività locale (vedi zona) o se il testo dice dove abita chi deve vedere l'annuncio. Valori ammessi:
   eta ${PUBBLICO.eta.join(", ")} ("giovani" = 18-24 e 25-34; "mamme" = donna con figli_piccoli; "pensionati" = 65+);
@@ -194,7 +195,7 @@ ${elenco(Object.keys(LEVE_CAMPAGNA), LEVE_CAMPAGNA)}
 - inizio: la data di partenza della campagna in formato AAAA-MM-GG se il testo la dice o la lascia capire
   ("da lunedi", "a dicembre" = il primo giorno del mese, "per Natale" = 1 dicembre, "per il Black Friday" = 7 giorni prima del Black Friday); stringa vuota se non la dice.
 - trend: il momento del prodotto o della categoria: ${TREND.join(", ")}.
-- extra: i vantaggi dell'offerta nominati, tra:
+- extra: i vantaggi dell'offerta nominati, separati da virgole (stringa vuota se nessuno), tra:
 ${elenco(Object.keys(EXTRA), EXTRA)}
 
 messaggio: giudica il testo dell'annuncio come lo vedrebbe una persona sul canale, con un punteggio 0, 1 o 2 per ciascun criterio
@@ -256,12 +257,10 @@ function schema(formati, leve) {
           profilo: {
             type: "object",
             properties: {
-              pubblico_tipico: {
-                type: "object",
-                properties: Object.fromEntries(Object.entries(PROFILO_TAG).map(([k, v]) => [k, { type: "array", items: { type: "string", enum: v } }])),
-                required: Object.keys(PROFILO_TAG),
-                additionalProperties: false,
-              },
+              // una stringa di valori («25-34, 35-44, donna, alto»), smistati nei tag da perTag(): un campo o una lista
+              // di valori ammessi per ogni tag rendeva lo schema troppo grande per l'output strutturato
+              // («The compiled grammar is too large»)
+              pubblico_tipico: { type: "string" },
               prezzo_tipico: { type: "number" },
               frequenza: { type: "string", enum: FREQUENZE },
               cpc_ricerca: { type: "number" },
@@ -275,16 +274,11 @@ function schema(formati, leve) {
             required: ["descrizione", "persone", "b2b"],
             additionalProperties: false,
           },
-          leve: { type: "array", items: { type: "string", enum: Object.keys(LEVE_CAMPAGNA) } },
-          pubblico: {
-            type: "object",
-            properties: Object.fromEntries(Object.entries(PUBBLICO).map(([k, v]) => [k, { type: "array", items: { type: "string", enum: v } }])),
-            required: Object.keys(PUBBLICO),
-            additionalProperties: false,
-          },
+          leve: { type: "string" },
+          pubblico: { type: "string" },
           inizio: { type: "string" },
           trend: { type: "string", enum: TREND },
-          extra: { type: "array", items: { type: "string", enum: Object.keys(EXTRA) } },
+          extra: { type: "string" },
         },
         required: ["prodotto", "categoria", "canale", "formato_campagna", "budget_giorno", "giorni", "prezzo", "sconto_percento",
           "marchio", "obiettivo", "risultato", "gratis", "fisico", "nicchia", "zona", "profilo", "leve", "pubblico", "inizio", "trend", "extra"],
@@ -322,6 +316,22 @@ function schema(formati, leve) {
   };
 }
 
+// valori ammessi da un testo separato da virgole («25-34, 35-44») o da una lista, senza doppioni
+function lista(x, ammessi) {
+  const v = Array.isArray(x) ? x : typeof x === "string" ? x.split(/[,;/\s]+/).map((s) => s.trim()) : [];
+  return [...new Set(v.filter((y) => ammessi.includes(y)))];
+}
+
+// valori dei tag da una stringa sola: ogni valore appartiene a un solo tag («donna» → genere); tutti i valori di un tag =
+// nessun filtro. Accetta anche il vecchio formato, un oggetto con una lista per tag.
+function perTag(x, tag) {
+  const testo = typeof x === "string" ? x : x && typeof x === "object" ? Object.values(x).flat().join(",") : "";
+  return Object.fromEntries(Object.entries(tag).map(([k, ammessi]) => {
+    const v = lista(testo, ammessi);
+    return [k, v.length === ammessi.length ? [] : v];
+  }));
+}
+
 // numeri dentro limiti ragionevoli: un valore fuori scala vale come «non indicato» (0)
 function pulisci(c) {
   if (!c || typeof c !== "object") return null;
@@ -342,24 +352,18 @@ function pulisci(c) {
     fisico: typeof c.fisico === "boolean" ? c.fisico : null,
     zona: c.zona && n(c.zona.persone, 3e7) >= 500 ? { descrizione: String(c.zona.descrizione || "").slice(0, 80), persone: Math.round(c.zona.persone) } : null,
     profilo: c.profilo ? {
-      pubblico_tipico: Object.fromEntries(Object.entries(PROFILO_TAG).map(([k, ammessi]) => {
-        const v = Array.isArray(c.profilo.pubblico_tipico?.[k]) ? [...new Set(c.profilo.pubblico_tipico[k].filter((x) => ammessi.includes(x)))] : [];
-        return [k, v.length === ammessi.length ? [] : v];
-      })),
+      pubblico_tipico: perTag(c.profilo.pubblico_tipico, PROFILO_TAG),
       prezzo_tipico: n(c.profilo.prezzo_tipico, 1e6),
       frequenza: FREQUENZE.includes(c.profilo.frequenza) ? c.profilo.frequenza : null,
       cpc_ricerca: n(c.profilo.cpc_ricerca, 40),
     } : null,
     nicchia: c.nicchia && n(c.nicchia.persone, 3e7) >= 100
       ? { descrizione: String(c.nicchia.descrizione || "").slice(0, 80), persone: Math.round(c.nicchia.persone), b2b: c.nicchia.b2b === true } : null,
-    leve: Array.isArray(c.leve) ? [...new Set(c.leve.filter((l) => Object.hasOwn(LEVE_CAMPAGNA, l)))] : [],
-    pubblico: Object.fromEntries(Object.entries(PUBBLICO).map(([k, ammessi]) => {
-      const v = Array.isArray(c.pubblico?.[k]) ? [...new Set(c.pubblico[k].filter((x) => ammessi.includes(x)))] : [];
-      return [k, v.length === ammessi.length ? [] : v];   // tutti i valori = nessun filtro
-    })),
+    leve: lista(c.leve, Object.keys(LEVE_CAMPAGNA)),
+    pubblico: perTag(c.pubblico, PUBBLICO),
     inizio: dataValida(c.inizio),
     trend: TREND.includes(c.trend) ? c.trend : "non_indicato",
-    extra: Array.isArray(c.extra) ? [...new Set(c.extra.filter((e) => Object.hasOwn(EXTRA, e)))] : [],
+    extra: lista(c.extra, Object.keys(EXTRA)),
   };
 }
 // data di partenza: solo nel formato giusto e tra oggi e un anno da oggi
@@ -444,6 +448,8 @@ export default async function handler(req, res) {
       suggerimenti: (Array.isArray(letto.suggerimenti) ? letto.suggerimenti : []).filter((x) => typeof x === "string").slice(0, 3).map((x) => x.slice(0, 140)),
     });
   } catch (errore) {
+    // nei log di Vercel: tipo e messaggio dell'errore (mai la chiave né il testo dell'utente)
+    console.error("leggi:", errore?.status ?? "", errore?.error?.error?.type ?? errore?.name ?? "", String(errore?.message || "").slice(0, 500));
     if (errore instanceof Anthropic.AuthenticationError || errore instanceof Anthropic.PermissionDeniedError) {
       return res.status(503).json({ errore: "Chiave non valida" });
     }
