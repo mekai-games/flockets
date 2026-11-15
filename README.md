@@ -50,16 +50,23 @@ sfondo, riflesso in alto), su macchie di colore leggere; nel tema scuro anche il
 5. **Analisi**: mentre il motore calcola, una transizione senza scritte (ispirata a «Pixel Transition» di React Bits):
    lo schermo si copre di quadrati che partono dal punto di invio, gli omini arrivano dai bordi e si raccolgono in uno
    stormo al centro, sempre più grande; alla fine fanno festa e i quadrati si dissolvono scoprendo la vista Persone. Poi due viste, con un interruttore in alto:
-   - **Persone**: solo omini su una griglia di pallini, come una dashboard. Ognuno è una persona simulata di uno
-     dei pubblici; un perimetro di 1 pixel dice cosa ha fatto (verde ha comprato, arancio ha cliccato,
-     grigio niente) e chi ha comprato ogni tanto fa festa. I pallini si spostano e si colorano vicino al puntatore e
-     si accendono sotto i piedi degli omini. Toccando un omino si apre la sua scheda, sempre dentro lo schermo
-     (sopra la testa, se non c'è posto sotto i piedi o di fianco): chi è, dove vive, cosa ha fatto, probabilità di
-     click e di acquisto, quanto rende ogni euro speso su di lei, perché, e quante persone come lei ci sono in
-     Italia. I bottoni in basso evidenziano un tipo di pubblico. Con la rotella, il pizzico o i tasti +/− si zooma: allontanandosi si vedono il
-     doppio degli omini; trascinando ci si sposta.
+   - **Persone**: solo omini su una griglia di pallini, come una dashboard: circa 300 persone simulate (60 per
+     pubblico) sparse su un piano tre volte più largo e più alto dello schermo. Allontanandosi con lo zoom la folla
+     riempie tutta la dashboard; trascinando ci si sposta in ogni direzione. Un perimetro di 1 pixel dice cosa ha
+     fatto ognuno (verde ha comprato, arancio ha cliccato, grigio niente) e chi ha comprato ogni tanto fa festa. I
+     pallini si spostano e si colorano vicino al puntatore e si accendono sotto i piedi degli omini. Toccando un omino
+     si apre la sua scheda, sempre dentro lo schermo: chi è, dove vive, cosa ha fatto, probabilità di click e di
+     acquisto, quanto rende ogni euro speso su di lei, quante persone come lei ci sono in Italia e **perché**: i motivi
+     a favore (✓) e contro (✕), legati all'annuncio provato («le interessa: bellezza e cura della pelle», «28 € è troppo
+     per lei», «il video breve è il formato che guarda di più»). Per chi ha cliccato senza comprare: perché ha cliccato
+     e perché non ha comprato; per chi è passato oltre: perché. I motivi sono i pezzi della sua probabilità che si
+     discostano di più dalla persona media. I bottoni in basso evidenziano un tipo di pubblico. In alto, Persone e
+     Analisi stanno al centro esatto della barra.
    - **Analisi**: parte da quello che hai mandato (l'annuncio tra virgolette con la riga «Dal tuo testo» e il link per
-     correggere, oppure il nome del file). Poi una frase con il risultato e i numeri principali che salgono da
+     correggere, oppure il nome del file). Se nel testo c'è una domanda, sotto c'è **la risposta**, con i numeri del
+     simulatore: «meglio Instagram o TikTok?» (i due mezzi provati con lo stesso budget, e l'analisi gira sul migliore),
+     «quanto devo spendere?» (il budget del guadagno più alto, dai rendimenti decrescenti), «a chi lo mostro?» (il
+     target), «quante vendite faccio?» (risultato e forchetta). Poi una frase con il risultato e i numeri principali che salgono da
      zero; il pubblico migliore con il confronto con gli altri; cosa fare adesso (pubblico, canale e leve
      provati alla pari, chi risponde meglio, creatività stanche); **Studia i numeri**, un grafico da esplorare
      (visualizzazioni, click, acquisti, ricavi, spesa, costo per acquisto; giorno per giorno o totale che cresce;
@@ -155,6 +162,29 @@ la variabilità della lettura, circa ±5% sul voto e sulla presentazione: differ
 Senza Claude le stesse cose vengono lette con regole a parole chiave (pubblico, vantaggi, periodo), tranne la forza del
 messaggio. Con Claude, dove Claude non dice niente restano le regole; la categoria scelta da Claude viene controllata
 con le parole del testo (in una prova aveva preso una crema viso per «bambini e famiglia»).
+
+**Banco di prova della lettura** ([`strumenti/valuta_prompt.mjs`](strumenti/valuta_prompt.mjs) e
+[`strumenti/valuta_prompt.py`](strumenti/valuta_prompt.py)). 75 annunci scritti come li scriverebbe un utente, molto diversi
+tra loro ([`strumenti/banco_prompt.json`](strumenti/banco_prompt.json), 50, e un secondo banco di verifica con frasi nuove,
+[`strumenti/banco_prompt_verifica.json`](strumenti/banco_prompt_verifica.json), 25): prodotti, servizi locali, app, B2B, TV,
+radio, cartelloni; budget al giorno, totali o al mese; durate a parole; pubblico, città, errori di battitura, domande.
+Per ognuno i valori giusti (categoria, mezzo, budget al giorno, giorni, prezzo, sconto, risultato, obiettivo, marchio, zona,
+nicchia, pubblico), confrontati con quello che il **motore usa davvero** dopo la lettura del sito. Le letture di Claude
+sono salvate in [`strumenti/banco_letture.json`](strumenti/banco_letture.json) (una seconda prova non le ripaga).
+
+| Banco | Con la lettura di Claude | Solo regole (se Claude non risponde) |
+|---|---|---|
+| principale, 50 annunci | 99% dei campi giusti | 100% |
+| verifica, 25 frasi nuove | 98% | 98% |
+
+Correzioni nate dal banco: parole chiave delle categorie a parola intera («sconto» non è un conto, «autore» non è
+un'auto, «tavolo» non è un volo); a pari parole vince la categoria più specifica (assicurazione auto → finanza); durata
+della campagna diversa da quella del prodotto («prova gratuita di 14 giorni», «3 mesi di lezioni»); budget al mese e
+totale «in 20 giorni»; il prezzo di un abbonamento non è un budget; attività locali con la loro città (zona); contatti per
+preventivi, prenotazioni, demo, test drive, sopralluoghi; pubblico di nicchia per professioni e aziende; la città di un
+hotel o di una meta non è il pubblico; età scritte in numeri lette esatte. Per rifare la prova:
+`node strumenti/valuta_prompt.mjs` e poi `python3 strumenti/valuta_prompt.py /tmp/banco_risultati.json spec`
+(oppure `regole`; `BANCO=banco_prompt_verifica.json` per il secondo banco).
 
 **Prove sul prompt** ([`strumenti/prova_prompt.mjs`](strumenti/prova_prompt.mjs), [`strumenti/simula_prove.py`](strumenti/simula_prove.py),
 risultati in [`output/prova_prompt.csv`](output/prova_prompt.csv)). Sedici annunci quasi uguali, letti dal vero

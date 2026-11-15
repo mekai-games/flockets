@@ -1,0 +1,5331 @@
+{
+ "Video su TikTok: una ragazza prova la crema viso alla vitamina C. -20% solo fino a domenica. 50 euro al giorno per 2 settimane.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Video TikTok di una ragazza che prova la crema viso; la scadenza 'solo fino a domenica' indica urgenza.",
+  "campagna": {
+   "prodotto": "crema viso alla vitamina C",
+   "categoria": "beauty",
+   "canale": "video_brevi",
+   "formato_campagna": "video_breve",
+   "budget_giorno": 50,
+   "giorni": 14,
+   "prezzo": 0,
+   "sconto_percento": 20,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto",
+    "urgenza"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 2,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": true,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "giovane_dinamico"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Mostra il prezzo scontato nei primi due secondi del video.",
+   "Aggiungi un invito chiaro, ad esempio: Scopri ora lo sconto del 20%.",
+   "Inserisci una recensione o un risultato concreto ottenuto con la crema."
+  ]
+ },
+ "Scarpe da running leggere a 129 euro, campagna su Instagram e Facebook per un mese con 1500 euro in tutto. Target: uomini e donne 25-44 che corrono.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica un formato visivo specifico, ne scarsita, urgenza o Black Friday; la leva e scelta per vicinanza, senza elementi chiari.",
+  "campagna": {
+   "prodotto": "Scarpe da running leggere",
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 50,
+   "giorni": 30,
+   "prezzo": 129,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "25-34",
+     "35-44"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come compra ora o scopri la collezione.",
+   "Indica un beneficio concreto per chi corre, come comfort o leggerezza nei chilometri.",
+   "Inserisci una prova sociale, come recensioni o numero di corridori soddisfatti."
+  ]
+ },
+ "App di allenamento a casa, gratis da scaricare, vogliamo 10.000 download. TikTok e Reels, 80€/giorno per 3 settimane.": {
+  "formato": "video",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione di una app da scaricare su TikTok e Reels, con budget giornaliero e obiettivo download; formato video e leva scarcity sono dedotti dal contesto, nessuna caratteristica visiva confermata.",
+  "campagna": {
+   "prodotto": "App di allenamento a casa",
+   "categoria": "sport_fitness",
+   "canale": "video_brevi",
+   "formato_campagna": "video_breve",
+   "budget_giorno": 80,
+   "giorni": 21,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "download",
+   "gratis": true,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 2,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un beneficio chiaro, ad esempio risultati in quattro settimane.",
+   "Inserisci una prova, come recensioni o numero di utenti attivi.",
+   "Scrivi un invito diretto: scarica gratis oggi."
+  ]
+ },
+ "Lanciamo il nostro primo gioco per smartphone, un puzzle gratuito con acquisti in-app. Budget 3000 euro, 10 giorni, pubblico giovane.": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione è solo testuale, senza video né immagini, e non cita timer, prezzo barrato, scadenze o persone; nessuna caratteristica risulta vera.",
+  "campagna": {
+   "prodotto": "puzzle gratuito per smartphone",
+   "categoria": "videogiochi",
+   "canale": "non_indicato",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 300,
+   "giorni": 10,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "nuovo",
+   "obiettivo": "vendite",
+   "risultato": "download",
+   "gratis": true,
+   "leve": [
+    "novita"
+   ],
+   "pubblico": {
+    "eta": [
+     "18-24",
+     "25-34"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 0,
+   "forza": 1
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungete un invito chiaro, come scarica il gioco adesso.",
+   "Mostrate il gioco in azione con un video o una schermata.",
+   "Indicate il vantaggio per chi guarda, come un puzzle gratis da provare."
+  ]
+ },
+ "Corso di inglese online per adulti, 199 euro per 3 mesi di lezioni. Annunci su Google per chi cerca 'corso inglese online'. Budget 40 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Annuncio di ricerca testuale per 'corso inglese online', senza immagini, timer o prezzo barrato; formato e leva sono dedotti per assenza di indicazioni.",
+  "campagna": {
+   "prodotto": "Corso di inglese online per adulti",
+   "categoria": "formazione_lavoro",
+   "canale": "ricerca",
+   "formato_campagna": "testo",
+   "budget_giorno": 40,
+   "giorni": 0,
+   "prezzo": 199,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 2,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, ad esempio «Iscriviti oggi al corso».",
+   "Spiega il beneficio concreto, ad esempio cosa saprai fare dopo tre mesi.",
+   "Inserisci una prova, come recensioni o numero di studenti iscritti."
+  ]
+ },
+ "Ristorante di sushi a Milano zona Isola, vogliamo più prenotazioni per cena. Instagram, 20 euro al giorno per due settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Non ci sono indicazioni di video, scadenze o sconti; la descrizione parla solo di prenotazioni per cena su Instagram.",
+  "campagna": {
+   "prodotto": "Ristorante di sushi",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 20,
+   "giorni": 14,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_ovest"
+    ],
+    "comune": [
+     "grande_citta"
+    ],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un'offerta concreta con prezzo o sconto per la cena.",
+   "Indica un vantaggio chiaro, come menu o tavolo riservato.",
+   "Inserisci una scritta con invito a prenotare subito."
+  ]
+ },
+ "Palestra a Bologna: primo mese a 29 euro invece di 59. Pubblicità su Facebook per chi abita entro 5 km, 15€ al giorno per 30 giorni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": true,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita primo mese a 29 euro invece di 59 e pubblicita su Facebook, senza indicare formato video o scadenza esplicita.",
+  "campagna": {
+   "prodotto": "Abbonamento palestra Bologna primo mese",
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 15,
+   "giorni": 30,
+   "prezzo": 59,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come iscriviti oggi o prenota la prova.",
+   "Indica la scadenza dell'offerta primo mese a 29 euro.",
+   "Mostra il prezzo scontato e il beneficio concreto nell'immagine principale."
+  ]
+ },
+ "Assicurazione auto online, preventivo in 2 minuti e risparmi fino al 30%. Annunci di ricerca su Google, 200 euro al giorno per un mese.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita preventivo in 2 minuti e risparmi fino al 30%, ma non indica scadenze, timer o prezzi barrati; nessuna leva di urgenza chiara.",
+  "campagna": {
+   "prodotto": "Assicurazione auto online",
+   "categoria": "finanza",
+   "canale": "ricerca",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 200,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 30,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 2,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 6
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi una prova di credibilità, come numero di clienti o recensioni.",
+   "Inserisci un invito chiaro, ad esempio: Richiedi il preventivo ora.",
+   "Indica il risparmio medio concreto in euro, non solo la percentuale."
+  ]
+ },
+ "Software gestionale in cloud per studi dentistici, abbonamento 89 euro al mese. Vogliamo richieste di demo dai titolari degli studi. LinkedIn, 2000 euro in 20 giorni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione di un gestionale cloud senza formato visivo indicato, nessuna scadenza o scritta di urgenza, nessun prezzo barrato.",
+  "campagna": {
+   "prodotto": "Software gestionale in cloud per studi dentistici",
+   "categoria": "tecnologia",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 100,
+   "giorni": 20,
+   "prezzo": 89,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica un beneficio concreto, come tempo risparmiato per le prenotazioni.",
+   "Aggiungi una prova gratuita o una demo con data precisa.",
+   "Usa un formato video breve e verticale per LinkedIn."
+  ]
+ },
+ "Pacchetti vacanza in Sardegna a giugno, volo + hotel da 690 euro a persona. Campagna su Instagram a partire da marzo, 60 euro al giorno per 6 settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo non descrive un video o un carosello; cita pacchetti vacanza con prezzo e una campagna Instagram, senza indicare scadenze o scarsita.",
+  "campagna": {
+   "prodotto": "Pacchetti vacanza in Sardegna, volo + hotel",
+   "categoria": "viaggi",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 60,
+   "giorni": 42,
+   "prezzo": 690,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "isole"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come prenota ora o scopri le offerte.",
+   "Indica un'offerta o un vantaggio concreto, come uno sconto o la spedizione inclusa.",
+   "Specifica le date di partenza di giugno e la durata del soggiorno."
+  ]
+ },
+ "Crocchette naturali per cani senza cereali, sacco da 12 kg a 54,90€, spedizione gratuita. Annunci Google Shopping, 35 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione indica annunci Google Shopping con scheda prodotto e prezzo, senza video né timer, quindi nessuna caratteristica video è vera.",
+  "campagna": {
+   "prodotto": "Crocchette naturali per cani senza cereali sacco 12 kg",
+   "categoria": "animali",
+   "canale": "shopping",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 35,
+   "giorni": 0,
+   "prezzo": 54.9,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "valori"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "spedizione_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come acquista ora o scopri la promozione.",
+   "Indica uno sconto o un vantaggio concreto rispetto al prezzo pieno.",
+   "Specifica il beneficio per il cane, ad esempio digestione o pelo lucido."
+  ]
+ },
+ "Concessionaria a Torino: prova su strada della nuova auto elettrica, prenota il test drive. Facebook e Instagram, budget 1200 euro per 15 giorni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica un formato di filmato o scatto; parla di prova su strada e prenotazione del test drive, senza scadenze o scritte.",
+  "campagna": {
+   "prodotto": "Test drive nuova auto elettrica",
+   "categoria": "auto_moto",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 80,
+   "giorni": 15,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_ovest"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 2,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un vantaggio concreto, come uno sconto o un regalo per chi prenota.",
+   "Inserisci una prova sociale, come recensioni o numero di clienti soddisfatti.",
+   "Indica il prezzo o la rata mensile della nuova auto elettrica."
+  ]
+ },
+ "Collane in argento fatte a mano, 79 euro, per i regali di Natale. Instagram con foto del prodotto, 30 euro al giorno a dicembre, per donne 25-54.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita foto del prodotto su Instagram, quindi formato immagine; nessuna leva esplicita, scelta la piu vicina al senso natalizio.",
+  "campagna": {
+   "prodotto": "Collane in argento fatte a mano",
+   "categoria": "moda",
+   "canale": "social",
+   "formato_campagna": "immagine",
+   "budget_giorno": 30,
+   "giorni": 0,
+   "prezzo": 79,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "25-34",
+     "35-44",
+     "45-54"
+    ],
+    "genere": [
+     "donna"
+    ],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "2026-12-01",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungete un invito chiaro, come acquista ora o scopri la collezione.",
+   "Indicate un vantaggio concreto, come spedizione gratuita o confezione regalo inclusa.",
+   "Inserite una prova sociale, come recensioni o numero di clienti soddisfatti."
+  ]
+ },
+ "Abbigliamento per bambini 0-6 anni in cotone bio. Saldi del 40%. Facebook, rivolto alle mamme, 25 euro al giorno per 10 giorni.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione di annuncio Facebook con saldi del 40% e budget giornaliero, senza video, timer o prezzo barrato visibili.",
+  "campagna": {
+   "prodotto": "Abbigliamento per bambini 0-6 anni in cotone bio",
+   "categoria": "bambini_famiglia",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 25,
+   "giorni": 10,
+   "prezzo": 0,
+   "sconto_percento": 40,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto",
+    "valori"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [
+     "donna"
+    ],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": [
+     "figli_piccoli"
+    ]
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro come compra ora",
+   "Indica il prezzo prima dello sconto del 40%",
+   "Inserisci una prova come recensioni o numeri di clienti"
+  ]
+ },
+ "Master MBA executive nel weekend, 18.000 euro. Cerchiamo manager tra i 30 e i 45 anni. Annunci su LinkedIn per 2 mesi, 150 euro al giorno. Obiettivo: richieste di informazioni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione parla di annunci su LinkedIn senza video, scena o scritte: non indica un formato visivo chiaro, quindi si assume un'immagine singola.",
+  "campagna": {
+   "prodotto": "Master MBA executive nel weekend",
+   "categoria": "formazione_lavoro",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 150,
+   "giorni": 60,
+   "prezzo": 18000,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "traffico",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "35-44",
+     "25-34"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il beneficio concreto per il manager, come carriera o competenze",
+   "Aggiungi un invito chiaro, ad esempio richiedi informazioni oggi",
+   "Inserisci una prova di credibilità, come docenti o risultati degli alumni"
+  ]
+ },
+ "Commercialista online per partite IVA in regime forfettario, 39 euro al mese. Google Ads con parole chiave, 25€/giorno.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Testo di annuncio di ricerca con parole chiave e prezzo di 39 euro al mese; nessuna scadenza o scarsità indicata, leva scelta per vicinanza.",
+  "campagna": {
+   "prodotto": "Commercialista online per partite IVA forfettarie",
+   "categoria": "finanza",
+   "canale": "ricerca",
+   "formato_campagna": "testo",
+   "budget_giorno": 25,
+   "giorni": 0,
+   "prezzo": 39,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi una prova sociale, come numero di clienti o recensioni.",
+   "Inserisci un invito chiaro, ad esempio: Apri la tua partita IVA oggi.",
+   "Spiega il beneficio concreto, come il risparmio di tasse per il forfettario."
+  ]
+ },
+ "Birra artigianale pugliese, box da 12 bottiglie a 42 euro con consegna a casa. Instagram, 40 euro al giorno per 2 settimane, uomini 25-44 al sud.": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo descrive un box di birra artigianale a 42 euro con consegna a casa, senza scarsita, urgenza o caratteristiche visibili; formato dedotto come immagine singola.",
+  "campagna": {
+   "prodotto": "Box birra artigianale pugliese 12 bottiglie",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 40,
+   "giorni": 14,
+   "prezzo": 42,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "25-34",
+     "35-44"
+    ],
+    "genere": [
+     "uomo"
+    ],
+    "area": [
+     "sud"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungete recensioni o numero di clienti soddisfatti per aumentare la credibilita.",
+   "Inserite un invito chiaro, come: Ordina ora la tua box.",
+   "Indicate un vantaggio concreto, come spedizione gratuita o un regalo."
+  ]
+ },
+ "Pizzeria a domicilio a Napoli, ordina dall'app e la seconda pizza è a metà prezzo. Instagram e TikTok, 10 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrive una pizzeria a domicilio con offerta seconda pizza a metà prezzo, senza timer, scarsità o video indicati.",
+  "campagna": {
+   "prodotto": "Pizza a domicilio Napoli",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 10,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 50,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "sud"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 2,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 2,
+   "adatto": 1,
+   "forza": 7
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica una scadenza dell'offerta, ad esempio valida solo questo weekend.",
+   "Aggiungi prova sociale, come recensioni o numero di ordini consegnati.",
+   "Scegli un formato video verticale breve adatto a TikTok."
+  ]
+ },
+ "Hotel 4 stelle in centro a Roma, offerta weekend romantico da 180 euro a notte. Google, 70 euro al giorno per 3 settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione non indica un formato visivo né una scadenza; la leva è scelta come la più vicina all'offerta del weekend romantico.",
+  "campagna": {
+   "prodotto": "Weekend romantico in hotel 4 stelle a Roma",
+   "categoria": "viaggi",
+   "canale": "ricerca",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 70,
+   "giorni": 21,
+   "prezzo": 180,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "centro"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": [
+     "coppia"
+    ]
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 0,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come prenota ora.",
+   "Indica uno sconto o una scadenza per rendere l'offerta più concreta.",
+   "Specifica il canale e il formato dell'annuncio per valutarne l'adattamento."
+  ]
+ },
+ "Biglietti per un concerto rock a Bologna il 20 marzo, 45 euro. Promozione su Instagram per 4 settimane con 500 euro totali.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita biglietti per un concerto e una promozione su Instagram, senza video, timer, prezzo barrato o persone in camera.",
+  "campagna": {
+   "prodotto": "Biglietti concerto rock Bologna",
+   "categoria": "intrattenimento",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 18,
+   "giorni": 28,
+   "prezzo": 45,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "centro"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come acquista ora i biglietti.",
+   "Indica un vantaggio concreto o una scadenza per la vendita.",
+   "Mostra un'immagine o un video dell'artista o del locale."
+  ]
+ },
+ "Romanzo giallo di un autore esordiente, 16 euro su Amazon. Facebook, 10 euro al giorno per 20 giorni, lettrici sopra i 35 anni.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica video, scene o scritte d'impatto; l'offerta non richiama scadenze, scarsita o prezzi barrati.",
+  "campagna": {
+   "prodotto": "Romanzo giallo di un autore esordiente",
+   "categoria": "generica",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 10,
+   "giorni": 20,
+   "prezzo": 16,
+   "sconto_percento": 0,
+   "marchio": "nuovo",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "novita"
+   ],
+   "pubblico": {
+    "eta": [
+     "35-44",
+     "45-54",
+     "55-64",
+     "65+"
+    ],
+    "genere": [
+     "donna"
+    ],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungete un invito chiaro come acquista ora o scopri la trama.",
+   "Inserite una prova sociale, come recensioni o il parere di un lettore.",
+   "Indicate un beneficio concreto, ad esempio una trama che tiene con il fiato sospeso."
+  ]
+ },
+ "Piattaforma di streaming di documentari, prova gratuita di 30 giorni poi 6,99 al mese. YouTube, 100 euro al giorno.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Annuncio su YouTube, quindi video; la leva piu vicina e la prova gratuita di 30 giorni. Nessuna caratteristica visiva e descritta.",
+  "campagna": {
+   "prodotto": "Streaming di documentari",
+   "categoria": "intrattenimento",
+   "canale": "video",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 100,
+   "giorni": 0,
+   "prezzo": 6.99,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro: scopri ora i documentari, prova gratis per 30 giorni.",
+   "Mostra nei primi due secondi un documentario in azione o una scena forte.",
+   "Aggiungi una prova sociale, come numero di abbonati o recensioni degli utenti."
+  ]
+ },
+ "E-bike pieghevole per la città a 1.290€, pagabile a rate. Campagna Instagram di un mese, 2.000€ di budget totale.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica formato né leva; l'unico vantaggio citato è il pagamento a rate, senza caratteristiche visive dichiarate.",
+  "campagna": {
+   "prodotto": "E-bike pieghevole per la città",
+   "categoria": "auto_moto",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 66.67,
+   "giorni": 30,
+   "prezzo": 1290,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "rate"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come Scopri ora o Acquista subito.",
+   "Indica a chi è rivolta l'e-bike, ad esempio pendolari o giovani professionisti.",
+   "Specifica il formato dell'annuncio, ad esempio video verticale o immagine."
+  ]
+ },
+ "Materasso memory foam, 100 notti di prova e reso gratuito, da 399 euro. Facebook e Instagram, 120 euro al giorno per 2 settimane.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica formato video o carosello e non cita Black Friday, scarsita o scadenze; la leva e scelta per vicinanza, senza caratteristiche vere evidenti.",
+  "campagna": {
+   "prodotto": "Materasso memory foam",
+   "categoria": "casa_arredo",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 120,
+   "giorni": 14,
+   "prezzo": 399,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "prova_sociale"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "reso_gratuito",
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 1,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come prova il materasso per 100 notti.",
+   "Indica il vantaggio per chi guarda, come dormire meglio ogni notte.",
+   "Specifica il formato visivo, come video verticale breve per Instagram e Facebook."
+  ]
+ },
+ "Integratore di magnesio e potassio per l'estate, 19,90 euro. Consigliato dai nutrizionisti. TikTok con video UGC, 30€ al giorno per 14 giorni.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": true,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo indica TikTok con video UGC, quindi formato video; nessuna scadenza o scarsita esplicita, leva scelta per vicinanza all'offerta.",
+  "campagna": {
+   "prodotto": "Integratore di magnesio e potassio per l'estate",
+   "categoria": "salute_benessere",
+   "canale": "video_brevi",
+   "formato_campagna": "video_breve",
+   "budget_giorno": 30,
+   "giorni": 14,
+   "prezzo": 19.9,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "esperto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 1,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come \"Scopri l'offerta\" o \"Ordina ora\".",
+   "Indica un beneficio concreto, per esempio energia e crampi in meno durante l'estate.",
+   "Specifica uno sconto o una scadenza per aumentare urgenza e concretezza."
+  ]
+ },
+ "Occhiali da sole polarizzati, 59 euro invece di 89. Instagram per 10 giorni, 25 euro al giorno, giovani 18-30.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione di un annuncio statico senza video: menziona prezzo scontato da 89 a 59 euro, ma nessun timer, ugc o montaggio veloce.",
+  "campagna": {
+   "prodotto": "Occhiali da sole polarizzati",
+   "categoria": "moda",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 25,
+   "giorni": 10,
+   "prezzo": 89,
+   "sconto_percento": 34,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [
+     "18-24",
+     "25-34"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come acquista ora o scopri la collezione",
+   "Indica una scadenza dell'offerta per creare urgenza",
+   "Aggiungi una prova sociale come recensioni o numero di clienti"
+  ]
+ },
+ "Profumo di una maison francese famosa, 140 euro. Campagna video su YouTube per la festa della mamma, 500 euro al giorno per una settimana.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo indica una campagna video su YouTube per la festa della mamma; non descrive hook, ritmo, timer o prezzo barrato.",
+  "campagna": {
+   "prodotto": "Profumo di una maison francese",
+   "categoria": "beauty",
+   "canale": "video",
+   "formato_campagna": "video",
+   "budget_giorno": 500,
+   "giorni": 7,
+   "prezzo": 140,
+   "sconto_percento": 0,
+   "marchio": "famoso",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Descrivi il beneficio del profumo per chi lo regala.",
+   "Aggiungi un invito chiaro, come scopri la collezione o acquista ora.",
+   "Indica uno sconto o un'offerta speciale per la festa della mamma."
+  ]
+ },
+ "Conto corrente online a zero spese per il primo anno, apri il conto in 10 minuti dall'app. Google e Facebook, 300 euro al giorno per 30 giorni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita conto corrente online, zero spese per il primo anno e apertura in 10 minuti, senza elementi video o scadenze chiare.",
+  "campagna": {
+   "prodotto": "Conto corrente online",
+   "categoria": "finanza",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 300,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi una scadenza precisa per l'offerta di zero spese",
+   "Indica il numero di clienti o recensioni per aumentare la credibilita",
+   "Scrivi un invito chiaro come apri il conto ora"
+  ]
+ },
+ "Corsi di yoga in studio a Firenze, lezione di prova gratuita. Annunci Facebook per donne 30-55 a Firenze, 12 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita corsi di yoga, lezione di prova gratuita e annunci Facebook, senza video, timer o prezzo barrato.",
+  "campagna": {
+   "prodotto": "Corsi di yoga in studio",
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 12,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "prova_sociale"
+   ],
+   "pubblico": {
+    "eta": [
+     "35-44",
+     "45-54"
+    ],
+    "genere": [
+     "donna"
+    ],
+    "area": [
+     "centro"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indicate il prezzo dei corsi o uno sconto concreto.",
+   "Aggiungete un invito chiaro come prenota la tua lezione gratuita.",
+   "Mostrate una testimonianza o il numero di iscritti."
+  ]
+ },
+ "Studio dentistico a Torino, sbiancamento a 150 euro, prima visita gratis. Google, 20 euro al giorno per 2 mesi.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo parla di sbiancamento a 150 euro e prima visita gratis su Google, senza video, quindi formato immagine; nessuna leva di scadenza esplicita.",
+  "campagna": {
+   "prodotto": "Sbiancamento dentale e prima visita",
+   "categoria": "salute_benessere",
+   "canale": "ricerca",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 20,
+   "giorni": 60,
+   "prezzo": 150,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_ovest"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "poco",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi una scadenza chiara alla prima visita gratuita.",
+   "Indica il risultato ottenibile con lo sbiancamento in tempi precisi.",
+   "Inserisci recensioni o numero di pazienti soddisfatti."
+  ]
+ },
+ "Idraulico pronto intervento a Bari, chiamaci 24 ore su 24. Google, 15 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo indica un annuncio di ricerca Google con servizio disponibile 24 ore su 24, da cui deriva la leva urgenza; nessuna caratteristica video o visiva è descritta.",
+  "campagna": {
+   "prodotto": "Pronto intervento idraulico Bari",
+   "categoria": "generica",
+   "canale": "ricerca",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 15,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [
+    "urgenza"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "sud"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 2,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "poco",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il prezzo o la tariffa di uscita del pronto intervento.",
+   "Aggiungi un dettaglio di credibilità, come anni di esperienza o recensioni.",
+   "Specifica il tempo di arrivo promesso dal tecnico in città."
+  ]
+ },
+ "CRM per piccole aziende, prova gratuita di 14 giorni, poi 29 euro al mese per utente. Campagna LinkedIn rivolta a responsabili commerciali, 2.500 euro in un mese.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo non descrive un video o un carosello, quindi il formato è immagine; la prova gratuita di 14 giorni è l'unico richiamo, senza urgenza esplicita.",
+  "campagna": {
+   "prodotto": "CRM per piccole aziende",
+   "categoria": "tecnologia",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 83.33,
+   "giorni": 30,
+   "prezzo": 29,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "prova_sociale"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come prova gratuita di 14 giorni ora.",
+   "Indica un risultato concreto per le piccole aziende, come vendite più rapide.",
+   "Specifica il formato dell'annuncio LinkedIn e aggiungi una prova sociale."
+  ]
+ },
+ "Newsletter ai nostri clienti per il Black Friday: -30% su tutto il negozio di elettronica. Budget 200 euro.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione di una newsletter con richiamo esplicito al Black Friday e sconto del 30 per cento su tutto il negozio.",
+  "campagna": {
+   "prodotto": "tutto il negozio di elettronica",
+   "categoria": "tecnologia",
+   "canale": "email",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 0,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 30,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 2,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungete un invito chiaro come acquistate ora o scoprite le offerte.",
+   "Indicate una scadenza precisa dell'offerta Black Friday.",
+   "Inserite qualche prodotto specifico con prezzo scontato come esempio."
+  ]
+ },
+ "Spot TV di 30 secondi per una nota marca di pasta, 2 settimane in prima serata, budget 150.000 euro.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Spot TV di 30 secondi per una marca di pasta, con durata e budget indicati, ma senza offerta, aggancio o scadenza descritti.",
+  "campagna": {
+   "prodotto": "Pasta di marca nota",
+   "categoria": "cibo_bevande",
+   "canale": "non_indicato",
+   "formato_campagna": "video",
+   "budget_giorno": 10714.29,
+   "giorni": 14,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "conosciuto",
+   "obiettivo": "notorieta",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 1
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Inserisci nei primi due secondi un'offerta concreta o un prodotto ben visibile.",
+   "Aggiungi un invito chiaro all'azione, come acquista o scopri la gamma.",
+   "Indica il pubblico di riferimento e il canale di messa in onda."
+  ]
+ },
+ "Spot in radio locale per un mobilificio di Verona, saldi fino al 50%. 3 settimane, 3000 euro.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo parla di spot radio, quindi non c'e un formato visivo chiaro; la forza e nei saldi fino al 50 per cento.",
+  "campagna": {
+   "prodotto": "Mobili",
+   "categoria": "casa_arredo",
+   "canale": "non_indicato",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 214,
+   "giorni": 21,
+   "prezzo": 0,
+   "sconto_percento": 50,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_est"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 0,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi una scadenza precisa per i saldi, ad esempio fino a domenica.",
+   "Indica il prezzo di partenza dei mobili per rendere lo sconto concreto.",
+   "Aggiungi un invito chiaro, come vieni in negozio o visita il sito."
+  ]
+ },
+ "Cartelloni in metropolitana a Milano per una nuova app di consegna della spesa, un mese, 40.000 euro.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Cartelloni in metropolitana indicano un formato immagine statica; nessuna scadenza, timer o prezzo barrato sono citati nel testo.",
+  "campagna": {
+   "prodotto": "app di consegna della spesa",
+   "categoria": "generica",
+   "canale": "display",
+   "formato_campagna": "immagine",
+   "budget_giorno": 1333.33,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "nuovo",
+   "obiettivo": "notorieta",
+   "risultato": "download",
+   "gratis": false,
+   "leve": [
+    "novita"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_ovest"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungere un beneficio chiaro, come consegna della spesa in un'ora.",
+   "Inserire un invito all'azione esplicito, come scarica l'app ora.",
+   "Indicare un'offerta concreta, come primo ordine gratuito."
+  ]
+ },
+ "Pagina pubblicitaria su una rivista di arredamento per divani di design da 2.400 euro, un mese.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione indica una pagina pubblicitaria su rivista, quindi formato immagine statica; nessuna leva o caratteristica video è dedotta dal testo.",
+  "campagna": {
+   "prodotto": "divani di design",
+   "categoria": "casa_arredo",
+   "canale": "display",
+   "formato_campagna": "immagine",
+   "budget_giorno": 0,
+   "giorni": 30,
+   "prezzo": 2400,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un beneficio chiaro per chi guarda il divano.",
+   "Inserisci un invito all'azione come scopri la collezione.",
+   "Indica una prova come recensioni o garanzia di qualità."
+  ]
+ },
+ "Vendo candele profumate fatte a mano a 24 euro. Ho 600 euro da spendere in un mese: meglio Instagram o TikTok?": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non mostra un annuncio creativo ma una domanda sul budget; nessuna caratteristica vera è deducibile con chiarezza.",
+  "campagna": {
+   "prodotto": "candele profumate fatte a mano",
+   "categoria": "casa_arredo",
+   "canale": "non_indicato",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 20,
+   "giorni": 30,
+   "prezzo": 24,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 0,
+   "forza": 1
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Descrivi un annuncio preciso con offerta, formato e canale",
+   "Indica la scadenza dell'offerta e lo sconto applicato",
+   "Aggiungi un invito chiaro come compra o scopri"
+  ]
+ },
+ "voglio vendere più magliette": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione dice solo voglio vendere più magliette, senza formato, offerta o leve chiare; leva scelta per senso generico.",
+  "campagna": {
+   "prodotto": "magliette",
+   "categoria": "moda",
+   "canale": "non_indicato",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 0,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 0,
+   "forza": 0
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il prezzo e l'eventuale sconto delle magliette.",
+   "Specifica il canale e il formato, per esempio video breve su TikTok.",
+   "Aggiungi un invito chiaro, come compra ora o scopri la collezione."
+  ]
+ },
+ "crema antirughe x donne over 50 su facebok, 30 euri al giorno x 2 setimane, scnto 15%": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita crema antirughe, sconto 15% e campagna su Facebook, senza indicare formato video, scadenze o confronti di prezzo.",
+  "campagna": {
+   "prodotto": "crema antirughe",
+   "categoria": "beauty",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 30,
+   "giorni": 14,
+   "prezzo": 0,
+   "sconto_percento": 15,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [
+     "55-64",
+     "65+"
+    ],
+    "genere": [
+     "donna"
+    ],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il prezzo della crema e mostra lo sconto del 15%.",
+   "Aggiungi un invito chiaro, come scopri o acquista ora.",
+   "Specifica il beneficio principale, ad esempio riduzione visibile delle rughe."
+  ]
+ },
+ "Campagna Meta per il mio e-commerce di borse in pelle, 900 euro al mese per 3 mesi, borse da 120 euro.": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica un formato visivo, quindi l'annuncio è stimato come immagine; nessuna leva dichiarata, scelta la più vicina all'offerta.",
+  "campagna": {
+   "prodotto": "Borse in pelle",
+   "categoria": "moda",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 30,
+   "giorni": 90,
+   "prezzo": 120,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come acquista ora o scopri la collezione.",
+   "Indica un beneficio concreto per chi acquista, come spedizione gratuita o reso gratuito.",
+   "Inserisci una prova sociale come recensioni o numero di clienti soddisfatti."
+  ]
+ },
+ "Una settimana di annunci su Instagram per il lancio delle nostre cuffie wireless a 79 euro, 100 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita una settimana di annunci su Instagram per il lancio delle cuffie a 79 euro, senza formato video ne elementi di urgenza.",
+  "campagna": {
+   "prodotto": "cuffie wireless",
+   "categoria": "tecnologia",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 100,
+   "giorni": 7,
+   "prezzo": 79,
+   "sconto_percento": 0,
+   "marchio": "nuovo",
+   "obiettivo": "notorieta",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "novita"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come compra ora",
+   "Indica un vantaggio concreto, come sconto o autonomia della batteria",
+   "Specifica il formato dell'annuncio, come video verticale o immagine"
+  ]
+ },
+ "Nuovo smartphone di un marchio famosissimo, preordine a 999 euro. YouTube e Instagram, 5000 euro al giorno per 10 giorni.": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita preordine e un nuovo smartphone di un marchio famosissimo, senza video, timer o prezzo barrato, quindi nessuna caratteristica vera oltre al formato statico.",
+  "campagna": {
+   "prodotto": "Nuovo smartphone",
+   "categoria": "tecnologia",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 5000,
+   "giorni": 10,
+   "prezzo": 999,
+   "sconto_percento": 0,
+   "marchio": "famoso",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "novita"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indicate il beneficio concreto per chi acquista lo smartphone",
+   "Aggiungete una call to action chiara come prenota ora",
+   "Inserite dettagli di prova come recensioni o caratteristiche principali"
+  ]
+ },
+ "Negozio di ottica a Palermo: controllo della vista gratuito e occhiali da vista con il 20% di sconto. Facebook, 10 euro al giorno per 3 settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita controllo gratuito e sconto del 20% su occhiali da vista, senza richiami a scadenze o video; il formato non e indicato, quindi immagine.",
+  "campagna": {
+   "prodotto": "Controllo vista gratuito e occhiali da vista",
+   "categoria": "salute_benessere",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 10,
+   "giorni": 21,
+   "prezzo": 0,
+   "sconto_percento": 20,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": true,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "isole"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi il prezzo degli occhiali scontati",
+   "Inserisci un invito chiaro come prenota il controllo",
+   "Indica quanto dura l'offerta del 20 per cento"
+  ]
+ },
+ "Crociera nel Mediterraneo per pensionati, 7 notti da 899 euro. Facebook, 50 euro al giorno per un mese.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica formato visivo, scadenze, Black Friday né prezzo barrato; la leva è scelta per vicinanza all'offerta.",
+  "campagna": {
+   "prodotto": "Crociera nel Mediterraneo, 7 notti",
+   "categoria": "viaggi",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 50,
+   "giorni": 30,
+   "prezzo": 899,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "65+"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come prenota ora o scopri le date.",
+   "Indica un vantaggio concreto per il viaggio, come pensione completa o cabina inclusa.",
+   "Aggiungi una prova sociale, come recensioni o numero di crocieristi soddisfatti."
+  ]
+ },
+ "Corso di preparazione ai test di medicina, 490 euro. Instagram e TikTok per studenti delle superiori, 40 euro al giorno da gennaio per 6 settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica formato visivo, scadenze o timer; nessuna caratteristica è esplicitamente presente, quindi tutte sono false.",
+  "campagna": {
+   "prodotto": "Corso preparazione test medicina",
+   "categoria": "formazione_lavoro",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 40,
+   "giorni": 42,
+   "prezzo": 490,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "2027-01-01",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come iscriviti ora.",
+   "Indica il beneficio concreto, per esempio risultati o punteggi ottenuti dagli studenti.",
+   "Aggiungi prova sociale, come recensioni o numero di studenti già formati."
+  ]
+ },
+ "Agenzia immobiliare a Roma Nord: valutazione gratuita della tua casa. Facebook, 25 euro al giorno per 30 giorni, proprietari over 45.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita una valutazione gratuita e Facebook, senza parole di scadenza o video; nessuna leva scadenza chiara, scelta la piu vicina.",
+  "campagna": {
+   "prodotto": "Valutazione gratuita immobile Roma Nord",
+   "categoria": "generica",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 25,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "prova_sociale"
+   ],
+   "pubblico": {
+    "eta": [
+     "45-54",
+     "55-64",
+     "65+"
+    ],
+    "genere": [],
+    "area": [
+     "centro"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come richiedi la valutazione ora",
+   "Indica un risultato concreto o un numero di immobili valutati",
+   "Specifica il vantaggio per il proprietario, ad esempio scopri il valore della casa"
+  ]
+ },
+ "Vino rosso toscano di una cantina storica famosa, 28 euro a bottiglia, spedizione gratis da 6 bottiglie. Instagram, 45 euro al giorno per 2 settimane.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo non indica un formato visivo; la leva black_friday e scelta come la piu vicina perche manca una scadenza esplicita.",
+  "campagna": {
+   "prodotto": "Vino rosso toscano di cantina storica",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 45,
+   "giorni": 14,
+   "prezzo": 28,
+   "sconto_percento": 0,
+   "marchio": "famoso",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "prova_sociale",
+    "valori"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "centro"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "spedizione_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 1,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come Scopri o Ordina ora.",
+   "Indica un vantaggio concreto per chi acquista.",
+   "Mostra il prezzo e la spedizione gratuita nella creativita."
+  ]
+ },
+ "Vogliamo portare visite al nostro blog di ricette, niente vendite. Facebook, 15 euro al giorno per un mese.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica formato, leva né caratteristiche visive; dice solo che l'obiettivo è portare visite al blog su Facebook.",
+  "campagna": {
+   "prodotto": "Blog di ricette",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 15,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "traffico",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 1
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungete un invito chiaro, come Scopri le ricette sul blog.",
+   "Indicate un beneficio concreto, per esempio ricette pronte in quindici minuti.",
+   "Inserite un'immagine di un piatto con una scritta breve e leggibile."
+  ]
+ },
+ "Nuovo marchio di acqua minerale: vogliamo farci conoscere in Lombardia. Video su YouTube e Instagram, 300 euro al giorno per 4 settimane.": {
+  "formato": "video",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo indica video su YouTube e Instagram, senza hook, ritmo, timer o prezzo barrato dichiarati; nessuna leva di urgenza o Black Friday citata.",
+  "campagna": {
+   "prodotto": "acqua minerale",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "video",
+   "budget_giorno": 300,
+   "giorni": 28,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "nuovo",
+   "obiettivo": "notorieta",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_ovest"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungere un invito chiaro come scopri o prova l'acqua.",
+   "Indicare un beneficio concreto per chi beve questa acqua.",
+   "Mostrare il prodotto nei primi due secondi del video."
+  ]
+ },
+ "Tazze in ceramica dipinte a mano, 18 euro l'una. Vorrei promuoverle su Instagram con un budget di 300 euro per 15 giorni.": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo indica tazze dipinte a mano, prezzo 18 euro e campagna su Instagram; nessuna leva o caratteristica video esplicita.",
+  "campagna": {
+   "prodotto": "Tazze in ceramica dipinte a mano",
+   "categoria": "casa_arredo",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 20,
+   "giorni": 15,
+   "prezzo": 18,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "esperto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come: scopri la collezione o ordina ora.",
+   "Indica un dettaglio concreto come materiale, capienza o tempi di consegna.",
+   "Mostra il prodotto in uso o un prima e dopo per aumentare la credibilita."
+  ]
+ },
+ "Salone di parrucchiere a Padova, taglio e piega a 35€. Facebook per le donne della zona, 8 euro al giorno per un mese.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione non specifica un formato visivo; leva e caratteristiche non sono indicate con chiarezza nel testo.",
+  "campagna": {
+   "prodotto": "Taglio e piega dal parrucchiere",
+   "categoria": "beauty",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 8,
+   "giorni": 30,
+   "prezzo": 35,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [
+     "donna"
+    ],
+    "area": [
+     "nord_est"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro come prenota ora",
+   "Indica un vantaggio concreto oltre al prezzo",
+   "Mostra il salone e il risultato del taglio nell'immagine"
+  ]
+ },
+ "Corso online di programmazione Python per principianti a 149€. TikTok, ragazzi 18-29, 45 euro al giorno, 3 settimane.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione indica un corso online su TikTok, una campagna su canale video brevi; la leva non è indicata con chiarezza, quindi è scelta l'urgenza per vicinanza all'offerta.",
+  "campagna": {
+   "prodotto": "Corso online di programmazione Python per principianti",
+   "categoria": "formazione_lavoro",
+   "canale": "video_brevi",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 45,
+   "giorni": 21,
+   "prezzo": 149,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "18-24",
+     "25-34"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come iscriviti oggi o scopri il corso.",
+   "Indica un risultato concreto, ad esempio crea il tuo primo programma in una settimana.",
+   "Inserisci una prova sociale, come recensioni o numero di studenti."
+  ]
+ },
+ "Lettiera per gatti biodegradabile, confezione da 10 litri a 12,50€. Campagna Google Shopping da 25 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita una lettiera biodegradabile con prezzo e campagna Google Shopping, senza video, persone, timer o prezzo barrato.",
+  "campagna": {
+   "prodotto": "Lettiera per gatti biodegradabile 10 litri",
+   "categoria": "animali",
+   "canale": "shopping",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 25,
+   "giorni": 0,
+   "prezzo": 12.5,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "valori"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'acquisto chiaro, come compra ora.",
+   "Indica un vantaggio concreto, ad esempio la resa o la durata della lettiera.",
+   "Inserisci un dato di prova, come recensioni o clienti soddisfatti."
+  ]
+ },
+ "La nostra nuova app di meditazione, gratuita con abbonamento premium. Vogliamo download su Instagram e TikTok, 2.000 euro al mese.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita una app gratuita con abbonamento premium e download su Instagram e TikTok, senza formato, scadenza o sconto espliciti.",
+  "campagna": {
+   "prodotto": "App di meditazione",
+   "categoria": "salute_benessere",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 0,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "nuovo",
+   "obiettivo": "vendite",
+   "risultato": "download",
+   "gratis": true,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il prezzo dell'abbonamento premium e i benefici concreti.",
+   "Aggiungi un invito chiaro come scarica l'app ora.",
+   "Specifica il formato del video o dell'immagine per Instagram e TikTok."
+  ]
+ },
+ "Noleggio auto a lungo termine per privati, da 299 euro al mese tutto incluso. Annunci Google, 150€/giorno per 4 settimane, richiesta preventivo.": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Nessun formato video o immagine descritto; la campagna usa annunci Google di testo, quindi il formato e stimato come immagine.",
+  "campagna": {
+   "prodotto": "Noleggio auto a lungo termine per privati",
+   "categoria": "auto_moto",
+   "canale": "ricerca",
+   "formato_campagna": "testo",
+   "budget_giorno": 150,
+   "giorni": 28,
+   "prezzo": 299,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "rate"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 2,
+   "adatto": 1,
+   "forza": 6
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un vantaggio chiaro, come zero pensieri o manutenzione inclusa.",
+   "Inserisci una prova di affidabilita, come recensioni o numero di clienti.",
+   "Specifica la durata del contratto e i chilometri inclusi."
+  ]
+ },
+ "Settimana bianca in Trentino per famiglie con bambini, pacchetto da 1.200 euro. Facebook da gennaio, 40 euro al giorno per 5 settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo non descrive un video o un carosello; non cita scadenze, quantita limitate, Black Friday, timer o prezzi barrati.",
+  "campagna": {
+   "prodotto": "Settimana bianca in Trentino per famiglie",
+   "categoria": "viaggi",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 40,
+   "giorni": 35,
+   "prezzo": 1200,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_est"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": [
+     "figli_piccoli"
+    ]
+   },
+   "inizio": "2027-01-01",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come prenota ora o scopri il pacchetto.",
+   "Indica cosa include il pacchetto e il vantaggio per la famiglia.",
+   "Specifica il formato dell'annuncio, come video breve o immagine."
+  ]
+ },
+ "Capsule di caffè compatibili, 100 capsule a 22 euro con spedizione gratuita. Sconto 25% per il primo ordine. Meta Ads, 60 euro al giorno, 14 giorni.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica un video né un richiamo al Black Friday; il formato è inferito come immagine statica e la leva come quella più vicina all'offerta.",
+  "campagna": {
+   "prodotto": "Capsule di caffè compatibili, 100 capsule",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 60,
+   "giorni": 14,
+   "prezzo": 22,
+   "sconto_percento": 25,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "spedizione_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come Ordina ora o Scopri l'offerta.",
+   "Inserisci una prova sociale, come recensioni o numero di clienti.",
+   "Specifica il beneficio per chi guarda, ad esempio caffè di qualità a meno."
+  ]
+ },
+ "Webinar gratuito sulla gestione delle finanze personali, iscrizioni aperte. LinkedIn e Facebook, 500 euro per 10 giorni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita webinar gratuito e iscrizioni aperte, senza scadenza, scarsita o riferimenti al Black Friday.",
+  "campagna": {
+   "prodotto": "Webinar sulla gestione delle finanze personali",
+   "categoria": "finanza",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 50,
+   "giorni": 10,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "prova_sociale"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica un beneficio concreto che lo spettatore ottiene partecipando al webinar.",
+   "Aggiungi data e orario del webinar per rendere l'offerta più concreta.",
+   "Specifica il numero di partecipanti o il nome del relatore per aumentare la credibilità."
+  ]
+ },
+ "Smartwatch sportivo a 199 euro invece di 249. YouTube, 120 euro al giorno, uomini 30-50.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": true
+  },
+  "motivo": "La descrizione indica un confronto tra 199 euro e 249 euro, quindi prezzo barrato; nessun riferimento a video, persone o timer.",
+  "campagna": {
+   "prodotto": "Smartwatch sportivo",
+   "categoria": "sport_fitness",
+   "canale": "video",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 120,
+   "giorni": 0,
+   "prezzo": 249,
+   "sconto_percento": 20,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [
+     "35-44",
+     "45-54"
+    ],
+    "genere": [
+     "uomo"
+    ],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come acquista ora o scopri l'offerta.",
+   "Inserisci un beneficio concreto per chi guarda, come monitoraggio battiti o autonomia."
+  ]
+ },
+ "Fotografo di matrimoni a Lecce, chiedi un preventivo gratuito. Instagram, 10€ al giorno per due mesi.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita un preventivo gratuito e Instagram, senza indicare video, carosello, scadenze o sconti; nessuna leva e chiaramente presente.",
+  "campagna": {
+   "prodotto": "Fotografo di matrimoni a Lecce",
+   "categoria": "generica",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 10,
+   "giorni": 60,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "sud"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 2,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il prezzo o il pacchetto base del servizio.",
+   "Aggiungi una prova come recensioni o foto di matrimoni realizzati.",
+   "Specifica un formato visivo, come video breve o carosello."
+  ]
+ },
+ "Biciclette per bambini dai 3 ai 6 anni a 89 euro. Facebook per i genitori, 20 euro al giorno per 12 giorni.": {
+  "formato": "immagine",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita biciclette per bambini, prezzo di 89 euro e Facebook, senza video, scritte di scadenza o prezzo barrato.",
+  "campagna": {
+   "prodotto": "Biciclette per bambini dai 3 ai 6 anni",
+   "categoria": "bambini_famiglia",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 20,
+   "giorni": 12,
+   "prezzo": 89,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "25-34",
+     "35-44"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": [
+     "figli_piccoli"
+    ]
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come Scopri o Acquista ora.",
+   "Inserisci un beneficio concreto, per esempio sicurezza o facilita di apprendimento.",
+   "Aggiungi una prova sociale, come recensioni o numero di famiglie clienti."
+  ]
+ },
+ "Crema solare SPF 50 per pelli sensibili, 24,90 euro, consigliata dai dermatologi. TikTok con creator, 3.500 euro per tutto giugno.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": true,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita TikTok e un creator, quindi formato video con persona reale; nessuna scadenza o scarsita esplicita, la leva piu vicina e urgency per il periodo di giugno.",
+  "campagna": {
+   "prodotto": "Crema solare SPF 50 per pelli sensibili",
+   "categoria": "beauty",
+   "canale": "video_brevi",
+   "formato_campagna": "video_breve",
+   "budget_giorno": 116.67,
+   "giorni": 30,
+   "prezzo": 24.9,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "esperto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 1,
+   "invito": 0,
+   "adatto": 2,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, come compra ora o scopri di piu.",
+   "Indica uno sconto o un vantaggio concreto insieme al prezzo.",
+   "Mostra una recensione o un risultato reale della crema."
+  ]
+ },
+ "Spazio coworking a Roma Ostiense, prima giornata gratis. Google, 12 euro al giorno, per freelance e piccole aziende.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione non indica formato visivo; cita prima giornata gratis e Google come canale di ricerca, nessuna caratteristica visiva dichiarata.",
+  "campagna": {
+   "prodotto": "Spazio coworking Roma Ostiense",
+   "categoria": "generica",
+   "canale": "ricerca",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 12,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [
+    "prova_sociale"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "centro"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": [
+    "prova_gratuita"
+   ]
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 3
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indica il prezzo mensile dello spazio coworking",
+   "Aggiungi un invito chiaro come prenota la prima giornata",
+   "Specifica un tempo limitato per la prova gratuita"
+  ]
+ },
+ "Nuovo videogioco indie per PC in uscita su Steam a 19,99€. Trailer su YouTube, 80 euro al giorno per 10 giorni, gamer 18-34.": {
+  "formato": "video",
+  "leva": "black_friday",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il formato video deriva dal trailer su YouTube; nessuna leva d'offerta è indicata, quindi scelta la più vicina e nessuna caratteristica è esplicitamente dichiarata.",
+  "campagna": {
+   "prodotto": "Videogioco indie per PC",
+   "categoria": "videogiochi",
+   "canale": "video",
+   "formato_campagna": "video",
+   "budget_giorno": 80,
+   "giorni": 10,
+   "prezzo": 19.99,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "download",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "18-24",
+     "25-34"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 1,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un aggancio nei primi due secondi del trailer",
+   "Indica una scadenza o uno sconto di lancio nel testo",
+   "Inserisci recensioni o numeri di giocatori per rafforzare la credibilità"
+  ]
+ },
+ "Cofanetto natalizio con 3 bottiglie di vino a 59 euro, consegna entro 48 ore. Instagram, 35 euro al giorno dal 1 dicembre per 3 settimane.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Nessun formato indicato; leva dedotta da 'consegna entro 48 ore'; nessuna caratteristica vera dichiarata nella descrizione.",
+  "campagna": {
+   "prodotto": "Cofanetto natalizio 3 bottiglie vino",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 35,
+   "giorni": 21,
+   "prezzo": 59,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "2026-12-01",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro: ordina ora il cofanetto natalizio.",
+   "Mostra una prova sociale: recensioni o numeri di clienti soddisfatti.",
+   "Indica il formato, video o foto, e il beneficio per chi guarda."
+  ]
+ },
+ "Ditta di traslochi a Milano e provincia, sopralluogo gratuito. Annunci di ricerca Google, 30 euro al giorno.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Descrizione di annunci di ricerca Google, quindi testo senza video; nessuna scadenza, scarsita o black friday indicati, la leva piu vicina e urgenza implicita assente.",
+  "campagna": {
+   "prodotto": "Traslochi a Milano e provincia con sopralluogo gratuito",
+   "categoria": "generica",
+   "canale": "ricerca",
+   "formato_campagna": "testo",
+   "budget_giorno": 30,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": true,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "nord_ovest"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 2,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come prenota il sopralluogo oggi",
+   "Indica un prezzo o una stima di partenza per il trasloco",
+   "Inserisci numeri o recensioni di clienti soddisfatti"
+  ]
+ },
+ "pigiami di flanella per l'inverno 39€ saldi -30% su fb e ig per 1 settimana con 350 euro": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Non indica il formato; 'saldi -30%' e '1 settimana' suggeriscono un'offerta a tempo, quindi la leva più vicina è urgenza. Nessuna caratteristica è esplicita.",
+  "campagna": {
+   "prodotto": "pigiami di flanella per l'inverno",
+   "categoria": "moda",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 50,
+   "giorni": 7,
+   "prezzo": 39,
+   "sconto_percento": 30,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi una scadenza precisa, ad esempio 'Solo fino a domenica'.",
+   "Spiega perché la flanella scalda, con un beneficio chiaro per chi guarda.",
+   "Inserisci una prova sociale, come recensioni o numero di clienti soddisfatti."
+  ]
+ },
+ "Vendo zaini da trekking a 95 euro su Instagram. Quanto dovrei spendere al giorno per guadagnarci?": {
+  "formato": "immagine",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo parla di zaini da trekking a 95 euro su Instagram, senza indicare formato visivo, scadenza o scarsita; la leva e dedotta dal senso.",
+  "campagna": {
+   "prodotto": "Zaini da trekking",
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 0,
+   "giorni": 0,
+   "prezzo": 95,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un beneficio concreto per chi acquista lo zaino.",
+   "Inserisci un invito chiaro, come acquista ora o scopri la collezione.",
+   "Mostra lo zaino in uso su un sentiero per aumentare la credibilita."
+  ]
+ },
+ "Polizza casa contro furto e incendio da 9 euro al mese. Facebook, 70 euro al giorno, proprietari di casa sopra i 40 anni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo indica una polizza casa da 9 euro al mese su Facebook, senza scadenze, scarsita o video; nessuna leva chiara.",
+  "campagna": {
+   "prodotto": "Polizza casa contro furto e incendio",
+   "categoria": "finanza",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 70,
+   "giorni": 0,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "iscrizioni",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [
+     "45-54",
+     "55-64",
+     "65+"
+    ],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come richiedi il preventivo oggi.",
+   "Specifica la durata della copertura o la garanzia offerta.",
+   "Indica se ci sono prova o recensioni di clienti soddisfatti."
+  ]
+ },
+ "Orologi svizzeri di una marca storica e famosa, da 3.900 euro. Campagna video su YouTube, 1.000 euro al giorno per 2 settimane, uomini con reddito alto.": {
+  "formato": "video",
+  "leva": "scarcity",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione indica una campagna video su YouTube con uomini ad alto reddito; nessuna leva o caratteristica visiva chiara emerge dal testo.",
+  "campagna": {
+   "prodotto": "Orologi svizzeri",
+   "categoria": "moda",
+   "canale": "video",
+   "formato_campagna": "video",
+   "budget_giorno": 1000,
+   "giorni": 14,
+   "prezzo": 3900,
+   "sconto_percento": 0,
+   "marchio": "famoso",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [
+     "uomo"
+    ],
+    "area": [],
+    "comune": [],
+    "reddito": [
+     "alto"
+    ],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 0,
+   "concretezza": 1,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "elegante_premium"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito all'azione chiaro, come scopri la collezione.",
+   "Inserisci un beneficio concreto per chi guarda, come garanzia o consegna.",
+   "Mostra il prezzo o un dettaglio di prova, come un esperto o un prodotto in primo piano."
+  ]
+ },
+ "Gelateria artigianale a Catania: due coni al prezzo di uno il martedì. Instagram 5€ al giorno per tutto il mese.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo non indica il formato; l'offerta 'due coni al prezzo di uno il martedì' è ricorrente e non ha scadenza esplicita, quindi nessuna caratteristica è vera.",
+  "campagna": {
+   "prodotto": "Gelateria artigianale a Catania",
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 5,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "isole"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, ad esempio: vieni a provarli questo martedì.",
+   "Indica il prezzo di un cono per rendere l'offerta più concreta.",
+   "Specifica il formato, ad esempio video verticale o foto del prodotto."
+  ]
+ },
+ "Libri scolastici usati a metà prezzo, consegna a domicilio in tutta Italia. Google Shopping, 40 euro al giorno ad agosto e settembre.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Il testo cita libri scolastici usati a metà prezzo e consegna a domicilio, senza video, timer o prezzo barrato.",
+  "campagna": {
+   "prodotto": "Libri scolastici usati",
+   "categoria": "formazione_lavoro",
+   "canale": "shopping",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 40,
+   "giorni": 61,
+   "prezzo": 0,
+   "sconto_percento": 50,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 2,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 5
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "informativo_semplice"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro, ad esempio: Scopri l'offerta ora.",
+   "Mostra il prezzo pieno e quello scontato a confronto.",
+   "Indica quante copie sono disponibili o una scadenza dell'offerta."
+  ]
+ },
+ "Spot su una TV regionale campana per un centro commerciale di Caserta, saldi di fine stagione, 2 settimane, 8.000 euro.": {
+  "formato": "video",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "Spot video su TV regionale campana per saldi di fine stagione; la descrizione non indica montaggio, hook, timer né prezzi barrati.",
+  "campagna": {
+   "prodotto": "Saldi fine stagione centro commerciale Caserta",
+   "categoria": "generica",
+   "canale": "video",
+   "formato_campagna": "video",
+   "budget_giorno": 571.43,
+   "giorni": 14,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "vendite",
+   "risultato": "acquisti",
+   "gratis": false,
+   "leve": [
+    "sconto"
+   ],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [
+     "sud"
+    ],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 0,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 2
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Indicate la percentuale di sconto e il prezzo di partenza dei prodotti.",
+   "Aggiungete un invito chiaro, come visitate il centro commerciale di Caserta.",
+   "Specificate le date di inizio e fine dei saldi per creare urgenza."
+  ]
+ },
+ "Campagna Kickstarter per un gioco da tavolo cooperativo, obiettivo 30.000 euro. Facebook e Instagram, 100 euro al giorno per 30 giorni.": {
+  "formato": "immagine",
+  "leva": "urgency",
+  "caratteristiche": {
+   "ugc": false,
+   "hook": false,
+   "ritmo": false,
+   "testo_pesante": false,
+   "brand_lento": false,
+   "timer": false,
+   "prezzo_barrato": false
+  },
+  "motivo": "La descrizione cita una campagna Kickstarter per un gioco da tavolo, senza video, carosello o scadenze esplicite; la leva urgency è scelta per vicinanza.",
+  "campagna": {
+   "prodotto": "Gioco da tavolo cooperativo",
+   "categoria": "intrattenimento",
+   "canale": "social",
+   "formato_campagna": "non_indicato",
+   "budget_giorno": 100,
+   "giorni": 30,
+   "prezzo": 0,
+   "sconto_percento": 0,
+   "marchio": "non_indicato",
+   "obiettivo": "traffico",
+   "risultato": "download",
+   "gratis": false,
+   "leve": [],
+   "pubblico": {
+    "eta": [],
+    "genere": [],
+    "area": [],
+    "comune": [],
+    "reddito": [],
+    "famiglia": []
+   },
+   "inizio": "",
+   "trend": "non_indicato",
+   "extra": []
+  },
+  "messaggio": {
+   "beneficio": 1,
+   "concretezza": 2,
+   "prova": 0,
+   "invito": 0,
+   "adatto": 1,
+   "forza": 4
+  },
+  "presentazione": {
+   "volto": false,
+   "sguardo_in_camera": false,
+   "prodotto_in_primo_piano": false,
+   "prodotto_in_uso": false,
+   "prezzo_visibile": false,
+   "logo_visibile": false,
+   "sottotitoli": false,
+   "prima_dopo": false,
+   "testo_sovrapposto": "nessuno",
+   "testo_leggibile": true,
+   "apertura": "nessuna",
+   "stile": "neutro"
+  },
+  "creativita_vista": null,
+  "suggerimenti": [
+   "Aggiungi un invito chiaro come sostieni il progetto su Kickstarter.",
+   "Inserisci un dettaglio di beneficio per chi guarda, come il numero di giocatori.",
+   "Mostra un video o immagine del gioco con un aggancio forte nei primi secondi."
+  ]
+ }
+}

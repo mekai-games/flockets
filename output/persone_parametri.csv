@@ -7,6 +7,11 @@ uso_shopping,probabilità di usare in un giorno: Annunci prodotto (Google Shoppi
 uso_display,probabilità di usare in un giorno: Banner su siti e app,0-1,"età, istruzione, comune, genere"
 uso_video,probabilità di usare in un giorno: Video (YouTube),0-1,"età, istruzione, comune, genere"
 uso_email,probabilità di usare in un giorno: Email e newsletter,0-1,"età, istruzione, comune, genere"
+uso_linkedin,probabilità di usare in un giorno: LinkedIn,0-1,"età, istruzione, comune, genere"
+uso_tv,probabilità di usare in un giorno: Televisione,0-1,"età, istruzione, comune, genere"
+uso_radio,probabilità di usare in un giorno: Radio,0-1,"età, istruzione, comune, genere"
+uso_affissioni,probabilità di usare in un giorno: Cartelloni e affissioni,0-1,"età, istruzione, comune, genere"
+uso_stampa,probabilità di usare in un giorno: Giornali e riviste,0-1,"età, istruzione, comune, genere"
 saturazione,"quanti annunci vede al giorno, rispetto al massimo",0-1,età
 int_moda,probabilità di essere interessato a moda e abbigliamento,0-1,"età, genere, reddito, comune"
 int_beauty,probabilità di essere interessato a bellezza e cura della pelle,0-1,"età, genere, reddito"

@@ -132,21 +132,38 @@ LEVE_TESTO = {"sconto": r"sconto|-\d+ ?%|\d+ ?% di sconto|prezzo barrato|offerta
               "novita": r"nuov|novità|appena uscit|in anteprima|lancio|tendenza",
               "esperto": r"dermatolog|esperto|medico|veterinari|nutrizionist|professionist|chef",
               "valori": r"sostenibil|riciclat|made in italy|artigian|biologic|\beco\b|\becolog"}
-CATEGORIE_TESTO = {"moda": r"moda|abbigliament|vestit|maglion|cappotto|scarpe|jeans|outfit|look",
-                   "beauty": r"siero|crema|skincare|trucco|makeup|beauty|cosmetic|profumo|viso",
-                   "animali": r"cane|gatto|animal|crocchette|snack per|cuccia|pet",
-                   "videogiochi": r"gioco|giochi|videogioc|gamer|gaming|livell|console|app di gioco",
-                   "tecnologia": r"smartphone|telefono|computer|cuffie|tablet|tecnolog|elettronic|smartwatch",
-                   "casa_arredo": r"casa|arred|divano|cucina|lampad|tavolo|letto",
-                   "cibo_bevande": r"cibo|pasta|vino|caffè|snack|ricett|bevand|birra|cioccolat",
-                   "sport_fitness": r"sport|palestra|fitness|corsa|running|yoga|bici",
-                   "viaggi": r"viaggi|vacanz|hotel|volo|voli|crociera",
-                   "salute_benessere": r"salute|integrator|benessere|vitamin|farmac",
-                   "bambini_famiglia": r"bambin|neonat|giocattol|scuola|pannolin",
-                   "auto_moto": r"auto|moto|pneumatic|ricambi",
-                   "finanza": r"conto|banca|assicuraz|prestito|mutuo|carta di credito|investiment",
-                   "formazione_lavoro": r"corso|master|formazione|lavoro|certificazion|lezion",
-                   "intrattenimento": r"concerto|film|libro|teatro|museo|biglietti|streaming|musica"}
+# parole intere o inizi di parola: «sconto» non è un conto, «autore» non è un'auto, «tavolo» non è un volo, «comoda» non è moda
+CATEGORIE_TESTO = {"moda": r"\bmoda\b|abbigliament|\bvestit[oi]|maglion|cappott|\bscarp[ae]\b|\bjeans\b|outfit|\blook\b|\bbors[ae]\b|"
+                           r"gioiell|\bcollan[ae]\b|orecchin|\bocchiali da sole|magliett|\bfelp[ae]\b|\bt-?shirt|pigiam|\bintimo\b|\bcalz[ie]|orolog|"
+                           r"\bcravatt|\babit[oi]\b|\bgonn[ae]\b|zainett|\bsandali|\bstival",
+                   "beauty": r"\bsier[oi]\b|\bcrem[ae]\b|skincare|\btrucco\b|make-?up|\bbeauty\b|cosmetic|\bprofum[oi]\b|\bviso\b|antirughe|"
+                             r"rossett|\bsmalt[oi]\b|shampoo|\bcapelli\b",
+                   "animali": r"\bcan[ei]\b|\bgatt[oi]\b|\banimal|crocchett|snack per (?:cani|gatti)|\bcucci[ae]\b|\bpet\b|veterinar",
+                   "videogiochi": r"\bgioc(?:o|hi)\b(?! da tavolo)|videogioc|\bgamer|\bgaming\b|\blivell[oi]\b|\bconsole\b|\bpuzzle\b",
+                   "tecnologia": r"smartphone|\btelefon[oi]\b|\bcomputer\b|\bcuffie\b|\btablet\b|tecnolog|elettronic|smartwatch|\bnotebook\b|"
+                                 r"\bsoftware\b|gestional|\bcrm\b|\bsaas\b|in cloud|\bgadget",
+                   "casa_arredo": r"\barred|\bdivan[oi]\b|\bcucin[ae]\b|\blampad|\btavol[oi]\b|\blett[oi]\b|materass|\bmobili\b|mobilific|"
+                                  r"\bcandel[ae]\b|per la casa\b|\btazz[ae]\b|ceramic|\bpiatti\b|biancheria|\bcuscin|\btend[ae]\b|arredament|decorazion|"
+                                  r"\bpentol|elettrodomestic",
+                   "cibo_bevande": r"\bcibo\b|\bpasta\b|\bvin[oi]\b|\bcaff[eè]\b|\bsnack\b|\bricett|\bbevand|\bbirr[ae]\b|cioccolat|"
+                                   r"\bpizz[ae]\b|pizzeri|\bsushi\b|ristorant|acqua minerale|gelat|pasticc|\bcapsule\b|\bbiscott|\bolio\b|formagg|"
+                                   r"\bsalum|panettone|\bbirrifici",
+                   "sport_fitness": r"\bsport\b|\bsport(?!iv)|\bpalestr|fitness|\bcorsa\b|\brunning\b|\byoga\b|\bbici\b|biciclett|e-?bike|allenament|"
+                                    r"trekking|escursion|\bsci\b|\bnuoto\b|\bpadel\b|\btennis\b|\bcalcio\b",
+                   "viaggi": r"\bviagg|\bvacanz|\bhotel\b|\bvol[oi]\b|crocier|agriturism|settimana bianca|\bresort\b|\bb&b\b|weekend (?:a|in)\b",
+                   "salute_benessere": r"\bsalute\b|integrator|benessere|vitamin|farmac|dentist|fisioterap|meditazion|mindfulness|psicolog|"
+                                       r"nutrizionist|\bdieta\b|\bsonno\b",
+                   "bambini_famiglia": r"\bbambin|neonat|giocattol|\bscuola\b|pannolin",
+                   "auto_moto": r"\bauto\b|\bautomobil|\bautovettur|\bmoto\b|motociclett|pneumatic|\bricambi\b|concessionari",
+                   "finanza": r"\bconto corrente|\bconto online|\bbanca\b|assicuraz|\bprestit[oi]\b|\bmutu[oi]\b|carta di credito|investiment|"
+                              r"partit[ae] iva|commercialist|finanz|\bpolizz|risparmi|\bpension[ei] integrativ",
+                   "formazione_lavoro": r"\bcors[oi]\b|\bmaster\b|\bformazione\b|\blavoro\b|certificazion|\buniversit|\btest di (?:medicina|ingresso)",
+                   "intrattenimento": r"\bconcert|\bfilm\b|\blibr[oi]\b|\bromanzo\b|\bteatro\b|\bmuse[oi]\b|\bbigliett|streaming|\bmusica\b|"
+                                      r"documentar"}
+# a parità di parole trovate vince la categoria più specifica: «assicurazione auto» è finanza, «corsi di yoga» è sport,
+# «abbigliamento per bambini» è bambini, «scarpe da running» è sport
+PRIORITA_CATEGORIA = ["finanza", "bambini_famiglia", "sport_fitness", "salute_benessere", "animali", "videogiochi", "viaggi", "intrattenimento",
+                      "beauty", "cibo_bevande", "tecnologia", "auto_moto", "casa_arredo", "moda", "formazione_lavoro"]
 CARATTERISTICHE = ["ugc", "hook", "ritmo", "testo_pesante", "brand_lento", "timer", "prezzo_barrato"]
 VERTICALI = {"beauty_skincare": "beauty", "pet_ecommerce": "animali", "abbigliamento": "moda"}
 
@@ -343,7 +360,7 @@ def leggi_testo(testo):
     s = (testo or "").lower()
     car = {k: int(bool(re.search(rx, s))) for k, rx in FEATURE_RULES.items()}
     leve = [k for k, rx in LEVE_TESTO.items() if re.search(rx, s)]
-    cat = max(CATEGORIE_TESTO, key=lambda c: len(re.findall(CATEGORIE_TESTO[c], s)))
+    cat = max(CATEGORIE_TESTO, key=lambda c: (len(re.findall(CATEGORIE_TESTO[c], s)), -PRIORITA_CATEGORIA.index(c)))
     if not re.search(CATEGORIE_TESTO[cat], s):
         cat = None
     formato = "video_breve" if re.search(r"video|reel|secondi|tiktok", s) else "carosello" if re.search(r"carosello|schede|slide", s) else None
@@ -889,44 +906,96 @@ def _migliori(P, T, c, n=8):
     return righe
 
 
-NOMI = {"donna": {"giovane": ["Giulia", "Sofia", "Aurora", "Martina", "Chiara", "Sara", "Alice", "Giorgia"],
-                  "adulta": ["Francesca", "Valentina", "Elena", "Silvia", "Laura", "Federica", "Paola", "Simona"],
-                  "anziana": ["Maria", "Anna", "Giuseppina", "Rosa", "Carla", "Franca", "Lucia", "Teresa"]},
-        "uomo": {"giovane": ["Lorenzo", "Matteo", "Leonardo", "Alessandro", "Riccardo", "Tommaso", "Davide", "Luca"],
-                 "adulta": ["Marco", "Andrea", "Stefano", "Paolo", "Roberto", "Massimo", "Fabrizio", "Davide"],
-                 "anziana": ["Giuseppe", "Giovanni", "Antonio", "Franco", "Mario", "Luigi", "Bruno", "Sergio"]}}
-SPIEGAZIONI = {"interesse": ("molto interessata alla categoria", "poco interessata alla categoria"),
-               "momento": ("sta cercando proprio adesso", "non sta cercando adesso"),
-               "formato": ("il formato le piace", "il formato non fa per lei"),
-               "saturazione": ("vede pochi annunci, nota di più", "vede troppi annunci"),
-               "leve": ("la leva usata funziona su di lei", "la leva usata la lascia fredda"),
-               "creativita": ("creatività forte", "creatività debole"),
-               "marchio": ("conosce già il marchio", "non conosce il marchio"),
-               "tendenza": ("la categoria va di moda e lei la segue", "la tendenza non la tocca"),
-               "intenzione": ("ha bisogno del prodotto adesso", "non ne ha bisogno adesso"),
-               "prezzo": ("il prezzo è alla sua portata", "il prezzo è alto per lei"),
-               "online": ("compra spesso online", "compra poco online"),
-               "sconto": ("lo sconto la convince", "lo sconto non basta"),
-               "telefono": ("naviga dal computer", "naviga quasi solo dal telefono")}
+NOMI = {"donna": {"giovane": ["Giulia", "Sofia", "Aurora", "Martina", "Chiara", "Sara", "Alice", "Giorgia", "Beatrice", "Ginevra",
+                              "Emma", "Noemi", "Greta", "Camilla", "Arianna", "Elisa", "Marta", "Irene", "Bianca", "Ludovica"],
+                  "adulta": ["Francesca", "Valentina", "Elena", "Silvia", "Laura", "Federica", "Paola", "Simona", "Roberta", "Barbara",
+                             "Cristina", "Monica", "Alessandra", "Daniela", "Claudia", "Serena", "Manuela", "Ilaria", "Veronica", "Erika"],
+                  "anziana": ["Maria", "Anna", "Giuseppina", "Rosa", "Carla", "Franca", "Lucia", "Teresa", "Angela", "Rita",
+                              "Gabriella", "Luciana", "Graziella", "Marisa", "Bruna", "Adriana", "Licia", "Nadia", "Vittoria", "Elsa"]},
+        "uomo": {"giovane": ["Lorenzo", "Matteo", "Leonardo", "Alessandro", "Riccardo", "Tommaso", "Davide", "Luca", "Gabriele", "Edoardo",
+                             "Francesco", "Federico", "Pietro", "Giacomo", "Samuele", "Nicolò", "Simone", "Filippo", "Jacopo", "Elia"],
+                 "adulta": ["Marco", "Andrea", "Stefano", "Paolo", "Roberto", "Massimo", "Fabrizio", "Davide", "Alberto", "Claudio",
+                            "Daniele", "Emanuele", "Gianluca", "Maurizio", "Fabio", "Michele", "Raffaele", "Vincenzo", "Enrico", "Cristian"],
+                 "anziana": ["Giuseppe", "Giovanni", "Antonio", "Franco", "Mario", "Luigi", "Bruno", "Sergio", "Carlo", "Renato",
+                             "Giorgio", "Aldo", "Piero", "Gianni", "Enzo", "Vittorio", "Angelo", "Alfredo", "Umberto", "Silvano"]}}
+FORMATI_IT = {"immagine": "l'immagine", "carosello": "il carosello", "video_breve": "il video breve", "video": "il video",
+              "testo": "l'annuncio di testo"}
+
+
+def spiegazioni(c, cat):
+    """Le frasi dei motivi, legate all'annuncio provato: chiave → (quando aiuta, quando frena). Al femminile."""
+    nome_cat = pe.NOMI_CATEGORIE.get(cat, "questa categoria")
+    fmt = FORMATI_IT.get(c.get("formato"), "il formato")
+    netto = c["prezzo"] * (1 - c["sconto"])
+    prezzo = ("%.0f €" % netto) if netto >= 10 else ("%.2f €" % netto).replace(".", ",")
+    sconto = "lo sconto del %d%%" % round(100 * c["sconto"]) if c["sconto"] > 0 else "lo sconto"
+    cosa = {"acquisto": "comprare", "contatto": "lasciare il contatto", "iscrizione": "iscriversi", "download": "scaricare"}.get(
+        c.get("conversione") or "acquisto", "comprare")
+    return {"interesse": ("le interessa: " + nome_cat, nome_cat + " non le interessa"),
+            "momento": ("sta cercando proprio adesso", "non sta cercando adesso"),
+            "formato": (fmt + " è il formato che guarda di più", fmt + " non è il formato che guarda"),
+            "saturazione": ("vede pochi annunci: questo l'ha notato", "vede troppi annunci: questo si perde"),
+            "leve": ("la leva dell'annuncio funziona su di lei", "la leva dell'annuncio la lascia fredda"),
+            "creativita": ("la creatività è forte", "la creatività è debole"),
+            "marchio": (("si fida dei marchi nuovi", "si fida poco dei marchi nuovi") if c.get("marchio") == "nuovo"
+                        else ("conosce già il marchio", "non conosce il marchio")),
+            "tendenza": ("la categoria va di moda e lei la segue", "la moda del momento non la tocca"),
+            "intenzione": ("ne ha bisogno adesso", "non ne ha bisogno adesso"),
+            "prezzo": (prezzo + " è alla sua portata", prezzo + " è troppo per lei"),
+            "online": ("compra spesso online", "compra poco online"),
+            "sconto": (sconto + " la convince", sconto + " non basta"),
+            "telefono": ("naviga dal computer: " + cosa + " è più facile", "naviga quasi solo dal telefono: " + cosa + " è più scomodo")}
 
 
 def _al_maschile(frase):
-    for a, b in (("interessata", "interessato"), ("le piace", "gli piace"), ("la convince", "lo convince"), ("la lascia", "lo lascia"),
-                 ("su di lei", "su di lui"), ("per lei", "per lui"), ("lei la segue", "lui la segue"), ("la tocca", "lo tocca")):
+    for a, b in (("interessata", "interessato"), ("le piace", "gli piace"), ("le interessa", "gli interessa"), ("la convince", "lo convince"),
+                 ("la lascia", "lo lascia"), ("la colpisce", "lo colpisce"), ("su di lei", "su di lui"), ("per lei", "per lui"),
+                 ("lei la segue", "lui la segue"), ("la tocca", "lo tocca")):
         frase = frase.replace(a, b)
     return frase
 
 
+def _motivi(esito, fattori_click, fattori_compra, frasi):
+    """Perché sì e perché no, secondo cosa ha fatto: i pezzi che pesano di più sulla sua probabilità.
+    compra: cosa l'ha spinta (click e acquisto) e, se c'è, l'ostacolo più forte superato;
+    clicca: cosa l'ha fatta cliccare e cosa l'ha fermata prima di comprare; passa: cosa l'ha fatta passare oltre."""
+    soglia = 0.05
+    pos = lambda f: sorted(((k, v) for k, v in f if v > soglia), key=lambda x: -x[1])
+    neg = lambda f: sorted(((k, v) for k, v in f if v < -soglia), key=lambda x: x[1])
+    def frasi_di(lista, segno, n, gia=()):
+        out, visti = [], set(gia)
+        for k, _ in lista:
+            if k in frasi and k not in visti and len(out) < n:
+                out.append((k, frasi[k][0 if segno > 0 else 1]))
+                visti.add(k)
+        return out
+    if esito == "compra":
+        si = frasi_di(pos(fattori_click + fattori_compra), 1, 3)
+        no = frasi_di(neg(fattori_compra + fattori_click), -1, 1, {k for k, _ in si})
+    elif esito == "clicca":
+        si = frasi_di(pos(fattori_click), 1, 2)
+        no = frasi_di(neg(fattori_compra), -1, 2, {k for k, _ in si})
+    else:
+        no = frasi_di(neg(fattori_click), -1, 3)
+        si = frasi_di(pos(fattori_click), 1, 1, {k for k, _ in no})
+    return [x for _, x in si], [x for _, x in no]
+
+
 def _storie(P, T, c, cat, inizio, tar, seed, n=8):
+    """Persone singole estratte tra quelle simulate: alcune comprano, alcune cliccano e basta, altre passano oltre.
+    Ognuna con i motivi: perché sì e perché no, cioè i pezzi che pesano di più sulla sua probabilità di click o di acquisto."""
     quote = {"compra": max(1, round(n * 0.35)), "clicca": max(1, round(n * 0.35))}
     quote["passa"] = max(1, n - quote["compra"] - quote["clicca"])
-    """Persone singole estratte tra quelle simulate: alcune comprano, alcune cliccano e basta, altre passano oltre.
-    Ognuna con il motivo, cioè i tre pezzi che pesano di più sulla sua probabilità di click o di acquisto."""
     rng = np.random.default_rng(seed + 11)
     if T["imp"].sum() <= 0:
         return []
     g = inizio + timedelta(days=min(3, c["giorni"] - 1))
     click, compra = _contributi(P, c, cat, g, tar)
+    frasi = spiegazioni(c, cat)
+    # motivi personali: ogni pezzo rispetto alla persona media (quello che è uguale per tutti, come la creatività, sparisce)
+    pesi = P["peso"].values / P["peso"].values.sum()
+    personali = lambda d: {k_: v - float(np.dot(pesi, v)) for k_, v in d.items() if np.ndim(v) and len(v) == len(P)}
+    click_p, compra_p = personali(click), personali(compra)
     gruppi = [("compra", T["acq"], quote["compra"]), ("clicca", np.maximum(T["click"] - T["acq"], 0), quote["clicca"]),
               ("passa", np.maximum(T["imp"] - T["click"], 0), quote["passa"])]
     media = T["acq"].sum() / max(T["spesa"].sum(), 1e-12)
@@ -946,12 +1015,11 @@ def _storie(P, T, c, cat, inizio, tar, seed, n=8):
             volte = max(1, int(rng.poisson(max(T["esposizioni"][i], 0.3))))
             pc = float(T["click"][i] / max(T["imp"][i], 1e-12))
             pa = float(T["acq"][i] / max(T["click"][i], 1e-12))
-            fonti = {**click} if esito == "passa" else {**click, **compra}
-            fattori = sorted(((k_, float(v[i])) for k_, v in fonti.items() if k_ in SPIEGAZIONI and abs(float(v[i])) > 0.05),
-                             key=lambda x: -abs(x[1]))[:3]
-            perche = [SPIEGAZIONI[k_][0 if v > 0 else 1] for k_, v in fattori]
+            f_click = [(k_, float(v[i])) for k_, v in click_p.items()]
+            f_compra = [(k_, float(v[i])) for k_, v in compra_p.items()]
+            si, no = _motivi(esito, f_click, f_compra, frasi)
             if r.genere == "uomo":
-                perche = [_al_maschile(x) for x in perche]
+                si, no = [_al_maschile(x) for x in si], [_al_maschile(x) for x in no]
             liberi = [x for x in NOMI[r.genere][fascia] if x not in nomi_usati] or NOMI[r.genere][fascia]
             nome = str(rng.choice(liberi))
             nomi_usati.add(nome)
@@ -959,7 +1027,7 @@ def _storie(P, T, c, cat, inizio, tar, seed, n=8):
                         "comune": pe.ETICHETTE[r.comune], "lavoro": pe.ETICHETTE[r.lavoro], "reddito": pe.ETICHETTE[r.reddito],
                         "famiglia": pe.ETICHETTE[r.famiglia], "istruzione": pe.ETICHETTE[r.istruzione], "visto": volte,
                         "prob_click": pc, "prob_acquisto": pa, "esito": esito, "clicca": esito != "passa", "compra": esito == "compra",
-                        "perche": perche, "tipo": pe.descrivi(r), "persone_simili": float(r.peso),
+                        "perche_si": si, "perche_no": no, "perche": si + no, "tipo": pe.descrivi(r), "persone_simili": float(r.peso),
                         "resa": float((T["acq"][i] / max(T["spesa"][i], 1e-12)) / media) if media > 0 else 0.0})
     return out
 
@@ -1059,13 +1127,13 @@ def integra(R, pred, pubblici_df, assets=None, n_sim=200):
         cpm_pred = float(p.spesa_prev.sum() / p.impression_prev.sum() * 1000)
         s_ctr = math.log(ctr_pred / freddo["totali"]["ctr"]) if freddo["totali"]["ctr"] > 0 else 0.0
         s_cpm = math.log(cpm_pred / freddo["totali"]["cpm"]) if freddo["totali"]["cpm"] > 0 else 0.0
-        tarata = simula(camp, n_sim=n_sim, scarto_ctr=s_ctr, scarto_cpm=s_cpm, seed=7 + 13 * n_,
+        tarata = simula(camp, n_sim=n_sim, scarto_ctr=s_ctr, scarto_cpm=s_cpm, seed=7 + 13 * n_, n_persone=40,
                         sd={"ctr": 0.15, "cpm": 0.10, "cvr": BENCH["settori"]["_tutti"].get("sd_log_cvr_settore", 0.7)})
         tarata.pop("_T", None)
         out[k] = {"giorni": [{"data": g["data"], "acquisti": g["acquisti"], "ricavi": g["ricavi"]} for g in tarata["giorni"]],
                   "categoria": cat, "pubblico": camp["pubblico"]["tipo"], "a_freddo": {"ctr": freddo["totali"]["ctr"], "cpm": freddo["totali"]["cpm"]},
                   "previsto": {"ctr": ctr_pred, "cpm": cpm_pred}, "totali": tarata["totali"], "forchetta": tarata["forchetta"],
-                  "segmenti": tarata["segmenti"], "migliori": tarata["migliori"][:5], "persone": tarata["persone"][:8]}
+                  "segmenti": tarata["segmenti"], "migliori": tarata["migliori"][:5], "persone": tarata["persone"]}
     return out
 
 
@@ -1348,7 +1416,7 @@ DESCRIZIONI = {"ampio": "Tutti, senza filtri: decide la piattaforma a chi mostra
                "retargeting": "Chi ha già visitato il sito negli ultimi 30 giorni."}
 
 
-def analizza_campagna(spec, consigli=True, n_persone=12):
+def analizza_campagna(spec, consigli=True, n_persone=60):
     """Campagna nuova: la stessa campagna simulata su ogni tipo di pubblico, con lo stesso budget.
     Il pubblico migliore e una conseguenza dell'analisi (piu acquisti, click o persone raggiunte, secondo l'obiettivo).
     spec["taratura"] = {"ctr": x, "cpm": y}: scarti in scala logaritmica misurati su uno storico (stessa marca),
@@ -1357,13 +1425,19 @@ def analizza_campagna(spec, consigli=True, n_persone=12):
     tar = spec.pop("taratura", None) or {}
     s_ctr, s_cpm = float(tar.get("ctr") or 0.0), float(tar.get("cpm") or 0.0)
     indicato = spec.pop("canale_indicato", True)
+    # «meglio Instagram o TikTok?»: l'analisi dettagliata gira sul migliore tra i mezzi nominati
+    candidati = [x for x in (spec.pop("canali_candidati", None) or []) if x in CANALI]
     c0 = normalizza({k: v for k, v in spec.items() if k != "pubblico"})
     # 1) tutte le persone → il target; 2) i mezzi per quel target (online e offline) e come dividere il budget
     target = trova_target(c0)
     strat = strategia(c0, target)
     # 3) se il testo non dice il mezzo, l'analisi dettagliata (pubblici e persone) gira sul mezzo online migliore per il target
     if not indicato and c0["canale"] != "email":
-        primo = next((x for x in strat["mezzi"] if x["tipo"] == "online" and x["fattibile"] and x["quota_budget"] > 0), None) \
+        primo = None
+        if candidati:
+            tra = [x for x in strat["mezzi"] if x["canale"] in candidati and x["fattibile"]]
+            primo = max(tra, key=lambda x: _risultato(x["totali"], c0["obiettivo"])) if tra else None
+        primo = primo or next((x for x in strat["mezzi"] if x["tipo"] == "online" and x["fattibile"] and x["quota_budget"] > 0), None) \
             or next((x for x in strat["mezzi"] if x["tipo"] == "online"), None)
         if primo and primo["canale"] != c0["canale"]:
             c0 = normalizza({**{k: v for k, v in spec.items() if k != "pubblico"}, "canale": primo["canale"], "formato": primo["formato"]})

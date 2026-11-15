@@ -62,46 +62,87 @@ window.Analisi = (function () {
   // dalla frase scritta nella pagina di partenza ai dati di una campagna nuova; il resto lo legge il motore (categoria, leve, creatività)
   // riserva: valori presi dallo storico (budget, durata, partenza, categoria) quando il testo non li dice
   function leggiPrompt(testo, brief, riserva) {
-    const s = ' ' + testo.toLowerCase().replace(/\s+/g, ' ') + ' ';
+    const s = ' ' + testo.toLowerCase().replace(/\s+/g, ' ').replace(/\beuri\b/g, 'euro').replace(/\bset+iman/g, 'settiman')
+      .replace(/\bfaceb\w*/g, 'facebook').replace(/\binsta\b|\binstagr\w*/g, 'instagram').replace(/\btik ?to\w*/g, 'tiktok').replace(/\bscnto\b/g, 'sconto')
+      .replace(/\bfb\b/g, 'facebook').replace(/\big\b/g, 'instagram').replace(/\btt\b/g, 'tiktok') + ' ';
     const num = x => parseFloat(String(x).replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
     const spec = { testo_annuncio: testo, descrizione_prodotto: testo };
     const canali = [[/tiktok|\breels?\b|\bshorts?\b/, 'video_brevi'], [/youtube/, 'video'], [/shopping/, 'shopping'], [/google|ricerca|\bsearch\b|parole chiave/, 'ricerca'],
-      [/banner|display/, 'display'], [/e-?mail|newsletter/, 'email'], [/linkedin/, 'linkedin'], [/instagram|facebook|\bmeta\b|social|stori/, 'social'],
+      [/banner|display/, 'display'], [/e-?mail|newsletter/, 'email'], [/linkedin/, 'linkedin'], [/instagram|facebook|\bmeta\b|social|\bstori[ea]s?\b|\bstory\b/, 'social'],
       [/\btv\b|televisi|spot televis/, 'tv'], [/\bradio\b/, 'radio'], [/cartellon|affission|manifest|billboard/, 'affissioni'], [/giornal|rivist|quotidian/, 'stampa']];
     const c = canali.find(([rx]) => rx.test(s));
     spec.canale = c ? c[1] : 'social';
     spec.canale_indicato = !!c;   // se il testo non lo dice, il mezzo lo sceglie la strategia per il target
-    let resto = s;
-    const g = s.match(/(\d+)\s*(?:giorni|gg)\b/), sett = s.match(/(\d+)\s*settiman/);
-    if (g) spec.giorni = +g[1]; else if (sett) spec.giorni = 7 * sett[1]; else if (/un mese|1 mese/.test(s)) spec.giorni = 30;
+    let resto = s, totale = 0;
+    const PAROLE = { un: 1, una: 1, uno: 1, due: 2, tre: 3, quattro: 4, cinque: 5, sei: 6, sette: 7, otto: 8, nove: 9, dieci: 10, dodici: 12 };
+    const quanti = x => (/^\d+$/.test(x) ? +x : PAROLE[x] || 0);
+    const NUM = '(\\d+|un|una|due|tre|quattro|cinque|sei|sette|otto|nove|dieci|dodici)';
+    const durata = rx => { for (const m of s.matchAll(new RegExp(rx, 'g'))) {
+      const prima = s.slice(Math.max(0, m.index - 16), m.index), dopo = s.slice(m.index + m[0].length, m.index + m[0].length + 4);
+      if (!/prova|garanzia|reso|notti|soggiorno|abbonament|lezioni|preavviso|consegna/.test(prima) && !/^\s*di\b/.test(dopo)) return m; } return null; };
+    const g = durata(NUM + '\\s*(?:giorni|gg)\\b'), sett = durata(NUM + '\\s*settiman'), mesi = durata(NUM + '\\s*mes[ei]\\b');
+    const tuttoMese = /(?:per |durante )?tutto (?:il mese|(?:il mese di )?(?:gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre))\b/.test(s);
+    if (g) spec.giorni = quanti(g[1]); else if (sett) spec.giorni = 7 * quanti(sett[1]); else if (mesi) spec.giorni = 30 * quanti(mesi[1]); else if (tuttoMese) spec.giorni = 30;
     const bg = s.match(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:al|a|\/|ogni|per)\s*(?:giorno|gg|day)/) || s.match(/(?:budget|spendo|spesa)\D{0,14}(\d[\d.,]*)\s*(?:€|euro)?\s*(?:al|a|\/)\s*giorno/);
-    if (bg) { spec.budget_giorno = num(bg[1]); resto = resto.replace(bg[0], ' '); } else {
-      const bt = s.match(/(?:budget|spendo|spesa)\D{0,14}(\d[\d.,]*)\s*(?:€|euro)/) || s.match(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:di budget|in tutto|totali)/);
-      if (bt) { spec.budget_giorno = num(bt[1]) / (spec.giorni || 14); resto = resto.replace(bt[0], ' '); }
+    let bm = !bg && s.match(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:al|a|\/|ogni|per)\s*mese/);
+    if (bm && /abbonament|costa|prezzo|canone|tariffa|\bpoi\b|a soli|\brat[ae]\b|per utente/.test(s.slice(Math.max(0, bm.index - 30), bm.index + bm[0].length + 14))) bm = null;
+    if (bg) { spec.budget_giorno = num(bg[1]); resto = resto.replace(bg[0], ' '); } else if (bm) { spec.budget_giorno = num(bm[1]) / 30; resto = resto.replace(bm[0], ' '); } else {
+      const bt = s.match(/(?:budget|spendo|spesa|spendere|investo|investire)\D{0,14}(\d[\d.,]*)\s*(?:€|euro)/) || s.match(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:di budget|in tutto|totali|da spendere|da investire)/)
+        || s.match(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:in|per)\s*(\d+|un|una|due|tre|quattro|sei)\s*(giorni|settiman|mes)/)
+        || s.match(/(?:giorni|settiman\w*|mes[ei])\s*,?\s*(?:con\s*|per\s*|budget\s*)?(\d[\d.,]*)\s*(?:€|euro)(?!\s*(?:al|a|\/)\s*(?:giorno|mese))/)
+        || s.match(/(\d[\d.,]*)\s*(?:€|euro)\s*(?:per |durante )?tutto (?:il mese|(?:il mese di )?\w+)/);
+      if (bt && bt[2]) spec.giorni = quanti(bt[2]) * (bt[3] === 'mes' ? 30 : bt[3] === 'settiman' ? 7 : 1);
+      if (bt) { spec.budget_giorno = num(bt[1]) / (spec.giorni || 14); totale = num(bt[1]); resto = resto.replace(bt[0], ' '); }
     }
-    const sc = resto.match(/(?:sconto|-|meno)\s*(?:del\s*)?(\d{1,2})\s*%/) || resto.match(/(\d{1,2})\s*%\s*(?:di sconto|in meno|off)/);
+    const sc = resto.match(/(?:sconto|saldi|-|meno)\s*(?:del\s*|fino al\s*)?(\d{1,2})\s*%/) || resto.match(/(\d{1,2})\s*%\s*(?:di sconto|in meno|off)/);
     if (sc) { spec.sconto = +sc[1] / 100; resto = resto.replace(sc[0], ' '); }
     const pr = resto.match(/(?:costa|prezzo|a soli|a solo|solo|a)\s*(\d[\d.,]*)\s*(?:€|euro)/) || resto.match(/(\d[\d.,]*)\s*(?:€|euro)/);
     if (pr && num(pr[1]) > 0) spec.prezzo = num(pr[1]);
-    if (/nuovo (?:marchio|brand)|appena (?:nat|lanciat)|startup|sconosciut|primo lancio/.test(s)) spec.marchio = 'nuovo';
-    else if (/famos|notissim|\bleader\b/.test(s)) spec.marchio = 'famoso';
-    if (/notoriet|farsi conoscere|awareness|visibilit/.test(s)) spec.obiettivo = 'notorieta';
+    if (/nuovo (?:marchio|brand)|appena (?:nat|lanciat)|startup|sconosciut|primo lancio|\bprim[oa] (?:gioco|app|prodotto|libro|collezione|negozio)|esordient|lancio (?:delle|del|della|dei|di) (?:nostr|nuov)|\bnuova app\b|\bindie\b|appena aperto|nuova apertura/.test(s)) spec.marchio = 'nuovo';
+    else if (/famos|notissim|\bleader\b|\bnot[ae] marc|cantina storica|maison|marca storica/.test(s)) spec.marchio = 'famoso';
+    if (/notoriet|farsi conoscere|farci conoscere|farmi conoscere|awareness|visibilit/.test(s)) spec.obiettivo = 'notorieta';
     else if (/\bvisite\b|traffico|portare (?:gente|persone) sul sito/.test(s)) spec.obiettivo = 'traffico';
     // a chi è rivolto, vantaggi dell'offerta, quando parte (regole di riserva, se la lettura del testo non risponde)
     const filtri = {};
     if (/\bdonne\b|ragazze|mamme|femminil/.test(s) && !/uomini/.test(s)) filtri.genere = ['donna'];   // «signore» no: può essere un signore
     else if (/\buomini\b|papà|maschil/.test(s) && !/donne|ragazze/.test(s)) filtri.genere = ['uomo'];
     const FASCE = [['18-24', 18, 24], ['25-34', 25, 34], ['35-44', 35, 44], ['45-54', 45, 54], ['55-64', 55, 64], ['65+', 65, 120]];
-    const anni = s.match(/\b(?:da\s*)?(1[89]|[2-9]\d)\s*(?:-|–|a)\s*([2-9]\d)\b(?!\s*(?:%|€|euro))/) || s.match(/(?:over|oltre i?)\s*(\d{2})()/);
+    const anni = s.match(/\b(?:da\s*)?(1[89]|[2-9]\d)\s*(?:-|–|a)\s*([2-9]\d)\b(?!\s*(?:%|€|euro))/) || s.match(/(?:over|oltre i?|sopra i|più di)\s*(\d{2})\s*(?:anni)?()(?!\s*(?:%|€|euro))/);
+    const sotto = !anni && s.match(/(?:under|sotto i?)\s*(\d{2})\b/);
+    const etaInNumeri = !!anni;
     if (anni) { const a = +anni[1], b = anni[2] ? +anni[2] : 120; filtri.eta = FASCE.filter(f => f[2] >= a && f[1] <= b).map(f => f[0]); }
-    else if (/\bgiovani\b|ragazz[ie]\b|ventenni|gen z|studenti/.test(s)) filtri.eta = ['18-24', '25-34'];
+    else if (sotto) filtri.eta = FASCE.filter(f => f[1] < +sotto[1]).map(f => f[0]);
+    else if (/superiori|maturand|neodiplomat/.test(s)) filtri.eta = ['18-24'];
+    else if (/\bgiovan[ie]\b|ragazz[ie]\b|ventenni|gen z|studenti/.test(s)) filtri.eta = ['18-24', '25-34'];
     else if (/pensionat|anzian|terza età/.test(s)) filtri.eta = ['65+'];
     if (/mamme|neogenitori|genitori|con bambini|figli piccoli/.test(s)) filtri.famiglia = ['figli_piccoli'];
-    const aree = [[/milano|torino|genova|lombardia|piemonte|liguria|nord-?ovest/, 'nord_ovest'], [/venezia|bologna|verona|veneto|emilia|trentino|friuli|nord-?est/, 'nord_est'],
-      [/\broma\b|firenze|toscana|lazio|marche|umbria|centro italia/, 'centro'], [/napoli|\bbari\b|campania|puglia|calabria|\bsud\b/, 'sud'], [/sicilia|sardegna|palermo|cagliari/, 'isole']];
+    if (/reddito alto|alto reddito|benestant|facoltos|alto spendente|alto potere d.acquisto/.test(s)) filtri.reddito = ['alto'];
+    else if (/reddito basso|basso reddito|budget limitato|famiglie in difficoltà/.test(s)) filtri.reddito = ['basso'];
+    const aree = [[/milano|torino|genova|bergamo|brescia|\bmonza\b|varese|\bcomo\b|novara|lombardia|piemonte|liguria|valle d.aosta|nord-?ovest|lombard[oaie]\b|milanes|torines|piemontes|genoves|ligur[ei]\b/, 'nord_ovest'],
+      [/venezia|bologna|verona|padova|vicenza|treviso|trieste|trento|bolzano|modena|\bparma\b|rimini|ravenna|veneto|emilia|trentino|friuli|nord-?est|venet[oaie]\b|emilian|bolognes|friulan|veronesi/, 'nord_est'],
+      [/\broma\b|firenze|\bpisa\b|siena|livorno|perugia|ancona|latina|toscana|lazio|(?:nelle|regione) marche|umbria|centro italia|toscan[oaie]\b|fiorentin|lazial|\bromani\b|\bromane\b|marchigian|umbr[oaie]\b/, 'centro'],
+      [/napoli|\bbari\b|salerno|caserta|lecce|taranto|foggia|pescara|reggio calabria|cosenza|campania|puglia|calabria|abruzzo|molise|basilicata|\bsud\b|mezzogiorno|campan[oaie]\b|napoletan|puglies|calabres|abruzzes|lucan[oaie]\b|salentin/, 'sud'],
+      [/sicilia|sardegna|palermo|cagliari|catania|messina|siracusa|sassari|sicilian|\bsard[oaie]\b|palermitan|catanes/, 'isole']];
     const ar = aree.filter(([rx]) => rx.test(s)).map(x => x[1]);
     if (ar.length) filtri.area = ar;
     spec.filtri = filtri;
+    const CITTA = { milano: 1370000, roma: 2750000, napoli: 910000, torino: 850000, palermo: 630000, genova: 560000, bologna: 390000, firenze: 360000,
+      bari: 315000, catania: 300000, verona: 255000, venezia: 250000, messina: 220000, padova: 210000, trieste: 200000, brescia: 196000, parma: 196000,
+      modena: 184000, 'reggio calabria': 170000, perugia: 165000, cagliari: 150000, bergamo: 120000, salerno: 127000, lecce: 95000, pescara: 118000 };
+    const citta = Object.keys(CITTA).find(c => new RegExp('\\b(?:a|di|in|zona|centro di)\\s+' + c + '\\b').test(s));
+    const locale = /ristorant|pizzeri|trattori|sushi|\bbar\b|pasticceri|gelateri|palestr|negozio|bottega|studio (?:dentistico|medico|legale)|dentist|parrucch|estetist|centro estetico|idraulic|elettricist|agenzia immobiliare|ottica|\bottico\b|lavanderi|officina|autofficina|mobilifici|concessionari|scuola di|studio di yoga|corsi di yoga in studio|fotograf|trasloc|coworking|ditta|impresa di|carrozzer|veterinari|pizzeria|panifici|fiorai|fioreria|libreria|enoteca|asilo|b&b|agriturismo|centro (?:sportivo|medico|commerciale)|salone/.test(s);
+    const chiede = /preventiv|sopralluog|prenota|appuntament|chiamaci|contattaci|prima visita|valutazione gratuita/.test(s);
+    if (citta && (locale || chiede)) spec.zona = { descrizione: citta.replace(/\b\w/g, x => x.toUpperCase()), persone: Math.round(CITTA[citta] * 0.84 * (/\bzona\b|quartiere|\bentro \d+ ?km/.test(s) ? 0.35 : 1)) };
+    const NICCHIE = [[/studi dentistic|\bdentisti\b/, 'titolari di studi dentistici', 42000], [/\bavvocati|studi legali/, 'avvocati', 240000],
+      [/commercialist|studi di consulenza fiscale/, 'commercialisti', 118000], [/ristorator|titolari di ristorant/, 'ristoratori', 330000],
+      [/\bmedici\b|studi medici/, 'medici', 240000], [/architett/, 'architetti', 150000], [/farmacist|farmacie/, 'farmacisti', 100000],
+      [/agricoltor|aziende agricole/, 'agricoltori', 400000], [/parrucchier|centri estetici|estetist/, 'parrucchieri ed estetiste', 150000],
+      [/responsabili (?:commerciali|vendite|marketing|acquisti|hr|risorse umane)|direttori commerciali/, 'responsabili commerciali e marketing', 300000],
+      [/piccole (?:e medie )?(?:aziende|imprese)|\bpmi\b/, 'titolari di piccole aziende', 900000], [/\bb2b\b|per aziende|alle aziende/, 'aziende', 900000]];
+    const nic = NICCHIE.find(([rx]) => rx.test(s));
+    if (nic) spec.nicchia = { descrizione: nic[1], persone: nic[2], b2b: true };
+    // dove abita il pubblico: una città nominata è spesso dove sta il prodotto (una meta, un hotel), non chi lo compra
+    const residenti = /per chi (?:abita|vive)|resident|abitant|a chi vive|in zona|nei dintorni|vicin|entro \d+ ?km|della provincia|del quartiere|pubblico (?:di|a|in)\b/.test(s);
     spec.extra = [[/spedizion\w* gratu/, 'spedizione_gratuita'], [/reso gratu|soddisfatti o rimborsati/, 'reso_gratuito'], [/garanzia/, 'garanzia'],
       [/a rate|rateal|in \d+ rate/, 'rate'], [/in regalo|in omaggio|omaggio/, 'regalo'], [/prova gratu|campione gratu/, 'prova_gratuita']].filter(([rx]) => rx.test(s)).map(x => x[1]);
     const oggi = new Date(), anno = oggi.getFullYear();
@@ -111,9 +152,9 @@ window.Analisi = (function () {
     if (/black friday/.test(s)) { const nov = new Date(Date.UTC(anno, 10, 1)), bf = new Date(nov); bf.setUTCDate(1 + ((5 - nov.getUTCDay() + 7) % 7) + 21); bf.setUTCDate(bf.getUTCDate() - 7); if (bf > oggi) spec.inizio = bf.toISOString().slice(0, 10); }
     else if (/natale|natalizi/.test(s)) spec.inizio = futura(11, 1);
     else if (mese >= 0) spec.inizio = futura(mese, 1);
-    let unita = /scaric|download|install|\bapp\b|gioco (?:per|sul|da) (?:telefono|cellulare|smartphone)|mobile game/.test(s) ? 'download'
-      : /preventiv|prenota|appuntament|\bdemo\b|colloqui|richiest\w* (?:di )?(?:informazioni|contatto)|contattaci|visita gratuita|consulenza/.test(s) ? 'contatti'
-      : /iscri|registra/.test(s) ? 'iscrizioni' : 'acquisti';
+    let unita = /scaric|download|install|gioco (?:per|sul|da) (?:telefono|cellulare|smartphone)|mobile game|\bapp (?:gratuit|gratis)|\bapp di (?:gioc|allenament)|\b(?:nuova|nostra) app\b(?![^.]{0,30}(?:ordin|prenot))/.test(s) ? 'download'
+      : /preventiv|prenota|appuntament|\bdemo\b|colloqui|richiest\w* (?:di )?(?:informazioni|contatto)|richiedi|contattaci|chiamaci|visita gratuita|prima visita|consulenza|test drive|prova su strada|valutazione gratuita|lezione di prova|lezione gratuita|sopralluog/.test(s) ? 'contatti'
+      : /iscri|registra|apri (?:il|un) conto|aprire (?:il|un) conto|apertura (?:del|di un) conto/.test(s) ? 'iscrizioni' : 'acquisti';
     // gratis vale per il prodotto, non per spedizione, reso o prova
     let gratis = /gratis|gratuit|\bfree\b/.test(s.replace(/(?:spedizion\w*|reso|consegna|prova|campione|resi)\s+(?:è\s+)?gratu\w*|gratis la spedizione/g, ' ')), ia = false, messaggio = null, suggerimenti = [];
     // quello che ha capito la lettura del testo (funzione /api/leggi) vale più delle regole a parole chiave; 0, vuoto o non_indicato = non detto
@@ -121,7 +162,12 @@ window.Analisi = (function () {
     if (brief && brief.fonte === 'ia' && brief.f) spec.creativita = brief.f;
     if (ia2) {
       ia = true;
-      if (ia2.canale !== 'non_indicato') { spec.canale = ia2.canale; spec.canale_indicato = true; }
+      // il mezzo detto con il suo nome vince se la lettura del testo non lo conosce (LinkedIn, TV, radio, cartelloni, giornali)
+      const nominato = c && ['linkedin', 'tv', 'radio', 'affissioni', 'stampa'].includes(c[1]) ? c[1] : null;
+      if (nominato) { spec.canale = nominato; spec.canale_indicato = true; }
+      else if (ia2.canale !== 'non_indicato') { spec.canale = ia2.canale; spec.canale_indicato = true; }
+      // con la lettura del testo, l'area la decide lei: le regole vedono solo nomi di città
+      if (!(ia2.pubblico && ia2.pubblico.area && ia2.pubblico.area.length) && !spec.zona) delete spec.filtri.area;
       if (ia2.categoria && ia2.categoria !== 'generica') spec.categoria_ia = ia2.categoria;   // il motore la controlla con le parole del testo
       if (ia2.formato_campagna !== 'non_indicato') spec.formato = ia2.formato_campagna;
       if (ia2.budget_giorno > 0) spec.budget_giorno = ia2.budget_giorno;
@@ -132,16 +178,26 @@ window.Analisi = (function () {
       spec.obiettivo = ia2.obiettivo;
       if (ia2.leve && ia2.leve.length) spec.leve = ia2.leve;
       if (ia2.prodotto) spec.descrizione_prodotto = ia2.prodotto + '. ' + testo;
+      const etaRegole = etaInNumeri ? spec.filtri.eta : null;
       if (ia2.pubblico) Object.entries(ia2.pubblico).forEach(([k, v]) => { if (v && v.length) spec.filtri[k] = v; });   // le regole restano dove la lettura del testo tace
+      if (etaRegole) spec.filtri.eta = etaRegole;   // «25-44», «over 50»: i numeri scritti si leggono esatti
+      // un budget totale scritto: la divisione si fa sui giorni della campagna (la lettura del testo a volte divide per 14)
+      if (totale > 0 && spec.giorni > 0 && Math.abs(spec.budget_giorno * spec.giorni / totale - 1) > 0.08) spec.budget_giorno = totale / spec.giorni;
       if (ia2.inizio) spec.inizio = ia2.inizio;
       if (ia2.trend && ia2.trend !== 'non_indicato') spec.trend = { in_calo: 0.8, normale: 1, in_crescita: 1.3, di_moda: 1.6 }[ia2.trend];
       if (ia2.extra) spec.extra = [...new Set([...spec.extra, ...ia2.extra])];
-      unita = ia2.risultato; gratis = ia2.gratis;
+      // contatti: la lettura vecchia del testo non li conosce e li chiama iscrizioni
+      // per un'attività locale prenotare o venire a provare è un contatto, non un acquisto online
+      unita = unita === 'contatti' && (ia2.risultato === 'iscrizioni' || (ia2.risultato === 'acquisti' && spec.zona)) ? 'contatti' : ia2.risultato; gratis = ia2.gratis;
       if (typeof ia2.fisico === 'boolean') spec.fisico = ia2.fisico;
+      else if (/spedizion|spedit|consegna (?:a domicilio|in \d|gratuit)|a casa tua|\bkg\b|confezion|bottigli|google shopping/.test(s)) spec.fisico = true;   // un oggetto che arriva a casa
       if (ia2.nicchia && ia2.nicchia.persone > 0) spec.nicchia = ia2.nicchia;
       if (ia2.zona && ia2.zona.persone > 0) spec.zona = ia2.zona;
+      // viaggi, hotel, mete: il luogo è dove si va, non dove abita chi compra (salvo che il testo lo dica)
+      if (ia2.categoria === 'viaggi' && !spec.zona && !residenti) { delete spec.filtri.area; delete spec.filtri.comune; }
       if (ia2.profilo) spec.profilo = ia2.profilo;   // chi lo compra di solito, prezzo di prodotti simili, frequenza, costo dei click
     }
+    if (spec.fisico == null && /spedizion|spedit|consegna (?:a domicilio|in \d|gratuit)|a casa tua|\bkg\b|confezion|bottigli/.test(s)) spec.fisico = true;
     // cosa conta come risultato: un contatto o un'iscrizione non sono un incasso; un download gratuito nemmeno
     spec.conversione = CONVERSIONE[unita] || 'acquisto';
     if (spec.conversione === 'acquisto' && gratis) spec.conversione = 'iscrizione';
@@ -168,6 +224,12 @@ window.Analisi = (function () {
       messaggio = { beneficio: g.beneficio, concretezza, prova, invito, adatto };
       messaggio.forza = messaggio.beneficio + concretezza + prova + invito + messaggio.adatto;
       spec.forza = messaggio.forza; suggerimenti = brief.suggerimenti || [];
+    }
+    // «meglio Instagram o TikTok?»: il mezzo non è deciso, lo sceglie l'analisi tra quelli nominati
+    const dom = domanda(testo);
+    if (dom && dom.tipo === 'canale') {
+      spec.canale_indicato = false;
+      if (dom.canali.length >= 2) { spec.canali_candidati = dom.canali; spec.canale = dom.canali[0]; }
     }
     // dallo storico, solo dove il testo tace
     if (riserva) {
@@ -358,14 +420,15 @@ window.Analisi = (function () {
       const vecchi = cand.filter(i => ANZIANI.test(nomi[i]));
       if (p.eta >= 62 && vecchi.length) cand = vecchi; else if (p.eta < 50) cand = cand.filter(i => !ANZIANI.test(nomi[i])).concat(cand.length ? [] : vecchi);
       if (!cand.length) cand = nomi.map((n, i) => i).filter(i => !usati.has(i));
+      if (!cand.length) { usati.clear(); cand = nomi.map((n, i) => i); }   // più persone che personaggi: si ricomincia
       const id = cand[Math.floor(Math.random() * cand.length)] || 0;
       usati.add(id);
       return id;
     });
   }
   function personeDaMostrare(m) {
-    // il mondo è largo il doppio dello schermo: allontanandosi con lo zoom se ne vedono il doppio
-    const quante = window.innerWidth < 600 ? 28 : 60, per = Math.max(2, Math.ceil(quante / m.pubblici.length));
+    // il piano è tre volte lo schermo in larghezza e in altezza: allontanandosi con lo zoom la folla riempie tutto
+    const quante = window.innerWidth < 600 ? 150 : 320, per = Math.max(2, Math.ceil(quante / m.pubblici.length));
     const out = [];
     // per ogni pubblico alterna chi compra, chi clicca e chi passa oltre (le persone arrivano raggruppate per esito)
     const misto = lista => { const g = ['compra', 'clicca', 'passa'].map(e => lista.filter(x => x.esito === e)), r = [];
@@ -397,7 +460,7 @@ window.Analisi = (function () {
       if (punti) punti.ferma();
       const cp = nuovaTela('#a-prato'), cf = nuovaTela('#a-folla');
       const h = st.clientHeight, stretto = window.innerWidth < 600, giu = stretto ? 96 : 76, ids = personaggi(persone);
-      scena = window.Flock.campo(null, cf, { altezza: h, ids, scale: stretto ? [2, 3] : [3, 4], fondo: Math.max(0.3, (h - giu - h * 0.24) / h), suolo: giu, mondo: 2 });
+      scena = window.Flock.campo(null, cf, { altezza: h, ids, scale: stretto ? [2, 2] : [3, 3], suolo: giu, mondo: 3, mondoH: 3, piano: true });
       punti = window.Flock.puntini(cp, { area: st, sorgenti: () => scena.omini.map(o => scena.piedi(o)),
         vista: () => ({ z: scena.zoom, ox: scena.ox, oy: scena.oy }) });
       zoomControlli(st, cf);
@@ -417,12 +480,12 @@ window.Analisi = (function () {
     let inizio = null, mosso = false, ultimo = null, distanza = 0;
     const pos = e => { const r = cf.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
     const livello = () => { const z = $('#a-zoom-val'); if (z) z.textContent = Math.round(scena.zoom * 100) + '%'; };
-    const zoomA = (z, fx) => { scena.zoomA(z, fx); livello(); };
+    const zoomA = (z, fx, fy) => { scena.zoomA(z, fx, fy); livello(); };
     cf.addEventListener('wheel', e => {
       e.preventDefault();
       const p = pos(e);
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && !e.ctrlKey) { scena.sposta(-e.deltaX); return; }
-      zoomA(scena.zoom * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0018)), p.x);
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && !e.ctrlKey) { scena.sposta(-e.deltaX, 0); return; }
+      zoomA(scena.zoom * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0018)), p.x, p.y);
     }, { passive: false });
     cf.addEventListener('pointerdown', e => {
       cf.setPointerCapture(e.pointerId);
@@ -436,11 +499,11 @@ window.Analisi = (function () {
       dita.set(e.pointerId, p);
       if (dita.size === 2) {   // pizzico
         const [a, b] = [...dita.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (distanza > 0) zoomA(scena.zoom * d / distanza, (a.x + b.x) / 2);
+        if (distanza > 0) zoomA(scena.zoom * d / distanza, (a.x + b.x) / 2, (a.y + b.y) / 2);
         distanza = d; return;
       }
       if (!mosso && Math.hypot(p.x - inizio.x, p.y - inizio.y) > 6) mosso = true;
-      if (mosso) { scena.sposta(p.x - ultimo.x); cf.style.cursor = 'grabbing'; }
+      if (mosso) { scena.sposta(p.x - ultimo.x, p.y - ultimo.y); cf.style.cursor = 'grabbing'; }
       ultimo = p;
     });
     const su = e => {
@@ -457,7 +520,7 @@ window.Analisi = (function () {
     cf.addEventListener('pointercancel', e => { dita.delete(e.pointerId); distanza = 0; });
     const z = $('#a-zoom');
     z.innerHTML = `<button type="button" data-z="-1" aria-label="Allontana">−</button><span id="a-zoom-val">100%</span><button type="button" data-z="1" aria-label="Avvicina">+</button>`;
-    $$('button', z).forEach(b => b.addEventListener('click', () => zoomA(scena.zoom * (b.dataset.z > 0 ? 1.25 : 0.8), st.clientWidth / 2)));
+    $$('button', z).forEach(b => b.addEventListener('click', () => zoomA(scena.zoom * (b.dataset.z > 0 ? 1.25 : 0.8), st.clientWidth / 2, st.clientHeight / 2)));
     livello();
   }
   function apriScheda(o) {
@@ -470,7 +533,7 @@ window.Analisi = (function () {
       <p class="chi">${esc(p.lavoro)} · ${esc(p.reddito)} · ${esc(p.famiglia)}</p>
       <p class="esito"><span class="bollino ${esito[1]}">${esito[0]}</span>ha visto l’annuncio ${p.visto} ${p.visto === 1 ? 'volta' : 'volte'}</p>
       <dl class="tre-n"><div><dd>${nf(100 * p.prob_click, 1)}%</dd><dt>clicca</dt></div><div><dd>${p.esito === 'passa' ? '–' : nf(100 * p.prob_acquisto, 1) + '%'}</dd><dt>${esc(u.plur === 'acquisti' ? 'compra' : u.plur === 'download' ? 'scarica' : 'si iscrive')} dopo il click</dt></div><div><dd>${p.resa ? '×' + nf(p.resa, 1) : '–'}</dd><dt>resa per euro</dt></div></dl>
-      ${p.perche && p.perche.length ? `<p class="perche">${p.perche.map(esc).join(' · ')}</p>` : ''}
+      ${motivi(p, donna, u)}
       <p class="gruppo"><i style="background:${COLORE_TIPO[p.pubblico.tipo] || GRIGIO}"></i>${esc(M.etichettaPubblico(p.pubblico))}${p.persone_simili ? ` · ${ni(p.persone_simili)} persone come ${donna ? 'lei' : 'lui'} in Italia` : ''}</p></div>`;
     sch.hidden = false;
     sch.classList.remove('entra'); void sch.offsetWidth; sch.classList.add('entra');
@@ -498,6 +561,19 @@ window.Analisi = (function () {
     cancelAnimationFrame(segui); muovi();
     $('#a-aiuto').hidden = true;
   }
+  // perché ha fatto quello che ha fatto: i motivi a favore e quelli contro, legati all'annuncio provato
+  function motivi(p, donna, u) {
+    const si = p.perche_si || (p.esito === 'passa' ? [] : p.perche || []), no = p.perche_no || (p.esito === 'passa' ? p.perche || [] : []);
+    const lo = donna ? 'la' : 'lo', fatto = u.fatto[donna ? 0 : 1].replace(/^Ha /, 'ha ').replace(/^Si /, 'si ');
+    const titoli = {
+      compra: [[`Perché ${fatto}`, si, 'si'], [`Cosa poteva fermar${lo}`, no, 'no']],
+      clicca: [['Perché ha cliccato', si, 'si'], [u.plur === 'acquisti' ? 'Perché non ha comprato' : 'Perché si è fermat' + (donna ? 'a' : 'o'), no, 'no']],
+      passa: [[`Perché è passat${donna ? 'a' : 'o'} oltre`, no, 'no'], [`Cosa ${donna ? 'le' : 'gli'} piaceva`, si, 'si']],
+    }[p.esito] || [];
+    const blocchi = titoli.filter(([, lista]) => lista && lista.length).map(([titolo, lista, verso]) =>
+      `<div class="motivi ${verso}"><b>${esc(titolo)}</b><ul>${lista.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`);
+    return blocchi.length ? `<div class="motivi-tutti">${blocchi.join('')}</div>` : '';
+  }
   function chiudiScheda(silenzioso) {
     cancelAnimationFrame(segui);
     if (scelto) { scelto.bloccato = false; scelto.scelto = false; scelto.imposta('camminata'); scelto = null; }
@@ -523,6 +599,65 @@ window.Analisi = (function () {
     return `<div class="a-capito"><span class="a-capito-t">${fonte}</span>${voci.map(v => `<span>${esc(v)}</span>`).join('')}<a href="#/nuova" data-modifica>Modifica</a></div>
       ${m.nuova.ipotesi.length ? `<p class="a-nota">${esc(m.nuova.ipotesi.filter(x => !/^Categoria letta|^Pubblico indicato|^Pubblico di nicchia|^Attività locale/.test(x) && !(contesto.gratis && /^Prezzo/.test(x))).join(' · '))}</p>` : ''}
       ${m.nuova.taratura ? `<p class="a-nota a-tarato">Tarato su ${esc(contesto.fonte || 'il tuo storico')}${contesto.marca ? ' (' + esc(contesto.marca) + ')' : ''}: per questa marca i click partono da ×${nf(Math.exp(m.nuova.taratura.ctr), 2)} e il costo da ×${nf(Math.exp(m.nuova.taratura.cpm), 2)} rispetto al tipico del settore.</p>` : ''}`;
+  }
+  /* ------------------------------------------------- la domanda scritta nel prompt */
+  // Se chi scrive fa una domanda («meglio Instagram o TikTok?», «quanto devo spendere?», «a chi lo mostro?»,
+  // «quante vendite faccio?»), la risposta va in cima all'analisi, con i numeri del simulatore.
+  const NOMI_CANALE = [[/tiktok|\breels?\b|\bshorts?\b/, 'video_brevi'], [/youtube/, 'video'], [/shopping/, 'shopping'], [/google|ricerca/, 'ricerca'],
+    [/banner|display/, 'display'], [/e-?mail|newsletter/, 'email'], [/linkedin/, 'linkedin'], [/instagram|facebook|\bmeta\b/, 'social'],
+    [/\btv\b|televisi/, 'tv'], [/\bradio\b/, 'radio'], [/cartellon|affission|manifest/, 'affissioni'], [/giornal|rivist|quotidian/, 'stampa']];
+  function domanda(testo) {
+    const s = ' ' + String(testo || '').toLowerCase().replace(/\s+/g, ' ') + ' ';
+    const chiede = /\?|\bmeglio\b|\bconviene\b|\bvale la pena\b|\bdimmi\b|\bvorrei sapere\b|\bcapire\b/.test(s);
+    if (!chiede) return null;
+    const canali = [...new Set(NOMI_CANALE.filter(([rx]) => rx.test(s)).map(x => x[1]))];
+    if ((canali.length >= 2 && /\bmeglio\b|\bconviene\b|\bo\b.*\?|\boppure\b/.test(s)) || /(?:quale|che|su che|su quale|dove)\s+(?:canale|social|piattaforma|mezzo)|dove (?:conviene|è meglio) (?:pubblicare|investire|fare)/.test(s)) return { tipo: 'canale', canali };
+    if (/quanto (?:devo |dovrei |mi conviene |posso )?(?:spendere|investire|mettere)|(?:che|quale|quanto) budget|budget (?:giusto|ideale|minimo|ottimale)/.test(s)) return { tipo: 'budget' };
+    if (/a chi (?:lo |la |li |le )?(?:mostr|rivolg|punt|vend|indirizz)|(?:che|quale) (?:pubblico|target)|chi (?:lo |la )?compr/.test(s)) return { tipo: 'pubblico' };
+    if (/quant[ie] (?:vendite|clienti|download|iscritti|iscrizioni|contatti|persone|click|ordini|prenotazioni)|quanto (?:vendo|vender|guadagn|incass|rende)|vale la pena|funzioner/.test(s)) return { tipo: 'risultati' };
+    return null;
+  }
+  function risposta(m) {
+    if (m.sorgente !== 'nuova' || !contesto.domanda) return '';
+    const d = contesto.domanda, C = m.nuova.campagna, u = m.u, T = m.tot, ob = C.obiettivo;
+    const ris = t => (ob === 'notorieta' ? t.persone_raggiunte : ob === 'traffico' ? t.click : t.acquisti);
+    const quanti = v => (ob === 'notorieta' ? ni(v) + ' persone raggiunte' : ob === 'traffico' ? ni(v) + ' click' : n1(v) + ' ' + u.plur);
+    let testo = '';
+    if (d.tipo === 'canale') {
+      const mezzi = ((m.nuova.strategia || {}).mezzi || []).filter(x => x.fattibile !== false);
+      const scelti = d.canali.length >= 2 ? mezzi.filter(x => d.canali.includes(x.canale)) : mezzi;
+      const ord = scelti.slice().sort((a, b) => ris(b.totali) - ris(a.totali));
+      const nome = x => CANALI[x.canale] || x.nome;
+      if (ord.length >= 2) {
+        const a = ord[0], b = ord[1], ra = ris(a.totali), rb = ris(b.totali), piu = rb > 0 ? ra / rb - 1 : 0;
+        testo = `Meglio <b>${esc(nome(a))}</b>: con lo stesso budget porta circa <b>${quanti(ra)}</b>, contro ${quanti(rb)} su ${esc(nome(b))}${piu > 0.04 ? ` (<b>+${pc(piu * 100)}</b>)` : ', quasi alla pari'}.`;
+        if (d.canali.length < 2 && ord[2]) testo += ` Terzo: ${esc(nome(ord[2]))}, ${quanti(ris(ord[2].totali))}.`;
+      } else if (ord.length === 1) testo = `Tra i mezzi provati rende di più <b>${esc(nome(ord[0]))}</b>: circa ${quanti(ris(ord[0].totali))} con tutto il budget.`;
+    } else if (d.tipo === 'budget') {
+      const b0 = C.budget_giorno, S0 = T.spesa, e = ELASTICITA;
+      if (m.conAcquisti && m.ricavi && T.ricavi > 0) {
+        // il budget che dà il guadagno più alto: ricavi che crescono meno della spesa (rendimenti decrescenti)
+        const S = S0 * Math.pow((1 - e) * T.ricavi / S0, 1 / e), b = Math.min(Math.max(S / S0, 0.25), 3) * b0;
+        const fuori = S / S0 > 3 ? ' (e anche di più)' : S / S0 < 0.25 ? ' (anche meno)' : '';
+        testo = T.ricavi < S0 && S / S0 < 0.25
+          ? `Con questi numeri l'annuncio non si ripaga a nessun budget: ogni euro torna ×${nf(T.ricavi / S0, 2)}. Conviene prima cambiare pubblico, canale o messaggio.`
+          : `Il guadagno più alto arriva intorno a <b>${eur(b)} al giorno</b>${fuori}: lì ogni euro in più rende ancora quanto costa. Con ${eur(b0)} al giorno ogni euro speso torna ×${nf(T.ricavi / S0, 2)}.`;
+      } else {
+        const r = k => T.acq * Math.pow(k, 1 - e), cpa = k => (S0 * k) / Math.max(r(k), 1e-9);
+        const val = m.conAcquisti ? n1 : ni, uni = m.conAcquisti ? u.plur : 'click', base = m.conAcquisti ? T.acq : T.clk;
+        const r2 = base * Math.pow(2, 1 - e), r05 = base * Math.pow(0.5, 1 - e);
+        testo = `Con ${eur(b0)} al giorno: circa <b>${val(base)} ${uni}</b> a ${eur(S0 / Math.max(base, 1e-9))} l'uno. Con il doppio: ${val(r2)} a ${eur(2 * S0 / Math.max(r2, 1e-9))} l'uno; con la metà: ${val(r05)} a ${eur(0.5 * S0 / Math.max(r05, 1e-9))}. Più budget porta di più, ma ogni risultato costa un po' di più.`;
+        void cpa;
+      }
+    } else if (d.tipo === 'pubblico') {
+      const t = m.nuova.target && m.nuova.target.principale, best = m.migliore;
+      testo = t ? `Punta su <b>${esc(t.descrizione)}</b>: rispondono ${nf(t.indice, 1)} volte la media e valgono il ${pc(t.quota_risultati * 100)} dei ${esc(u.plur)} possibili.` : '';
+      testo += ` Tra i pubblici delle piattaforme rende di più <b>${esc(m.etichettaPubblico(best).toLowerCase())}</b>.`;
+    } else if (d.tipo === 'risultati') {
+      const roas = T.ricavi / Math.max(T.spesa, 1e-9);
+      testo = `Circa <b>${quanti(ris({ persone_raggiunte: T.raggiunte, click: T.clk, acquisti: T.acq }))}</b> con ${eur(T.spesa)} in tutto${T.acqBasso && T.acqAlto && ob === 'vendite' ? ` (8 volte su 10 tra ${n1(T.acqBasso)} e ${n1(T.acqAlto)})` : ''}.${m.conAcquisti && m.ricavi ? ` Ogni euro speso torna ×${nf(roas, 2)}: ${roas >= 1 ? 'si ripaga' : 'non si ripaga ancora'}.` : ''}`;
+    }
+    return testo ? `<div class="a-risposta"><span class="a-risposta-t">La tua domanda</span><p>${testo}</p></div>` : '';
   }
   function rAnalisi() {
     const m = M, T = m.tot, best = m.migliore, el = $('#a-contenuto'), u = m.u, nuova = m.sorgente === 'nuova';
@@ -577,6 +712,7 @@ window.Analisi = (function () {
           ${contesto.creativa && nuova && contesto.creativa.vista && contesto.creativa.vista.testo_visibile ? `<p class="a-scritte">Scritte: «${esc(contesto.creativa.vista.testo_visibile)}»</p>` : ''}</div>
         </div>
         ${capito(m)}
+        ${risposta(m)}
         ${!nuova && contesto.prompt ? `<p class="a-nota">Il tuo annuncio: «${esc(contesto.prompt)}» · come andrebbe su queste campagne è più sotto.</p>` : ''}
         <p class="a-frase">${frase}</p>
         <dl class="a-kpi">
@@ -915,6 +1051,7 @@ window.Analisi = (function () {
   }
   function apri(tipo, dati, ctx) {
     sorgente = tipo; nuovaDati = dati || null; contesto = ctx || {}; filtroPub = 'tutti'; M = null;
+    contesto.domanda = contesto.domanda || domanda(contesto.prompt);   // una domanda nel prompt: la risposta va in cima
     if (location.hash === '#/analisi') mostra('persone'); else location.hash = '#/analisi';
   }
   function mostra(quale) {

@@ -152,8 +152,11 @@ campagna: i dati della campagna, se il testo li dice o li lascia capire con chia
 - canale, uno tra:
 ${elenco(Object.keys(CANALI), CANALI)}
 - formato_campagna, uno tra: ${FORMATI_CAMPAGNA.join(", ")} (video_breve per video fino a 60 secondi su social e TikTok).
-- budget_giorno in euro al giorno; se il testo dà solo un budget totale, dividilo per i giorni (14 se i giorni non sono indicati).
-- giorni: durata della campagna in giorni (2 settimane = 14, un mese = 30).
+- budget_giorno in euro al giorno; se il testo dà solo un budget totale, dividilo per i giorni della campagna detti nel testo
+  (3 settimane = 21; 14 solo se i giorni non sono indicati); un budget al mese si divide per 30. Il prezzo di un abbonamento
+  («29 euro al mese») non è un budget.
+- giorni: durata della campagna pubblicitaria in giorni (2 settimane = 14, un mese = 30, «per tutto giugno» = 30). Non la durata del
+  prodotto: una prova gratuita di 14 giorni, 3 mesi di lezioni, un soggiorno di 7 notti non sono la durata della campagna (0 se non è detta).
 - prezzo: prezzo del prodotto in euro, prima dello sconto.
 - sconto_percento: lo sconto in percento (20 per -20%).
 - marchio: nuovo (appena lanciato, nessuno lo conosce), conosciuto, famoso, oppure non_indicato.
@@ -180,7 +183,9 @@ ${elenco(Object.keys(CANALI), CANALI)}
 - gratis: true se il prodotto si ottiene gratis (app o gioco gratuito, prova gratuita).
 - leve: le leve dell'offerta presenti nel testo, tra:
 ${elenco(Object.keys(LEVE_CAMPAGNA), LEVE_CAMPAGNA)}
-- pubblico: solo se il testo dice a chi e rivolto l'annuncio; liste vuote per tutto cio che non dice. Valori ammessi:
+- pubblico: solo se il testo dice a chi e rivolto l'annuncio; liste vuote per tutto cio che non dice. Il luogo del prodotto non è il
+  pubblico: un hotel a Roma, vacanze in Sardegna o una crociera si vendono a chi abita ovunque (area vuota); l'area va messa solo
+  per un'attività locale (vedi zona) o se il testo dice dove abita chi deve vedere l'annuncio. Valori ammessi:
   eta ${PUBBLICO.eta.join(", ")} ("giovani" = 18-24 e 25-34; "mamme" = donna con figli_piccoli; "pensionati" = 65+);
   genere ${PUBBLICO.genere.join(", ")}; area ${PUBBLICO.area.join(", ")} (Milano, Torino, Genova, Lombardia, Piemonte, Liguria = nord_ovest;
   Venezia, Bologna, Verona, Veneto, Emilia-Romagna, Trentino, Friuli = nord_est; Roma, Firenze, Toscana, Lazio, Marche, Umbria = centro;

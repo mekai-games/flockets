@@ -256,7 +256,7 @@ window.Account = (function () {
     else if (stato === 'errore') s.innerHTML = '<button type="button" class="testo-link">Non salvato · riprova</button>';
     else if (corrente.condiviso) s.innerHTML = `Dal portachiavi ${esc(corrente.condiviso)}`;
     else if (corrente.id) s.innerHTML = '<a href="#/profilo">✓ Nei tuoi progetti</a>';
-    else s.innerHTML = '<button type="button" class="testo-link">Accedi per salvarla</button>';
+    else { s.hidden = true; s.innerHTML = ''; }   // da non collegati niente avviso: entrando, l'analisi aperta si salva da sola
     const b = $('button', s);
     if (b) b.addEventListener('click', () => (utente ? salva(corrente) : apriAccesso('accedi', { salva: true })));
   }

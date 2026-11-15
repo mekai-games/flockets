@@ -142,6 +142,8 @@
       this.contorno = !!o.contorno; this.ombra = o.ombra !== false; this.linea = o.linea !== false; this.colore = o.colore || '#F2551D';
       // telecamera: il mondo può essere più largo dello schermo (mondo = 2: il doppio); zoom e spostamento
       this.mondo = o.mondo || 1; this.zoom = 1; this.ox = 0; this.oy = 0; this.vw = 0; this.dpr = 1;
+      // mondoH > 1: il mondo è anche più alto dello schermo (la vista Persone è un piano da esplorare in tutte le direzioni)
+      this.mondoH = o.mondoH || 1;
       this.ridimensiona();
       scene.add(this); avvia();
     }
@@ -149,7 +151,7 @@
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
       const vw = this.c.clientWidth || 300;
       const k = this.vw ? vw / this.vw : 1;
-      this.vw = vw; this.w = vw * this.mondo; this.dpr = dpr;
+      this.vw = vw; this.w = vw * this.mondo; this.hw = this.h * this.mondoH; this.dpr = dpr;
       this.c.width = Math.round(vw * dpr); this.c.height = Math.round(this.h * dpr);
       this.c.style.height = this.h + 'px';
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -157,24 +159,35 @@
       if (k !== 1) { if (this.eFolla) this.folla(); else this.omini.forEach(o => { o.x *= k; }); }
       this.zoomA(this.zoom, this.vw / 2);
     }
-    // zoom intorno a un punto dello schermo (fx); il suolo resta fermo, il mondo copre sempre lo schermo se può
-    limiti() { return [Math.max(0.3, Math.min(1, this.vw / this.w)), 2.4]; }
-    zoomA(z, fx) {
+    // la riga dei piedi di chi sta più avanti, nelle coordinate del mondo
+    base() { return (this.hw || this.h) - this.suoloGiu; }
+    // zoom intorno a un punto dello schermo (fx, fy); il mondo copre sempre lo schermo se può.
+    // Mondo basso (una fascia): il suolo resta fermo. Mondo alto (un piano): allontanandosi si vede tutto il piano.
+    limiti() {
+      if (this.mondoH > 1) return [Math.max(this.vw / this.w, this.h / this.hw), 2.4];
+      return [Math.max(0.3, Math.min(1, this.vw / this.w)), 2.4];
+    }
+    zoomA(z, fx, fy) {
       const [zmin, zmax] = this.limiti(), z0 = this.zoom || 1;
       z = Math.min(zmax, Math.max(zmin, z));
-      const g = this.ancora == null ? this.h - this.suoloGiu : this.ancora;   // la riga che resta ferma allo zoom
       this.ox = fx - (fx - this.ox) * (z / z0);
-      this.zoom = z; this.oy = g - g * z;
-      this.sposta(0);
+      if (this.mondoH > 1) { const cy = fy == null ? this.h / 2 : fy; this.oy = cy - (cy - this.oy) * (z / z0); }
+      else { const g = this.ancora == null ? this.h - this.suoloGiu : this.ancora; this.oy = g - g * z; }   // la riga che resta ferma
+      this.zoom = z;
+      this.sposta(0, 0);
       return z;
     }
-    sposta(dx) {
+    sposta(dx, dy = 0) {
       const largo = this.w * this.zoom;
       this.ox = largo >= this.vw ? Math.min(0, Math.max(this.vw - largo, this.ox + dx)) : (this.vw - largo) / 2;
+      if (this.mondoH > 1) {
+        const alto = this.hw * this.zoom;
+        this.oy = alto >= this.h ? Math.min(0, Math.max(this.h - alto, this.oy + dy)) : (this.h - alto) / 2;
+      }
     }
     // dal mondo allo schermo, e ritorno
     schermo(x, y) { return { x: this.ox + x * this.zoom, y: this.oy + y * this.zoom }; }
-    piedi(o) { return this.schermo(o.x, this.h - this.suoloGiu + o.dy); }
+    piedi(o) { return this.schermo(o.x, this.base() + o.dy); }
     popola(n, o = {}) {
       const tot = meta ? meta.nomi.length : 100;
       const usati = new Set();
@@ -205,14 +218,14 @@
     // l'omino sotto un punto della scena (il personaggio occupa 24 x 28 pixel del fotogramma, centrato in basso)
     trova(sx, sy) {
       const px = (sx - this.ox) / this.zoom, py = (sy - this.oy) / this.zoom;
-      const suolo = this.h - this.suoloGiu;
+      const suolo = this.base();
       for (let i = this.omini.length - 1; i >= 0; i--) {
         const o = this.omini[i], S = o.s || this.S, piedi = suolo + o.dy;
         if (o.a > 0.5 && Math.abs(px - o.x) <= 12 * S && py >= piedi - 28 * S && py <= piedi + 2 * S) return o;
       }
       return null;
     }
-    testa(o) { const S = o.s || this.S; return this.schermo(o.x, this.h - this.suoloGiu + o.dy - 46 * S + ((cima[o.id] || 19) - 7) * S); }
+    testa(o) { const S = o.s || this.S; return this.schermo(o.x, this.base() + o.dy - 46 * S + ((cima[o.id] || 19) - 7) * S); }
     // un omino uscito dallo schermo viene sostituito da un personaggio che non è già in scena, che entra camminando
     ricambia(o, m) {
       const tot = meta ? meta.nomi.length : 100, usati = new Set(this.omini.map(x => x.id));
@@ -240,7 +253,7 @@
       if (!liberi.length) return;
       const o = liberi[Math.floor(Math.random() * liberi.length)];
       o.imposta('festa', 1.15);
-      this.scritte.push({ x: o.x, y: this.h - this.suoloGiu + o.dy - 30 * this.S, t: 0 });
+      this.scritte.push({ x: o.x, y: this.base() + o.dy - 30 * this.S, t: 0 });
     }
     aggiorna(dt) {
       this.omini.forEach(o => o.aggiorna(dt, this));
@@ -252,7 +265,7 @@
       this.scritte = this.scritte.filter(p => p.t < 0.9);
     }
     disegna() {
-      const ctx = this.ctx, suolo = this.h - this.suoloGiu, d = this.dpr;
+      const ctx = this.ctx, suolo = this.base(), d = this.dpr;
       ctx.setTransform(d, 0, 0, d, 0, 0);
       ctx.clearRect(0, 0, this.vw, this.h);
       ctx.setTransform(d * this.zoom, 0, 0, d * this.zoom, d * this.ox, d * this.oy);
@@ -342,8 +355,9 @@
     const stretto = window.innerWidth < 600, alto = Math.round(o.altezza || 200);
     if (cPrato) prato(cPrato, o.altezzaPrato || alto, { pixel: stretto ? 2 : 3 });
     const sc = new Scena(cFolla, { scala: stretto ? 2 : 3, altezza: alto, suolo: o.suolo || (stretto ? 12 : 16), linea: false,
-      testo: o.testo == null ? '' : o.testo, avvolgi: true, ricambio: !!o.ricambio, mondo: o.mondo || 1 });
+      testo: o.testo == null ? '' : o.testo, avvolgi: !o.piano, margine: 30, ricambio: !!o.ricambio, mondo: o.mondo || 1, mondoH: o.mondoH || 1 });
     const [piccola, grande] = o.scale || (stretto ? [1, 2] : [2, 3]), fondo = Math.round(alto * (o.fondo || 0.58));
+    if (o.piano) return piano(sc, o, grande);
     sc.profondita = om => {
       const t = Math.pow(Math.random(), 0.85);   // 0 davanti, 1 in fondo
       om.dy = -Math.round(t * fondo);
@@ -361,6 +375,26 @@
     }
     sc.omini.sort((p, q) => p.dy - q.dy);
     sc.ancora = alto - sc.suoloGiu - fondo / 2;   // zoomando la folla si stringe verso il centro della sua fascia
+    return sc;
+  }
+  /* Piano: le persone sparse su tutto il mondo (largo e alto più dello schermo), una per cella di una griglia mossa
+     a caso, così non si ammucchiano; camminano e girano ai bordi. All'inizio la vista sta al centro del piano. */
+  function piano(sc, o, scala) {
+    const ids = o.ids || [], n = ids.length, w = sc.w, hw = sc.hw, cima = 110, giu = sc.suoloGiu + 14;
+    const alto = Math.max(hw - cima - giu, 50);
+    const colonne = Math.max(1, Math.round(Math.sqrt(n * w / alto))), righe = Math.max(1, Math.ceil(n / colonne));
+    const celle = [...Array(colonne * righe).keys()];
+    for (let i = celle.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [celle[i], celle[j]] = [celle[j], celle[i]]; }
+    sc.omini = ids.map((id, k) => {
+      const c = celle[k] % colonne, r = Math.floor(celle[k] / colonne);
+      const x = (c + 0.15 + 0.7 * Math.random()) * w / colonne, piedi = cima + (r + 0.2 + 0.6 * Math.random()) * alto / righe;
+      const om = new Omino(id, x, { dy: Math.round(piedi - sc.base()), vel: 8 + Math.random() * 16 });
+      om.s = scala;
+      return om;
+    });
+    sc.omini.sort((p, q) => p.dy - q.dy);
+    sc.ox = -(w - sc.vw) / 2; sc.oy = -(hw - sc.h) / 2;
+    sc.sposta(0, 0);
     return sc;
   }
   function nomiPersonaggi() { return meta ? meta.nomi : []; }

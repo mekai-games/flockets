@@ -1,0 +1,689 @@
+[
+ {
+  "id": "crema_tiktok",
+  "testo": "Video su TikTok: una ragazza prova la crema viso alla vitamina C. -20% solo fino a domenica. 50 euro al giorno per 2 settimane.",
+  "atteso": {
+   "categoria": "beauty",
+   "canale": "video_brevi",
+   "budget_giorno": 50,
+   "giorni": 14,
+   "sconto": 0.2,
+   "conversione": "acquisto",
+   "obiettivo": "vendite"
+  }
+ },
+ {
+  "id": "scarpe_running",
+  "testo": "Scarpe da running leggere a 129 euro, campagna su Instagram e Facebook per un mese con 1500 euro in tutto. Target: uomini e donne 25-44 che corrono.",
+  "atteso": {
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "budget_giorno": 50,
+   "giorni": 30,
+   "prezzo": 129,
+   "conversione": "acquisto",
+   "filtri": {
+    "eta": [
+     "25-34",
+     "35-44"
+    ]
+   }
+  }
+ },
+ {
+  "id": "app_fitness_gratis",
+  "testo": "App di allenamento a casa, gratis da scaricare, vogliamo 10.000 download. TikTok e Reels, 80€/giorno per 3 settimane.",
+  "atteso": {
+   "categoria": "sport_fitness",
+   "canale": "video_brevi",
+   "budget_giorno": 80,
+   "giorni": 21,
+   "conversione": "download",
+   "gratis": true
+  }
+ },
+ {
+  "id": "gioco_mobile",
+  "testo": "Lanciamo il nostro primo gioco per smartphone, un puzzle gratuito con acquisti in-app. Budget 3000 euro, 10 giorni, pubblico giovane.",
+  "atteso": {
+   "categoria": "videogiochi",
+   "budget_giorno": 300,
+   "giorni": 10,
+   "conversione": "download",
+   "marchio": "nuovo",
+   "gratis": true,
+   "filtri": {
+    "eta": [
+     "18-24",
+     "25-34"
+    ]
+   }
+  }
+ },
+ {
+  "id": "corso_inglese",
+  "testo": "Corso di inglese online per adulti, 199 euro per 3 mesi di lezioni. Annunci su Google per chi cerca 'corso inglese online'. Budget 40 euro al giorno.",
+  "atteso": {
+   "categoria": "formazione_lavoro",
+   "canale": "ricerca",
+   "budget_giorno": 40,
+   "prezzo": 199
+  }
+ },
+ {
+  "id": "sushi_milano",
+  "testo": "Ristorante di sushi a Milano zona Isola, vogliamo più prenotazioni per cena. Instagram, 20 euro al giorno per due settimane.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "budget_giorno": 20,
+   "giorni": 14,
+   "conversione": "contatto",
+   "zona": true,
+   "filtri": {
+    "area": [
+     "nord_ovest"
+    ]
+   }
+  }
+ },
+ {
+  "id": "palestra_bologna",
+  "testo": "Palestra a Bologna: primo mese a 29 euro invece di 59. Pubblicità su Facebook per chi abita entro 5 km, 15€ al giorno per 30 giorni.",
+  "atteso": {
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "budget_giorno": 15,
+   "giorni": 30,
+   "zona": true,
+   "filtri": {
+    "area": [
+     "nord_est"
+    ]
+   }
+  }
+ },
+ {
+  "id": "assicurazione_auto",
+  "testo": "Assicurazione auto online, preventivo in 2 minuti e risparmi fino al 30%. Annunci di ricerca su Google, 200 euro al giorno per un mese.",
+  "atteso": {
+   "categoria": "finanza",
+   "canale": "ricerca",
+   "budget_giorno": 200,
+   "giorni": 30,
+   "conversione": "contatto"
+  }
+ },
+ {
+  "id": "gestionale_dentisti",
+  "testo": "Software gestionale in cloud per studi dentistici, abbonamento 89 euro al mese. Vogliamo richieste di demo dai titolari degli studi. LinkedIn, 2000 euro in 20 giorni.",
+  "atteso": {
+   "canale": "linkedin",
+   "budget_giorno": 100,
+   "giorni": 20,
+   "conversione": "contatto",
+   "nicchia": true
+  }
+ },
+ {
+  "id": "viaggi_sardegna",
+  "testo": "Pacchetti vacanza in Sardegna a giugno, volo + hotel da 690 euro a persona. Campagna su Instagram a partire da marzo, 60 euro al giorno per 6 settimane.",
+  "atteso": {
+   "categoria": "viaggi",
+   "canale": "social",
+   "budget_giorno": 60,
+   "giorni": 42,
+   "prezzo": 690
+  }
+ },
+ {
+  "id": "crocchette_cani",
+  "testo": "Crocchette naturali per cani senza cereali, sacco da 12 kg a 54,90€, spedizione gratuita. Annunci Google Shopping, 35 euro al giorno.",
+  "atteso": {
+   "categoria": "animali",
+   "canale": "shopping",
+   "budget_giorno": 35,
+   "prezzo": 54.9,
+   "conversione": "acquisto"
+  }
+ },
+ {
+  "id": "concessionaria_ev",
+  "testo": "Concessionaria a Torino: prova su strada della nuova auto elettrica, prenota il test drive. Facebook e Instagram, budget 1200 euro per 15 giorni.",
+  "atteso": {
+   "categoria": "auto_moto",
+   "canale": "social",
+   "budget_giorno": 80,
+   "giorni": 15,
+   "conversione": "contatto",
+   "filtri": {
+    "area": [
+     "nord_ovest"
+    ]
+   }
+  }
+ },
+ {
+  "id": "gioielli_natale",
+  "testo": "Collane in argento fatte a mano, 79 euro, per i regali di Natale. Instagram con foto del prodotto, 30 euro al giorno a dicembre, per donne 25-54.",
+  "atteso": {
+   "categoria": "moda",
+   "canale": "social",
+   "budget_giorno": 30,
+   "prezzo": 79,
+   "filtri": {
+    "genere": [
+     "donna"
+    ],
+    "eta": [
+     "25-34",
+     "35-44",
+     "45-54"
+    ]
+   }
+  }
+ },
+ {
+  "id": "vestiti_bambini",
+  "testo": "Abbigliamento per bambini 0-6 anni in cotone bio. Saldi del 40%. Facebook, rivolto alle mamme, 25 euro al giorno per 10 giorni.",
+  "atteso": {
+   "categoria": "bambini_famiglia",
+   "canale": "social",
+   "budget_giorno": 25,
+   "giorni": 10,
+   "sconto": 0.4,
+   "filtri": {
+    "genere": [
+     "donna"
+    ],
+    "famiglia": [
+     "figli_piccoli"
+    ]
+   }
+  }
+ },
+ {
+  "id": "mba",
+  "testo": "Master MBA executive nel weekend, 18.000 euro. Cerchiamo manager tra i 30 e i 45 anni. Annunci su LinkedIn per 2 mesi, 150 euro al giorno. Obiettivo: richieste di informazioni.",
+  "atteso": {
+   "categoria": "formazione_lavoro",
+   "canale": "linkedin",
+   "budget_giorno": 150,
+   "giorni": 60,
+   "prezzo": 18000,
+   "conversione": "contatto"
+  }
+ },
+ {
+  "id": "consulenza_partite_iva",
+  "testo": "Commercialista online per partite IVA in regime forfettario, 39 euro al mese. Google Ads con parole chiave, 25€/giorno.",
+  "atteso": {
+   "categoria": "finanza",
+   "canale": "ricerca",
+   "budget_giorno": 25
+  }
+ },
+ {
+  "id": "birra_artigianale",
+  "testo": "Birra artigianale pugliese, box da 12 bottiglie a 42 euro con consegna a casa. Instagram, 40 euro al giorno per 2 settimane, uomini 25-44 al sud.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "budget_giorno": 40,
+   "giorni": 14,
+   "prezzo": 42,
+   "filtri": {
+    "genere": [
+     "uomo"
+    ],
+    "eta": [
+     "25-34",
+     "35-44"
+    ],
+    "area": [
+     "sud"
+    ]
+   }
+  }
+ },
+ {
+  "id": "pizzeria_napoli",
+  "testo": "Pizzeria a domicilio a Napoli, ordina dall'app e la seconda pizza è a metà prezzo. Instagram e TikTok, 10 euro al giorno.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "budget_giorno": 10,
+   "zona": true,
+   "filtri": {
+    "area": [
+     "sud"
+    ]
+   }
+  }
+ },
+ {
+  "id": "hotel_roma",
+  "testo": "Hotel 4 stelle in centro a Roma, offerta weekend romantico da 180 euro a notte. Google, 70 euro al giorno per 3 settimane.",
+  "atteso": {
+   "categoria": "viaggi",
+   "canale": "ricerca",
+   "budget_giorno": 70,
+   "giorni": 21,
+   "prezzo": 180
+  }
+ },
+ {
+  "id": "concerto",
+  "testo": "Biglietti per un concerto rock a Bologna il 20 marzo, 45 euro. Promozione su Instagram per 4 settimane con 500 euro totali.",
+  "atteso": {
+   "categoria": "intrattenimento",
+   "canale": "social",
+   "budget_giorno": 17.86,
+   "giorni": 28,
+   "prezzo": 45
+  }
+ },
+ {
+  "id": "libro",
+  "testo": "Romanzo giallo di un autore esordiente, 16 euro su Amazon. Facebook, 10 euro al giorno per 20 giorni, lettrici sopra i 35 anni.",
+  "atteso": {
+   "categoria": "intrattenimento",
+   "canale": "social",
+   "budget_giorno": 10,
+   "giorni": 20,
+   "prezzo": 16,
+   "marchio": "nuovo",
+   "filtri": {
+    "genere": [
+     "donna"
+    ],
+    "eta": [
+     "35-44",
+     "45-54",
+     "55-64",
+     "65+"
+    ]
+   }
+  }
+ },
+ {
+  "id": "streaming",
+  "testo": "Piattaforma di streaming di documentari, prova gratuita di 30 giorni poi 6,99 al mese. YouTube, 100 euro al giorno.",
+  "atteso": {
+   "categoria": "intrattenimento",
+   "canale": "video",
+   "budget_giorno": 100
+  }
+ },
+ {
+  "id": "ebike",
+  "testo": "E-bike pieghevole per la città a 1.290€, pagabile a rate. Campagna Instagram di un mese, 2.000€ di budget totale.",
+  "atteso": {
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "budget_giorno": 66.67,
+   "giorni": 30,
+   "prezzo": 1290
+  }
+ },
+ {
+  "id": "materasso",
+  "testo": "Materasso memory foam, 100 notti di prova e reso gratuito, da 399 euro. Facebook e Instagram, 120 euro al giorno per 2 settimane.",
+  "atteso": {
+   "categoria": "casa_arredo",
+   "canale": "social",
+   "budget_giorno": 120,
+   "giorni": 14,
+   "prezzo": 399
+  }
+ },
+ {
+  "id": "integratori",
+  "testo": "Integratore di magnesio e potassio per l'estate, 19,90 euro. Consigliato dai nutrizionisti. TikTok con video UGC, 30€ al giorno per 14 giorni.",
+  "atteso": {
+   "categoria": "salute_benessere",
+   "canale": "video_brevi",
+   "budget_giorno": 30,
+   "giorni": 14,
+   "prezzo": 19.9
+  }
+ },
+ {
+  "id": "occhiali",
+  "testo": "Occhiali da sole polarizzati, 59 euro invece di 89. Instagram per 10 giorni, 25 euro al giorno, giovani 18-30.",
+  "atteso": {
+   "categoria": "moda",
+   "canale": "social",
+   "budget_giorno": 25,
+   "giorni": 10,
+   "filtri": {
+    "eta": [
+     "18-24",
+     "25-34"
+    ]
+   }
+  }
+ },
+ {
+  "id": "profumo_lusso",
+  "testo": "Profumo di una maison francese famosa, 140 euro. Campagna video su YouTube per la festa della mamma, 500 euro al giorno per una settimana.",
+  "atteso": {
+   "categoria": "beauty",
+   "canale": "video",
+   "budget_giorno": 500,
+   "giorni": 7,
+   "prezzo": 140,
+   "marchio": "famoso"
+  }
+ },
+ {
+  "id": "conto_online",
+  "testo": "Conto corrente online a zero spese per il primo anno, apri il conto in 10 minuti dall'app. Google e Facebook, 300 euro al giorno per 30 giorni.",
+  "atteso": {
+   "categoria": "finanza",
+   "budget_giorno": 300,
+   "giorni": 30,
+   "conversione": "iscrizione"
+  }
+ },
+ {
+  "id": "yoga",
+  "testo": "Corsi di yoga in studio a Firenze, lezione di prova gratuita. Annunci Facebook per donne 30-55 a Firenze, 12 euro al giorno.",
+  "atteso": {
+   "categoria": "sport_fitness",
+   "canale": "social",
+   "budget_giorno": 12,
+   "zona": true,
+   "conversione": "contatto",
+   "filtri": {
+    "genere": [
+     "donna"
+    ],
+    "area": [
+     "centro"
+    ]
+   }
+  }
+ },
+ {
+  "id": "dentista_torino",
+  "testo": "Studio dentistico a Torino, sbiancamento a 150 euro, prima visita gratis. Google, 20 euro al giorno per 2 mesi.",
+  "atteso": {
+   "categoria": "salute_benessere",
+   "canale": "ricerca",
+   "budget_giorno": 20,
+   "giorni": 60,
+   "conversione": "contatto",
+   "zona": true,
+   "filtri": {
+    "area": [
+     "nord_ovest"
+    ]
+   }
+  }
+ },
+ {
+  "id": "idraulico",
+  "testo": "Idraulico pronto intervento a Bari, chiamaci 24 ore su 24. Google, 15 euro al giorno.",
+  "atteso": {
+   "canale": "ricerca",
+   "budget_giorno": 15,
+   "conversione": "contatto",
+   "zona": true,
+   "filtri": {
+    "area": [
+     "sud"
+    ]
+   }
+  }
+ },
+ {
+  "id": "saas_b2b",
+  "testo": "CRM per piccole aziende, prova gratuita di 14 giorni, poi 29 euro al mese per utente. Campagna LinkedIn rivolta a responsabili commerciali, 2.500 euro in un mese.",
+  "atteso": {
+   "canale": "linkedin",
+   "budget_giorno": 83.33,
+   "giorni": 30,
+   "nicchia": true
+  }
+ },
+ {
+  "id": "newsletter",
+  "testo": "Newsletter ai nostri clienti per il Black Friday: -30% su tutto il negozio di elettronica. Budget 200 euro.",
+  "atteso": {
+   "categoria": "tecnologia",
+   "canale": "email",
+   "sconto": 0.3
+  }
+ },
+ {
+  "id": "spot_tv",
+  "testo": "Spot TV di 30 secondi per una nota marca di pasta, 2 settimane in prima serata, budget 150.000 euro.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "canale": "tv",
+   "giorni": 14,
+   "budget_giorno": 10714,
+   "marchio": "famoso"
+  }
+ },
+ {
+  "id": "radio_locale",
+  "testo": "Spot in radio locale per un mobilificio di Verona, saldi fino al 50%. 3 settimane, 3000 euro.",
+  "atteso": {
+   "categoria": "casa_arredo",
+   "canale": "radio",
+   "giorni": 21,
+   "budget_giorno": 142.86,
+   "sconto": 0.5,
+   "filtri": {
+    "area": [
+     "nord_est"
+    ]
+   }
+  }
+ },
+ {
+  "id": "cartelloni",
+  "testo": "Cartelloni in metropolitana a Milano per una nuova app di consegna della spesa, un mese, 40.000 euro.",
+  "atteso": {
+   "canale": "affissioni",
+   "giorni": 30,
+   "budget_giorno": 1333.33,
+   "marchio": "nuovo",
+   "filtri": {
+    "area": [
+     "nord_ovest"
+    ]
+   }
+  }
+ },
+ {
+  "id": "rivista",
+  "testo": "Pagina pubblicitaria su una rivista di arredamento per divani di design da 2.400 euro, un mese.",
+  "atteso": {
+   "categoria": "casa_arredo",
+   "canale": "stampa",
+   "prezzo": 2400,
+   "giorni": 30
+  }
+ },
+ {
+  "id": "domanda_canale",
+  "testo": "Vendo candele profumate fatte a mano a 24 euro. Ho 600 euro da spendere in un mese: meglio Instagram o TikTok?",
+  "atteso": {
+   "categoria": "casa_arredo",
+   "budget_giorno": 20,
+   "giorni": 30,
+   "prezzo": 24
+  }
+ },
+ {
+  "id": "corto_vago",
+  "testo": "voglio vendere più magliette",
+  "atteso": {
+   "categoria": "moda"
+  }
+ },
+ {
+  "id": "errori_battitura",
+  "testo": "crema antirughe x donne over 50 su facebok, 30 euri al giorno x 2 setimane, scnto 15%",
+  "atteso": {
+   "categoria": "beauty",
+   "canale": "social",
+   "budget_giorno": 30,
+   "giorni": 14,
+   "sconto": 0.15,
+   "filtri": {
+    "genere": [
+     "donna"
+    ],
+    "eta": [
+     "45-54",
+     "55-64",
+     "65+"
+    ]
+   }
+  }
+ },
+ {
+  "id": "budget_mensile",
+  "testo": "Campagna Meta per il mio e-commerce di borse in pelle, 900 euro al mese per 3 mesi, borse da 120 euro.",
+  "atteso": {
+   "categoria": "moda",
+   "canale": "social",
+   "budget_giorno": 30,
+   "giorni": 90,
+   "prezzo": 120
+  }
+ },
+ {
+  "id": "settimana_parole",
+  "testo": "Una settimana di annunci su Instagram per il lancio delle nostre cuffie wireless a 79 euro, 100 euro al giorno.",
+  "atteso": {
+   "categoria": "tecnologia",
+   "canale": "social",
+   "budget_giorno": 100,
+   "giorni": 7,
+   "prezzo": 79,
+   "marchio": "nuovo"
+  }
+ },
+ {
+  "id": "smartphone_famoso",
+  "testo": "Nuovo smartphone di un marchio famosissimo, preordine a 999 euro. YouTube e Instagram, 5000 euro al giorno per 10 giorni.",
+  "atteso": {
+   "categoria": "tecnologia",
+   "budget_giorno": 5000,
+   "giorni": 10,
+   "prezzo": 999,
+   "marchio": "famoso"
+  }
+ },
+ {
+  "id": "ottica_locale",
+  "testo": "Negozio di ottica a Palermo: controllo della vista gratuito e occhiali da vista con il 20% di sconto. Facebook, 10 euro al giorno per 3 settimane.",
+  "atteso": {
+   "canale": "social",
+   "budget_giorno": 10,
+   "giorni": 21,
+   "sconto": 0.2,
+   "zona": true,
+   "filtri": {
+    "area": [
+     "isole"
+    ]
+   }
+  }
+ },
+ {
+  "id": "pensionati",
+  "testo": "Crociera nel Mediterraneo per pensionati, 7 notti da 899 euro. Facebook, 50 euro al giorno per un mese.",
+  "atteso": {
+   "categoria": "viaggi",
+   "canale": "social",
+   "budget_giorno": 50,
+   "giorni": 30,
+   "prezzo": 899,
+   "filtri": {
+    "eta": [
+     "65+"
+    ]
+   }
+  }
+ },
+ {
+  "id": "studenti_universita",
+  "testo": "Corso di preparazione ai test di medicina, 490 euro. Instagram e TikTok per studenti delle superiori, 40 euro al giorno da gennaio per 6 settimane.",
+  "atteso": {
+   "categoria": "formazione_lavoro",
+   "budget_giorno": 40,
+   "giorni": 42,
+   "prezzo": 490,
+   "filtri": {
+    "eta": [
+     "18-24"
+    ]
+   }
+  }
+ },
+ {
+  "id": "agenzia_immobiliare",
+  "testo": "Agenzia immobiliare a Roma Nord: valutazione gratuita della tua casa. Facebook, 25 euro al giorno per 30 giorni, proprietari over 45.",
+  "atteso": {
+   "canale": "social",
+   "budget_giorno": 25,
+   "giorni": 30,
+   "conversione": "contatto",
+   "zona": true,
+   "filtri": {
+    "area": [
+     "centro"
+    ],
+    "eta": [
+     "45-54",
+     "55-64",
+     "65+"
+    ]
+   }
+  }
+ },
+ {
+  "id": "vino_famoso",
+  "testo": "Vino rosso toscano di una cantina storica famosa, 28 euro a bottiglia, spedizione gratis da 6 bottiglie. Instagram, 45 euro al giorno per 2 settimane.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "budget_giorno": 45,
+   "giorni": 14,
+   "prezzo": 28,
+   "marchio": "famoso"
+  }
+ },
+ {
+  "id": "traffico_blog",
+  "testo": "Vogliamo portare visite al nostro blog di ricette, niente vendite. Facebook, 15 euro al giorno per un mese.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "canale": "social",
+   "budget_giorno": 15,
+   "giorni": 30,
+   "obiettivo": "traffico"
+  }
+ },
+ {
+  "id": "notorieta_marchio",
+  "testo": "Nuovo marchio di acqua minerale: vogliamo farci conoscere in Lombardia. Video su YouTube e Instagram, 300 euro al giorno per 4 settimane.",
+  "atteso": {
+   "categoria": "cibo_bevande",
+   "budget_giorno": 300,
+   "giorni": 28,
+   "obiettivo": "notorieta",
+   "marchio": "nuovo",
+   "filtri": {
+    "area": [
+     "nord_ovest"
+    ]
+   }
+  }
+ }
+]

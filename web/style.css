@@ -436,6 +436,13 @@ table.semplice th, table.semplice td, table.fonti th, table.fonti td { text-alig
 .tre-n { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 10px 0 2px; background: var(--fondo); border-radius: 10px; padding: 8px 4px; text-align: center; }
 .tre-n dd { margin: 0; font: 600 16px var(--mono); letter-spacing: -.03em; } .tre-n dt { font-size: 11px; color: var(--tenue); line-height: 1.25; }
 .a-scheda .perche { font-size: 12.5px; color: var(--testo2); }
+.motivi-tutti { display: grid; gap: 8px; margin-top: 10px; }
+.motivi b { display: block; font: 600 12px var(--testo); color: var(--inchiostro); margin-bottom: 3px; }
+.motivi ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.motivi li { position: relative; padding-left: 20px; font-size: 12.5px; line-height: 1.35; color: var(--testo2); }
+.motivi li::before { position: absolute; left: 0; top: 0; width: 15px; height: 15px; border-radius: 50%; font: 700 10px/15px var(--testo); text-align: center; }
+.motivi.si li::before { content: "✓"; background: var(--verde-f); color: var(--verde); }
+.motivi.no li::before { content: "✕"; background: var(--morbido); color: #C2410C; }
 .a-scheda .gruppo { font-size: 12px; color: var(--tenue); border-top: 1px solid var(--riga); padding-top: 8px; margin-top: 8px; }
 .a-scheda .gruppo i { margin-right: 6px; vertical-align: 1px; }
 .a-scheda-corpo { max-height: calc(100dvh - 190px); overflow-y: auto; }
@@ -905,3 +912,18 @@ html:has(#transizione:not([hidden])) { overflow: hidden; }
 .a-strat tr.scelto td:first-child b { color: var(--verde); }
 .a-strat tr.scelto { background: var(--verde-f); }
 .a-strat tr.no { opacity: .55; }
+
+/* barra dell'analisi: Persone / Analisi al centro esatto della pagina, il resto ai lati */
+@media (min-width: 700px) {
+  .barra-a { grid-template-columns: auto auto 1fr; }
+  .barra-a .interruttore { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+}
+@media (max-width: 699px) {
+  .barra-a { grid-template-columns: auto auto 1fr auto; }
+  .barra-a .tema { display: none; }
+}
+
+/* la risposta alla domanda scritta nel prompt, in cima all'analisi */
+.a-risposta { margin: 10px 0 4px; padding: 12px 16px; border-radius: 14px; background: var(--vetro-f, var(--morbido)); border: 1px solid var(--blu); }
+.a-risposta-t { display: block; font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--blu); margin-bottom: 4px; }
+.a-risposta p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--inchiostro); }
